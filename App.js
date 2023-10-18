@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, Text } from 'react-native';
 import MainScreen from './components/Main';
-//aimport Login from './components/auth/Login';
-/*
+import { getApps, initializeApp } from 'firebase/app';
+import { onEstateChange, signInWithEmailAndPassword, getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
     authDomain: "petitgram-b48fd.firebaseapp.com",
@@ -10,39 +12,68 @@ const firebaseConfig = {
     messagingSenderId: "425299538465",
     appId: "1:425299538465:web:3356a2599e6e679b4d6960",
     measurementId: "G-RS2NF646G0"
-  };
-if (firebase.apps.length === 0) {
-  firebase.initializeApp(firebaseConfig)
+};
+// Initialize Firebase
+if (getApps().length === 0) {
+  initializeApp(firebaseConfig);
 }
-export default class App extends Component {/*
-  componentDidMount() {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.setState({
-          loggedIn: true
-        })
-      } else {
-        this.setState({
-          loggedIn: false
-        })
-      }
-    }
-    )
+
+function App() {
+  // Set an initializing state whilst Firebase connects
+  const email = 'test@gmail.com';
+  const password = 'password';
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState();
+
+  // Handle user state changes
+  function onAuthStateChanged(user) {
+    setUser(user);
+    if (initializing) setInitializing(false);
   }
 
-  render() {
+  // create user with email and password if not exists
+  function signin () {
+    signInWithEmailAndPassword(getAuth(), email, password)
+      .then((userCredential) => {
+        // Signed in
+        setUser(userCredential.user);
+        console.log(user);
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(error);
+        // ..
+      });
+  }
+
+  useEffect(() => {
+    createUserWithEmailAndPassword(getAuth(), email, password).catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(error);
+      // ..
+    });
+    signin();
+    const subscriber = onAuthStateChanged();
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  if (initializing) return null;
+  console.log(user);
+  if (!user) {
     return (
-      <>
-        <MainScreen />
-      </>
+      <View>
+        <Text>Login</Text>
+      </View>
     );
   }
 
-}
-*/
-
-export default function App() {
   return (
-      <MainScreen />
+    <MainScreen />
   );
-  }
+
+}
+
+export default App;
