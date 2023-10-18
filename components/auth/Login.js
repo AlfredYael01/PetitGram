@@ -1,17 +1,15 @@
-
+import firebase from 'firebase';
 import React, { useState } from 'react';
-import * as firebase from 'firebase';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import 
+import { Button, Text, TextInput, View } from 'react-native';
 
 export default function Login(props) {
-    const [email, setEmail] = "sae@gmail.com";
-    const [password, setPassword] = "iutinfo";
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     const onSignUp = () => {
         firebase.auth().signInWithEmailAndPassword(email, password)
     }
+
     return (
         <View style={container.center}>
             <View style={container.formCenter}>
@@ -44,7 +42,39 @@ export default function Login(props) {
             </View>
         </View>
     )
-};
+}
 
-firebase.initializeApp(firebaseConfig);
-export default firebase ;
+const container = {
+    center: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    formCenter: {
+        width: '80%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+}
+
+const form = {
+    textInput: {
+        width: '100%',
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+    },
+    button: {
+        width: '100%',
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+    },
+    bottomButton: {
+        width: '80%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+}
