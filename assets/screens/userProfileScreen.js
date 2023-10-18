@@ -3,6 +3,7 @@ import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import ImageCompenent from "../../components/ImageComponent";
+import ProfileStack from "../../components/ProfileStack";
 const UserProfileScreen = () => {
     const ImagesArray = [
         require('../screens/GenreationImage/ImageArt.jpeg'),
@@ -79,7 +80,7 @@ const UserProfileScreen = () => {
                 style={{backgroundColor: 'white'}}
                 numColumns={3}
                 data={ImagesArray}
-                renderItem={({ item }) => <ImageCompenent ImagesArray={item}/>}
+                renderItem={({ item }) => <ImageCompenent ImagesArray={item} navigation={ProfileStack}/>}
                 />
         </View>
     </View>
