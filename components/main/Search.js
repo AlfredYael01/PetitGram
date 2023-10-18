@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 
-export default function Feed() {
+export default function Search () {
     return (
         <View style={styles.container}>
-            <Text>Feed</Text>
+            <Text>Search</Text>
         </View>
     );
 }

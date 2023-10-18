@@ -12,10 +12,10 @@ const firebaseConfig = {
   };
 
   
-import AddScreen from './components/main/Add';
+import MainScreen from './components/Main';
 export default function App() {
     return (
-        <Login/>
+        <MainScreen />
     );
 
 
