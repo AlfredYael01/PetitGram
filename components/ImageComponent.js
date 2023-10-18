@@ -2,6 +2,7 @@ import React from 'react';
 import { Dimensions, Image, TouchableOpacity } from 'react-native';
 
 const ImageCompenent = ({ ImagesArray, navigation }) => {
+
     return (
         <TouchableOpacity onPress={() => navigation.navigate('ViewPost')}>
             <Image

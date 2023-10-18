@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-import ImageCompenent from "../../components/ImageComponent";
-import ProfileStack from "../../components/ProfileStack";
-const UserProfileScreen = () => {
+import ImageComponent from "../../components/ImageComponent";
+
+
+const UserProfileScreen = ({navigation}) => {
     const ImagesArray = [
         require('../screens/GenreationImage/ImageArt.jpeg'),
         require('../screens/GenreationImage/ImageAvionForet.jpeg'),
@@ -80,7 +80,7 @@ const UserProfileScreen = () => {
                 style={{backgroundColor: 'white'}}
                 numColumns={3}
                 data={ImagesArray}
-                renderItem={({ item }) => <ImageCompenent ImagesArray={item} navigation={ProfileStack}/>}
+                renderItem={({ item }) => <ImageComponent ImagesArray={item} navigation={navigation} />}
                 />
         </View>
     </View>
