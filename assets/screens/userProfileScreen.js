@@ -1,10 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-
+import ImageCompenent from "../../components/ImageComponent";
 const UserProfileScreen = () => {
-
+    const ImagesArray = [
+        require('../screens/GenreationImage/ImageArt.jpeg'),
+        require('../screens/GenreationImage/ImageAvionForet.jpeg'),
+        require('../screens/GenreationImage/ImageBanane.jpeg'),
+        require('../screens/GenreationImage/ImageBG.jpeg'),
+        require('../screens/GenreationImage/imageCat.jpeg'),
+        require('../screens/GenreationImage/ImageDe.jpeg'),
+        require('../screens/GenreationImage/ImageDog.jpeg'),
+        require('../screens/GenreationImage/ImageJoli.jpeg'),
+        require('../screens/GenreationImage/ImageRandom.jpeg')
+    ];
     return(
 
     <View style={styles.container}>
@@ -60,6 +70,15 @@ const UserProfileScreen = () => {
         </View>
 
       </View>
+        {/*-----Down screen-----*/}
+        <View style={styles.downScreen}>
+            <FlatList
+                style={{backgroundColor: 'white'}}
+                numColumns={3}
+                data={ImagesArray}
+                renderItem={({ item }) => <ImageCompenent ImagesArray={item}/>}
+                />
+        </View>
     </View>
     )
 
@@ -178,9 +197,13 @@ touchableMenu:{
 
   padding: 10,
   backgroundColor: 'orange',
-  marginLeft: Dimensions.get('window').width * 0.5,
+  marginLeft: Dimensions.get('window').width * 0.6,
   marginTop: Dimensions.get('window').height * 0.035
-}
+},
+    downScreen: {
+    flex: 0.5,
+backgroundColor: 'red'
+    }
 
 })
 
