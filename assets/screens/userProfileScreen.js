@@ -13,7 +13,10 @@ const UserProfileScreen = () => {
         require('../screens/GenreationImage/ImageDe.jpeg'),
         require('../screens/GenreationImage/ImageDog.jpeg'),
         require('../screens/GenreationImage/ImageJoli.jpeg'),
-        require('../screens/GenreationImage/ImageRandom.jpeg')
+        require('../screens/GenreationImage/ImageRandom.jpeg'),
+        require('../screens/GenreationImage/ImageRacoon.jpeg'),
+        require('../screens/GenreationImage/ImageEchecs.jpeg'),
+        require('../screens/GenreationImage/ImageTelephone.jpeg')
     ];
     return(
 
