@@ -8,11 +8,9 @@ const { width } = Dimensions.get('window');
 
 export default function AddScreen() {
     const [type, setType] = useState(CameraType.back);
-    const [selectedImage, setSelectedImage] = useState(null);
     const [galleryImages, setGalleryImages] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
     const [lastSelectedImage, setLastSelectedImage] = useState(null);
-    const [permission, requestPermission] = Camera.useCameraPermissions();
 
     function toggleCameraType() {
         setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
@@ -71,8 +69,8 @@ export default function AddScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>New Post</Text>
-                <TouchableOpacity style={styles.nextButton} onPress={() => handleNext()}>
-                    <Text style={styles.nextButtonText}>Next</Text>
+                <TouchableOpacity style={styles.nextButton} onPress={() => handlePost()}>
+                    <Text style={styles.nextButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
 

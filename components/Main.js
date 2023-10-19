@@ -50,13 +50,12 @@ export default class MainScreen extends Component {
                         )
                     }}
                 />
-
                 <Tab.Screen
                     name="Add"
                     component={AddScreen}
                     options={{
                         tabBarIcon: ({ focused }) => (
-                            <Icon.PlusSquare
+                            <Icon.PlusCircle
                                 color={focused ? "#000" : "#ddd"}
                                 width={24}
                                 height={24}

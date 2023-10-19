@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text } from 'react-native';
 import MainScreen from './components/Main';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+import store from './components/redux/store';
 import { getApps, initializeApp } from 'firebase/app';
-import { onEstateChange, signInWithEmailAndPassword, getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { setUser } from './components/redux/userActions';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
@@ -18,26 +21,22 @@ if (getApps().length === 0) {
   initializeApp(firebaseConfig);
 }
 
+const email = 'test@gmail.com';
+const password = 'password';
+
 function App() {
-  // Set an initializing state whilst Firebase connects
-  const email = 'test@gmail.com';
-  const password = 'password';
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
 
-  // Handle user state changes
-  function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
-  }
+  useEffect(() => {
+    // Create user with email and password if not exists
+    const auth = getAuth();
 
-  // create user with email and password if not exists
-  function signin () {
-    signInWithEmailAndPassword(getAuth(), email, password)
+    signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
-        setUser(userCredential.user);
-        console.log(user);
+        const user = userCredential.user;
+        dispatch(setUser(user)); // Dispatch user data to Redux
         // ...
       })
       .catch((error) => {
@@ -46,22 +45,16 @@ function App() {
         console.log(error);
         // ..
       });
-  }
 
-  useEffect(() => {
-    createUserWithEmailAndPassword(getAuth(), email, password).catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(error);
-      // ..
+    const subscriber = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        dispatch(setUser(user)); // Dispatch user data to Redux
+      }
     });
-    signin();
-    const subscriber = onAuthStateChanged();
-    return subscriber; // unsubscribe on unmount
-  }, []);
 
-  if (initializing) return null;
-  console.log(user);
+    return subscriber; // Unsubscribe on unmount
+  }, [dispatch]);
+
   if (!user) {
     return (
       <View>
@@ -73,7 +66,12 @@ function App() {
   return (
     <MainScreen />
   );
-
 }
 
-export default App;
+export default function ReduxApp() {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
