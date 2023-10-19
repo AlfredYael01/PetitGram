@@ -2,7 +2,31 @@ import { StatusBar } from 'expo-status-bar';
 import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import ImageComponent from "../../components/ImageComponent";
+import {initializeApp, getApps} from 'firebase/app'
+import { getFirestore, collection, getDoc, QuerySnapshot,
+  QueryDocumentSnapshot,
+  FieldPath,
+  doc, } from 'firebase/firestore';
 
+import { getAuth } from '@react-native-firebase/auth'
+
+
+const auth = getAuth();
+const userId = auth.currentUser.uid;
+const db = getFirestore();
+
+const getPosts = async (userId) => {
+  
+  const docRef = doc(db, 'posts', userId);
+  const docSnapshot = await getDoc(docRef);
+  const posts = docSnapshot.data();
+  console.log(posts);
+  //const posts = await getDoc(collection(db, 'posts', userId))
+  
+};
+
+
+getPosts(userId);
 
 const UserProfileScreen = ({navigation}) => {
     const ImagesArray = [
