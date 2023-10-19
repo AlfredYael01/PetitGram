@@ -6,6 +6,7 @@ import store from './components/redux/store';
 import { getApps, initializeApp } from 'firebase/app';
 import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { setUser } from './components/redux/userActions';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
@@ -27,15 +28,31 @@ const password = 'password';
 function App() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
+  const db = getFirestore();
+
+  const addUser = async (user) => {
+    const docRef = await addDoc(collection(db, "users"), {
+      _id: user.uid,
+      pseudo: "test",
+      name : "test test",
+      photo: "",
+      email: "test@gmail.com",
+      description : "test test test",
+    });
+    console.log("Document written with ID: ", docRef.id);
+  }
 
   useEffect(() => {
     // Create user with email and password if not exists
     const auth = getAuth();
-
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
+        ////add to firestore
+        //addUser(user);
+        
+        console.log(getFirestore());
         dispatch(setUser(user)); // Dispatch user data to Redux
         // ...
       })

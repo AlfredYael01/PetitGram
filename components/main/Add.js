@@ -3,6 +3,7 @@ import { View, Image, FlatList, Button, StyleSheet, Text, TouchableOpacity, Dime
 import { Camera, CameraType } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 const { width } = Dimensions.get('window');
 
