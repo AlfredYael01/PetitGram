@@ -6,18 +6,18 @@ import ImageComponent from "../../components/ImageComponent";
 
 const UserProfileScreen = ({navigation}) => {
     const ImagesArray = [
-        require('../screens/GenreationImage/ImageArt.jpeg'),
-        require('../screens/GenreationImage/ImageAvionForet.jpeg'),
-        require('../screens/GenreationImage/ImageBanane.jpeg'),
-        require('../screens/GenreationImage/ImageBG.jpeg'),
-        require('../screens/GenreationImage/imageCat.jpeg'),
-        require('../screens/GenreationImage/ImageDe.jpeg'),
-        require('../screens/GenreationImage/ImageDog.jpeg'),
-        require('../screens/GenreationImage/ImageJoli.jpeg'),
-        require('../screens/GenreationImage/ImageRandom.jpeg'),
-        require('../screens/GenreationImage/ImageRacoon.jpeg'),
-        require('../screens/GenreationImage/ImageEchecs.jpeg'),
-        require('../screens/GenreationImage/ImageTelephone.jpeg')
+        require('./GenerationImage/ImageArt.jpeg'),
+        require('./GenerationImage/ImageAvionForet.jpeg'),
+        require('./GenerationImage/ImageBanane.jpeg'),
+        require('./GenerationImage/ImageBG.jpeg'),
+        require('./GenerationImage/imageCat.jpeg'),
+        require('./GenerationImage/ImageDe.jpeg'),
+        require('./GenerationImage/ImageDog.jpeg'),
+        require('./GenerationImage/ImageJoli.jpeg'),
+        require('./GenerationImage/ImageRandom.jpeg'),
+        require('./GenerationImage/ImageRacoon.jpeg'),
+        require('./GenerationImage/ImageEchecs.jpeg'),
+        require('./GenerationImage/ImageTelephone.jpeg')
     ];
     return(
 
@@ -29,13 +29,7 @@ const UserProfileScreen = ({navigation}) => {
 
       <View style={styles.upScreen}>
 
-        {/* -----Up ceiling----- */}
-        <View style={styles.upScreenCeiling}>
-          <Text style={styles.accountName}>el_luis_arguelles</Text>
-          <TouchableOpacity style={styles.touchableMenu}>
-            <Feather name='menu' color="white" size={25}/>
-          </TouchableOpacity>
-        </View>
+
 
         {/* -----Up top----- */}
         <View style={styles.upScreenTop}>
@@ -73,6 +67,12 @@ const UserProfileScreen = ({navigation}) => {
           <Text style={styles.description}>Un vato rifado que siempre anda en todo y que nunca se raja</Text>
         </View>
 
+          {/* -----Up bottom ----- */}
+          <View style={styles.upscreenBottom}>
+              <TouchableOpacity style={{borderColor:'black', borderWidth:0.5, borderRadius : 5, height : 25, width : 125, justifyContent : 'center', alignItems : 'center'}}>
+                  <Text>Edit profile</Text>
+              </TouchableOpacity>
+          </View>
       </View>
         {/*-----Down screen-----*/}
         <View style={styles.downScreen}>
@@ -96,22 +96,14 @@ container: {
     },
 
     upScreen: {
-    flex: 0.5,
+    flex: 0.4,
     backgroundColor: 'green',
-    },
-
-    upScreenCeiling: {
-      flex: 0.2,
-      backgroundColor: 'blue',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'row'
     },
 
     upScreenTop: {
     flexDirection: 'row',
     backgroundColor: 'black',
-    flex: 0.3
+    flex: 0.5
     },
 
     upScreenTopLeft: {
@@ -160,15 +152,13 @@ container: {
 
     },
 
-
-
-
+    /********************  upscreen Midle     ******************************/
 
     upScreenMiddle: {
-    flex: 0.15,
+    flex: 0.2,
     backgroundColor: 'gray'
     },
-    
+
     name: {
     marginTop: Dimensions.get('window').height * 0.01,
     color: 'white',
@@ -179,7 +169,6 @@ container: {
     description: {
     marginTop: Dimensions.get('window').height * 0.015,
     marginLeft: Dimensions.get('window').height * 0.025,
-    marginRight: Dimensions.get('window').height * 0.0,
     color: 'white',
     //color: 'black'
     },
@@ -197,7 +186,19 @@ accountName: {
   marginTop: Dimensions.get('window').height * 0.035
 },
 
-touchableMenu:{
+
+    /********************  upscreen Bottom     ******************************/
+
+upscreenBottom: {
+        flex:0.3,
+        backgroundColor :'pink',
+        justifyContent: 'center',
+        alignItems:'center'
+    },
+
+    /********************  down Midle     ******************************/
+
+    touchableMenu:{
 
   padding: 10,
   backgroundColor: 'orange',
@@ -205,7 +206,7 @@ touchableMenu:{
   marginTop: Dimensions.get('window').height * 0.035
 },
     downScreen: {
-    flex: 0.5,
+    flex: 0.6,
 backgroundColor: 'red'
     }
 
