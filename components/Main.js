@@ -3,9 +3,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as Icon from 'react-native-feather';
 import FeedScreen from "./main/Feed";
-import ProfileScreen from "./main/Profile";
 import SearchScreen from "./main/Search";
 import AddScreen from "./main/Add";
+import ProfileStack from "./profileStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -54,6 +54,7 @@ export default class MainScreen extends Component {
                     name="Add"
                     component={AddScreen}
                     options={{
+                        headerShown: false,
                         tabBarIcon: ({ focused }) => (
                             <Icon.PlusCircle
                                 color={focused ? "#000" : "#ddd"}
@@ -66,8 +67,9 @@ export default class MainScreen extends Component {
 
                 <Tab.Screen
                     name="Profile"
-                    component={ProfileScreen}
+                    component={ProfileStack}
                     options={{
+                        headerShown: false,
                         tabBarIcon: ({ focused }) => (
                             <Icon.User
                                 color={focused ? "#000" : "#ddd"}

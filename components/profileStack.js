@@ -11,7 +11,7 @@ const Stack = createStackNavigator()
 const ProfileStack = () => {
 
     return(
-    <NavigationContainer>
+    <NavigationContainer independent={true}>
         <Stack.Navigator>
             <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{headerTitle: 'el_luis_arguelles', headerRight: () => (
                     <TouchableOpacity style={{padding: 10, backgroundColor: 'orange'}}>
