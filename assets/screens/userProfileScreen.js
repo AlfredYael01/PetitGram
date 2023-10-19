@@ -2,33 +2,14 @@ import { StatusBar } from 'expo-status-bar';
 import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import ImageComponent from "../../components/ImageComponent";
-import {initializeApp, getApps} from 'firebase/app'
-import { getFirestore, collection, getDoc, QuerySnapshot,
-  QueryDocumentSnapshot,
-  FieldPath,
-  doc, } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { useEffect } from 'react';
 
-import { getAuth } from '@react-native-firebase/auth'
-
-
-const auth = getAuth();
-const userId = auth.currentUser.uid;
-const db = getFirestore();
-
-const getPosts = async (userId) => {
-  
-  const docRef = doc(db, 'posts', userId);
-  const docSnapshot = await getDoc(docRef);
-  const posts = docSnapshot.data();
-  console.log(posts);
-  //const posts = await getDoc(collection(db, 'posts', userId))
-  
-};
-
-
-getPosts(userId);
 
 const UserProfileScreen = ({navigation}) => {
+  const auth = getAuth();
+  const userId = auth.currentUser.uid;
     const ImagesArray = [
         require('./GenerationImage/ImageArt.jpeg'),
         require('./GenerationImage/ImageAvionForet.jpeg'),
@@ -43,6 +24,27 @@ const UserProfileScreen = ({navigation}) => {
         require('./GenerationImage/ImageEchecs.jpeg'),
         require('./GenerationImage/ImageTelephone.jpeg')
     ];
+
+    const getPosts = async () => {
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+        const db = getFirestore();
+        // only docs where the user id is equal to the current user id
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        const posts = [];
+        querySnapshot.forEach((doc) => {
+            if (doc.data().userId === userId) {
+                posts.push(doc.data());
+            }
+        });
+        console.log(posts);
+    }
+
+    // call getPosts when the component mounts
+    useEffect(() => {
+        getPosts();
+    }, []);
+
     return(
 
     <View style={styles.container}>
