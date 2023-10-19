@@ -80,7 +80,7 @@ const UserProfileScreen = ({navigation}) => {
                 style={{backgroundColor: 'white'}}
                 numColumns={3}
                 data={ImagesArray}
-                renderItem={({ item }) => <ImageComponent ImagesArray={item} navigation={navigation} />}
+                renderItem={({ item }) => <ImageComponent image={item} navigation={navigation} />}
                 />
         </View>
     </View>
