@@ -11,20 +11,43 @@ const UserProfileScreen = ({navigation}) => {
   const auth = getAuth();
   const userId = auth.currentUser.uid;
     const ImagesArray = [
-        require('./GenerationImage/ImageArt.jpeg'),
-        require('./GenerationImage/ImageAvionForet.jpeg'),
-        require('./GenerationImage/ImageBanane.jpeg'),
-        require('./GenerationImage/ImageBG.jpeg'),
-        require('./GenerationImage/imageCat.jpeg'),
-        require('./GenerationImage/ImageDe.jpeg'),
-        require('./GenerationImage/ImageDog.jpeg'),
-        require('./GenerationImage/ImageJoli.jpeg'),
-        require('./GenerationImage/ImageRandom.jpeg'),
-        require('./GenerationImage/ImageRacoon.jpeg'),
-        require('./GenerationImage/ImageEchecs.jpeg'),
-        require('./GenerationImage/ImageTelephone.jpeg')
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
     ];
     const [images, setImages] = useState(ImagesArray);
+    const [userProfileName, setUserProfileName] = useState('');
+    const [userProfileDescription, setUserProfileDescription] = useState('');
+    const [userProfilePseudo, setUserProfilePseudo] = useState('');
+
+    const getUserInfo = async () => {
+      const auth = getAuth();
+      const userId = auth.currentUser.uid;
+      const db = getFirestore();
+      const querySnapshot = await getDocs(collection(db, "users"));
+      console.log("QuerySnapshot: ",querySnapshot);
+
+      querySnapshot.forEach((doc) => {
+        console.log("Data: ", doc.data());
+        if(doc.data()._id === userId) {
+       
+          setUserProfileName(doc.data().name);
+          setUserProfileDescription(doc.data().description);
+          setUserProfilePseudo(doc.data().pseudo);
+          
+        }
+      })
+    }
+
+
+
 
     const getPosts = async () => {
         const imagesArray = [];
@@ -32,18 +55,14 @@ const UserProfileScreen = ({navigation}) => {
         const userId = auth.currentUser.uid;
         const db = getFirestore();
         // only docs where the user id is equal to the current user id
-        const querySnapshot = await getDocs(collection(db, "posts")
-      
-      );
-      console.log(querySnapshot);
-        const posts = [];
+        const querySnapshot = await getDocs(collection(db, "posts"));
+
+      const posts = [];
         querySnapshot.forEach((doc) => {
             if (doc.data().userId === userId) {
                 posts.push(doc.data());
             }
         });
-
-      
 
       posts.forEach((item) => {
         if (item.images) {
@@ -57,6 +76,7 @@ const UserProfileScreen = ({navigation}) => {
 
     // call getPosts when the component mounts
     useEffect(() => {
+      getUserInfo();
       const db = getFirestore();
       const query = collection(db, 'posts');
       const unsubscribe = onSnapshot(query, (querySnapshot) => {
@@ -88,7 +108,7 @@ const UserProfileScreen = ({navigation}) => {
 
           <View style={styles.upScreenTopLeft}>
             <Image source={require('../../assets/Yo.jpg')} style={styles.image}></Image>
-            <Text style={styles.name}>Luis Argüelles</Text>
+            <Text style={styles.name}>{userProfileName}</Text>
           </View>
 
           <View style={styles.upScreenTopRight}>
@@ -116,7 +136,7 @@ const UserProfileScreen = ({navigation}) => {
 
         {/* -----Up middle----- */}
         <View style={styles.upScreenMiddle}>
-          <Text style={styles.description}>Un vato rifado que siempre anda en todo y que nunca se raja</Text>
+          <Text style={styles.description}>{userProfileDescription}</Text>
         </View>
 
           {/* -----Up bottom ----- */}
