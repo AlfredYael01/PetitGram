@@ -9,7 +9,7 @@ const ViewPost = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <Image source={selectedImage} style={{ width: screenWidth, height: screenHeight / 2 }} />
+            <Image source={{uri: String(selectedImage)}} style={{ width: screenWidth, height: screenHeight / 2 }} />
         </View>
     );
 }
