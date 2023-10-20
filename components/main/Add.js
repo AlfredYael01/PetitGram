@@ -111,6 +111,10 @@ export default function AddScreen( {navigation} ) {
     
         console.log("Document written with ID: ", docRef.id);
 
+        // Clear selected images
+        setSelectedImages([]);
+        setLastSelectedImage(null);
+
         // navigate to the profile screen
         navigation.navigate('Profile');
     };
