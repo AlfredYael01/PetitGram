@@ -5,7 +5,7 @@ const ImageCompenent = ({ image, navigation }) => {
     return (
         <TouchableOpacity onPress={() => navigation.navigate('ViewPost', { selectedImage: image })}>
             <Image
-                source={image}
+                source={{uri: String(image)}}
                 style={{
                     borderColor: 'black',
                     borderWidth: 0.5,
