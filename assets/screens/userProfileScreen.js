@@ -32,10 +32,10 @@ const UserProfileScreen = ({navigation}) => {
       const userId = auth.currentUser.uid;
       const db = getFirestore();
       const querySnapshot = await getDocs(collection(db, "users"));
-      console.log("QuerySnapshot: ",querySnapshot);
+      //console.log("QuerySnapshot: ",querySnapshot);
 
       querySnapshot.forEach((doc) => {
-        console.log("Data: ", doc.data());
+        //console.log("Data: ", doc.data());
         if(doc.data()._id === userId) {
        
           setUserProfileName(doc.data().name);

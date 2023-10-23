@@ -6,6 +6,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import {TouchableOpacity} from "react-native";
 import { useState, useEffect } from 'react'
 import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, getDocs, onSnapsho } from 'firebase/firestore';
 
 
 const Stack = createStackNavigator()
@@ -22,11 +23,10 @@ const getUserInfo = async () => {
     console.log("QuerySnapshot: ",querySnapshot);
 
     querySnapshot.forEach((doc) => {
-      console.log("Data: ", doc.data());
+      console.log("Data j'arrive pas ! ", doc.data());
       if(doc.data()._id === userId) {
     
-        setUserProfilePseudo(doc.data().pseudo);
-        
+        setUserProfilePseudo(doc.data().pseudo);        
       }
     })
   }
@@ -38,8 +38,8 @@ const getUserInfo = async () => {
 
     return(
     <NavigationContainer independent={true}>
-        <Stack.Navigator>
-            <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{headerTitle: {userProfilePseudo}, headerRight: () => (
+        <Stack.Navigator screenOptions={{headerTitle: userProfilePseudo}}>
+            <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ headerRight: () => (
                     <TouchableOpacity style={{padding: 10}}>
                         <Feather name='menu' color="black" size={25}/>
                     </TouchableOpacity>
