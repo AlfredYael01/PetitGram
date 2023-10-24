@@ -150,7 +150,7 @@ export default function AddScreen( {navigation} ) {
 
             {/* Image Picker and Camera */}
             <View style={styles.imagePickerCamera}>
-                <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
+                <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage} testID='galleryButton'>
                     <Text style={styles.buttonText}>Pick Image</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.cameraButton} onPress={toggleCameraType}>
