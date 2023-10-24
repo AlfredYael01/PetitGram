@@ -2,23 +2,95 @@ import { StatusBar } from 'expo-status-bar';
 import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import ImageComponent from "../../components/ImageComponent";
+import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, getDocs, onSnapshot  } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 
 
 const UserProfileScreen = ({navigation}) => {
+  const auth = getAuth();
+  const userId = auth.currentUser.uid;
     const ImagesArray = [
-        require('./GenerationImage/ImageArt.jpeg'),
-        require('./GenerationImage/ImageAvionForet.jpeg'),
-        require('./GenerationImage/ImageBanane.jpeg'),
-        require('./GenerationImage/ImageBG.jpeg'),
-        require('./GenerationImage/imageCat.jpeg'),
-        require('./GenerationImage/ImageDe.jpeg'),
-        require('./GenerationImage/ImageDog.jpeg'),
-        require('./GenerationImage/ImageJoli.jpeg'),
-        require('./GenerationImage/ImageRandom.jpeg'),
-        require('./GenerationImage/ImageRacoon.jpeg'),
-        require('./GenerationImage/ImageEchecs.jpeg'),
-        require('./GenerationImage/ImageTelephone.jpeg')
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
+        require('./GenerationImage/whiteBackground.jpg'),
     ];
+    const [images, setImages] = useState(ImagesArray);
+    const [userProfileName, setUserProfileName] = useState('');
+    const [userProfileDescription, setUserProfileDescription] = useState('');
+    const [userProfilePseudo, setUserProfilePseudo] = useState('');
+
+    const getUserInfo = async () => {
+      const auth = getAuth();
+      const userId = auth.currentUser.uid;
+      const db = getFirestore();
+      const querySnapshot = await getDocs(collection(db, "users"));
+      //console.log("QuerySnapshot: ",querySnapshot);
+
+      querySnapshot.forEach((doc) => {
+        //console.log("Data: ", doc.data());
+        if(doc.data()._id === userId) {
+       
+          setUserProfileName(doc.data().name);
+          setUserProfileDescription(doc.data().description);
+          setUserProfilePseudo(doc.data().pseudo);
+          
+        }
+      })
+    }
+
+
+
+
+    const getPosts = async () => {
+        const imagesArray = [];
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+        const db = getFirestore();
+        // only docs where the user id is equal to the current user id
+        const querySnapshot = await getDocs(collection(db, "posts"));
+
+      const posts = [];
+        querySnapshot.forEach((doc) => {
+            if (doc.data().userId === userId) {
+                posts.push(doc.data());
+            }
+        });
+
+      posts.forEach((item) => {
+        if (item.images) {
+          imagesArray.push(...item.images);
+        }
+      });
+        setImages(imagesArray);   
+        console.log(imagesArray);
+       
+    }
+
+    // call getPosts when the component mounts
+    useEffect(() => {
+      getUserInfo();
+      const db = getFirestore();
+      const query = collection(db, 'posts');
+      const unsubscribe = onSnapshot(query, (querySnapshot) => {
+        // When the database changes, re-run getPosts
+        getPosts();
+      });
+  
+      // Cleanup the listener when the component unmounts
+      return () => {
+        unsubscribe();
+      };
+    }, []);
+
+
     return(
 
     <View style={styles.container}>
@@ -36,7 +108,7 @@ const UserProfileScreen = ({navigation}) => {
 
           <View style={styles.upScreenTopLeft}>
             <Image source={require('../../assets/Yo.jpg')} style={styles.image}></Image>
-            <Text style={styles.name}>Luis Argüelles</Text>
+            <Text style={styles.name}>{userProfileName}</Text>
           </View>
 
           <View style={styles.upScreenTopRight}>
@@ -64,7 +136,7 @@ const UserProfileScreen = ({navigation}) => {
 
         {/* -----Up middle----- */}
         <View style={styles.upScreenMiddle}>
-          <Text style={styles.description}>Un vato rifado que siempre anda en todo y que nunca se raja</Text>
+          <Text style={styles.description}>{userProfileDescription}</Text>
         </View>
 
           {/* -----Up bottom ----- */}
@@ -79,7 +151,7 @@ const UserProfileScreen = ({navigation}) => {
             <FlatList
                 style={{backgroundColor: 'white'}}
                 numColumns={3}
-                data={ImagesArray}
+                data={images}
                 renderItem={({ item }) => <ImageComponent image={item} navigation={navigation} />}
                 />
         </View>
@@ -97,17 +169,17 @@ container: {
 
     upScreen: {
     flex: 0.4,
-    backgroundColor: 'green',
+    //backgroundColor: 'green',
     },
 
     upScreenTop: {
     flexDirection: 'row',
-    backgroundColor: 'black',
+    //backgroundColor: 'black',
     flex: 0.5
     },
 
     upScreenTopLeft: {
-    backgroundColor: 'purple',
+    //backgroundColor: 'purple',
     flex: 0.35,
     flexDirection: 'column',
     alignItems: 'center',
@@ -116,7 +188,7 @@ container: {
 
     upScreenTopRight: {
     flex: 0.65,
-    backgroundColor: 'yellow',
+    //backgroundColor: 'yellow',
     flexDirection: 'row'
     },
 
@@ -132,21 +204,21 @@ container: {
 
     section1: {
     flex: 1/3,
-    backgroundColor: '#effabe',
+    //backgroundColor: '#effabe',
     alignItems: 'center',
     justifyContent: 'center'
     },
 
     section2: {
     flex: 1/3,
-    backgroundColor: '#e6fa8c',
+    //backgroundColor: '#e6fa8c',
     alignItems: 'center',
     justifyContent: 'center'
 
     },
     section3: {
     flex: 1/3,
-    backgroundColor: '#d7f745',
+    //backgroundColor: '#d7f745',
     alignItems: 'center',
     justifyContent: 'center'
 
@@ -156,21 +228,21 @@ container: {
 
     upScreenMiddle: {
     flex: 0.2,
-    backgroundColor: 'gray'
+    //backgroundColor: 'gray'
     },
 
     name: {
     marginTop: Dimensions.get('window').height * 0.01,
-    color: 'white',
-    //color: 'black',
+    //color: 'white',
+    color: 'black',
     fontWeight: 'bold'
     },
 
     description: {
     marginTop: Dimensions.get('window').height * 0.015,
     marginLeft: Dimensions.get('window').height * 0.025,
-    color: 'white',
-    //color: 'black'
+    //color: 'white',
+    color: 'black'
     },
 
     image: {
@@ -191,7 +263,7 @@ accountName: {
 
 upscreenBottom: {
         flex:0.3,
-        backgroundColor :'pink',
+        //backgroundColor :'pink',
         justifyContent: 'center',
         alignItems:'center'
     },
@@ -201,13 +273,13 @@ upscreenBottom: {
     touchableMenu:{
 
   padding: 10,
-  backgroundColor: 'orange',
+  //backgroundColor: 'orange',
   marginLeft: Dimensions.get('window').width * 0.6,
   marginTop: Dimensions.get('window').height * 0.035
 },
     downScreen: {
     flex: 0.6,
-backgroundColor: 'red'
+//backgroundColor: 'red'
     }
 
 })
