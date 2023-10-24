@@ -133,7 +133,7 @@ export default function AddScreen( {navigation} ) {
             <View style={styles.selectedImagesContainer}>
                 {selectedImages.map((imageUri, index) => (
                     <View key={index} style={styles.selectedImageItem}>
-                        <Image source={{ uri: imageUri }} style={styles.selectedImageThumbnail} />
+                        <Image source={{ uri: imageUri }} style={styles.selectedImageThumbnail}testID="publication-image" />
                         <TouchableOpacity style={styles.removeImageButton} onPress={() => removeSelectedImage(imageUri)}>
                             <Text style={styles.removeImageText}>X</Text>
                         </TouchableOpacity>
@@ -150,8 +150,8 @@ export default function AddScreen( {navigation} ) {
 
             {/* Image Picker and Camera */}
             <View style={styles.imagePickerCamera}>
-                <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
-                    <Text style={styles.buttonText}>Pick Image</Text>
+                <TouchableOpacity style={styles.imagePickerButton}  onPress={pickImage}>
+                    <Text style={styles.buttonText} >Pick Image</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.cameraButton} onPress={toggleCameraType}>
                     <Text style={styles.buttonText}>Switch Camera</Text>
