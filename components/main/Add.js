@@ -133,7 +133,7 @@ export default function AddScreen( {navigation} ) {
             <View style={styles.selectedImagesContainer}>
                 {selectedImages.map((imageUri, index) => (
                     <View key={index} style={styles.selectedImageItem}>
-                        <Image source={{ uri: imageUri }} style={styles.selectedImageThumbnail} />
+                        <Image source={{ uri: imageUri }} style={styles.selectedImageThumbnail}testID="publication-image" />
                         <TouchableOpacity style={styles.removeImageButton} onPress={() => removeSelectedImage(imageUri)}>
                             <Text style={styles.removeImageText}>X</Text>
                         </TouchableOpacity>
