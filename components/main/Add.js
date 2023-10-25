@@ -144,7 +144,7 @@ export default function AddScreen( {navigation} ) {
             {/* Image Preview */}
             <View style={styles.imagePreview}>
                 {lastSelectedImage && (
-                    <Image source={{ uri: lastSelectedImage }} style={styles.selectedImageThumbnailBig} />
+                    <Image source={{ uri: lastSelectedImage }} style={styles.selectedImageThumbnailBig} testID='previewImage' />
                 )}
             </View>
 
