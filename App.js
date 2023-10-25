@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
+import 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import MainScreen from './components/Main';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import store from './components/redux/store';
 import { getApps, initializeApp } from 'firebase/app';
 import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { setUser } from './components/redux/userActions';
+//import { setUser } from './components/redux/userActions';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import Login from './components/auth/Login'
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
@@ -29,6 +31,19 @@ function App() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const db = getFirestore();
+  
+  const [loggedIn, setLoggedIn] = useState(false)
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        setLoggedIn(false);
+      }
+      else {
+        setLoggedIn(true);
+      }
+    })
+  }, [])
 
   const addUser = async (user) => {
     const docRef = await addDoc(collection(db, "users"), {
@@ -41,6 +56,8 @@ function App() {
     });
     console.log("Document written with ID: ", docRef.id);
   }
+
+
 
   useEffect(() => {
     // Create user with email and password if not exists
@@ -72,11 +89,15 @@ function App() {
     return subscriber; // Unsubscribe on unmount
   }, [dispatch]);
 
-  if (!user) {
+  console.log(user.user);
+
+  if (!loggedIn) {
     return (
-      <View>
-        <Text>Login</Text>
-      </View>
+      <Provider store={store}>
+       <Login></Login>
+
+      </Provider>
+ 
     );
   }
 
