@@ -6,10 +6,10 @@ import { MediaLibraryAssetInfoQueryOptions } from 'expo-media-library';
 // Mock the ImagePicker function
 jest.mock('expo-image-picker', () => {
   return {
-    launchImageLibraryAsync: jest.fn(() => Promise.resolve({ uri: 'Yo.jpg', cancelled: false,
+    launchImageLibraryAsync: jest.fn(() => Promise.resolve({ uri: '../../assets/Yo.jpg', cancelled: false,
 
     allowsEditing: true,
-    assets:[{uri:'Yo.jpg'}],
+    assets:[{uri:'../../assets/Yo.jpg'}],
     aspect: [1, 1],
     quality: 1, })),
     MediaTypeOptions : jest.fn(),
@@ -23,7 +23,7 @@ jest.mock('expo-media-library',() => {
     getAssetsAsync: jest.fn(() => Promise.resolve({ mediaType: 'photo' })),
   }
 })
-describe('UserProfileScreen', () => {
+describe('Test pick an image and veryfy that it was picked', () => {
   test('it should pick and display an image', async () => {
     const { getByText, getByTestId } = render(<Add />);
     
