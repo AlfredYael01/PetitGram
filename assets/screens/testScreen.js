@@ -1,7 +1,7 @@
 import {View, Text} from 'react-native'
 
 
-const testScreen = () => {
+const TestScreen = () => {
 
     return(
 
@@ -12,4 +12,4 @@ const testScreen = () => {
 }
 
 
-export default testScreen;
+export default TestScreen;

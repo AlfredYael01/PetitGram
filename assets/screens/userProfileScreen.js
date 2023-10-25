@@ -81,7 +81,7 @@ const UserProfileScreen = ({navigation}) => {
         }
       });
         setImages(imagesArray);   
-        console.log(imagesArray);
+        //console.log(imagesArray);
        
     }
 
