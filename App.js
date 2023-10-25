@@ -1,14 +1,16 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
 import MainScreen from './components/Main';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import store from './components/redux/store';
 import { getApps, initializeApp } from 'firebase/app';
 import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-//import { setUser } from './components/redux/userActions';
+import { setUser } from './components/redux/userActions';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
-import Login from './components/auth/Login'
+import { ReactNativeAsyncStorage } from '@react-native-async-storage/async-storage';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import Login from './components/auth/Login';
+import { react } from '@babel/types';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
@@ -21,7 +23,10 @@ const firebaseConfig = {
 };
 // Initialize Firebase
 if (getApps().length === 0) {
-  initializeApp(firebaseConfig);
+  const app = initializeApp(firebaseConfig);
+  initializeAuth(app, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+  });
 }
 
 const email = 'test@gmail.com';
@@ -66,11 +71,13 @@ function App() {
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
-        ////add to firestore
-        //addUser(user);
-        
-        console.log(getFirestore());
-        dispatch(setUser(user)); // Dispatch user data to Redux
+        const serializableUser = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        };
+        dispatch(setUser(serializableUser)); // Dispatch user data to Redux
         // ...
       })
       .catch((error) => {
@@ -82,14 +89,18 @@ function App() {
 
     const subscriber = onAuthStateChanged(auth, (user) => {
       if (user) {
-        dispatch(setUser(user)); // Dispatch user data to Redux
+        const serializableUser = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+        };
+        dispatch(setUser(serializableUser)); // Dispatch user data to Redux
       }
     });
 
     return subscriber; // Unsubscribe on unmount
   }, [dispatch]);
-
-  console.log(user.user);
 
   if (!loggedIn) {
     return (

@@ -3,8 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import TestScreen from '../assets/screens/testScreen';
 import ProfileStack from './profileStack';
-import UserProfileScreen from '../assets/screens/userProfileScreen';
-import ViewPost from '../assets/screens/ViewPost';
+/* import UserProfileScreen from '../assets/screens/userProfileScreen';
+import ViewPost from '../assets/screens/ViewPost'; */
 import SignoutScreen from '../assets/screens/signoutScreen'
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, onSnapshot  } from 'firebase/firestore';
