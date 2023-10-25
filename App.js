@@ -7,7 +7,7 @@ import { getApps, initializeApp } from 'firebase/app';
 import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { setUser } from './components/redux/userActions';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
-import { ReactNativeAsyncStorage } from '@react-native-async-storage/async-storage';
+import ReactNativeAsyncStorage  from '@react-native-async-storage/async-storage';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import Login from './components/auth/Login';
 import { react } from '@babel/types';
@@ -25,7 +25,7 @@ const firebaseConfig = {
 if (getApps().length === 0) {
   const app = initializeApp(firebaseConfig);
   initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage ),
   });
 }
 
