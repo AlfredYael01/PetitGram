@@ -64,7 +64,7 @@ test('expo image picker is called when the user clicks on the gallery button', (
     canceled: false, // Set to true or false as needed
     assets: [
       {
-        uri: '../assets/Yo.jpg',
+        uri: '../../assets/Yo.jpg',
       },
     ],
   });
@@ -75,6 +75,32 @@ test('expo image picker is called when the user clicks on the gallery button', (
   // Check if the pickImage function is called
   expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
 });
+
+test('Preview image is displayed when the user picks an image', async () => {
+  const { getByTestId } = render(<AddScreen navigation={jest.fn()} />);
+  // Mock the result to include a 'canceled' property
+  ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+    canceled: false, // Set to true or false as needed
+    assets: [
+      {
+        uri: '../../assets/Yo.jpg',
+      },
+    ],
+  });
+
+  // Click on the gallery button
+  const galleryButton = getByTestId('galleryButton');
+  fireEvent.press(galleryButton);
+
+  // Wait for the preview image to be displayed
+  await waitFor(() => {
+    const previewImage = getByTestId('previewImage');
+    // Check if the preview image is displayed and the source is correct
+    expect(previewImage).toBeTruthy();
+    expect(previewImage.props.source.uri).toEqual('../../assets/Yo.jpg');
+  });
+}
+);
 
 
 
