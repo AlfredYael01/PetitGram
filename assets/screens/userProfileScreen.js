@@ -4,10 +4,21 @@ import Feather from 'react-native-vector-icons/Feather';
 import ImageComponent from "../../components/ImageComponent";
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, onSnapshot  } from 'firebase/firestore';
+import { useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
+import { navigation } from '@react-navigation/native';
 
+
+const data = [{key: "Sign out"}];
 
 const UserProfileScreen = ({navigation}) => {
+
+//   const { showFlatList } = route.params; 
+
+/*   const toggleFlatList = () => {
+    navigation.setParams({ showFlatList: !showFlatList });
+  }; */
+
   const auth = getAuth();
   const userId = auth.currentUser.uid;
     const ImagesArray = [
@@ -91,6 +102,12 @@ const UserProfileScreen = ({navigation}) => {
     }, []);
 
 
+
+    const renderFlatList = () => (
+        <FlatList data={data} renderItem={({item}) => <Text>{item}</Text>}/>
+    )
+
+
     return(
 
     <View style={styles.container}>
@@ -102,7 +119,8 @@ const UserProfileScreen = ({navigation}) => {
       <View style={styles.upScreen}>
 
 
-
+        <View>
+        </View>
         {/* -----Up top----- */}
         <View style={styles.upScreenTop}>
 
@@ -112,7 +130,7 @@ const UserProfileScreen = ({navigation}) => {
           </View>
 
           <View style={styles.upScreenTopRight}>
-
+       {/*      <View>{showFlatList && renderFlatList()}</View> */}
             <View style={styles.section1}>
               <Text style={styles.numberSection}>4</Text>
               <Text style={styles.textSection}>Publications</Text>
