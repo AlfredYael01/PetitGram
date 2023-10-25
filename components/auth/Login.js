@@ -15,14 +15,14 @@ export default function Login(props) {
     const onSignUp = () => {
             // Create user with email and password if not exists
             const auth = getAuth();
-            console.log(email, password);
+            //console.log(email, password);
             signInWithEmailAndPassword(auth, email, password)
               .then((userCredential) => {
                 // Signed in
                 const user = userCredential.user;
                 ////add to firestore
                 //addUser(user);
-                console.log(user.uid);
+                //console.log(user.uid);
                 dispatch(setUser(user.uid)); // Dispatch user data to Redux
                 // ...
               })
