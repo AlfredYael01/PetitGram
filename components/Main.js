@@ -42,6 +42,7 @@ export default class MainScreen extends Component {
                     name="Search"
                     component={SearchScreen}
                     options={{
+                        headerShown: false,
                         tabBarIcon: ({ focused }) => (
                             <Icon.Search
                                 color={focused ? "#000" : "#ddd"}

@@ -36,7 +36,7 @@ const UserProfileScreen = ({navigation}) => {
     const [images, setImages] = useState(ImagesArray);
     const [userProfileName, setUserProfileName] = useState('');
     const [userProfileDescription, setUserProfileDescription] = useState('');
-    const [userProfilePseudo, setUserProfilePseudo] = useState('');
+    const [userProfileImage, setUserProfileImage] =  useState(null);
 
     const getUserInfo = async () => {
       const auth = getAuth();
@@ -51,7 +51,7 @@ const UserProfileScreen = ({navigation}) => {
        
           setUserProfileName(doc.data().name);
           setUserProfileDescription(doc.data().description);
-          setUserProfilePseudo(doc.data().pseudo);
+          setUserProfileImage(doc.data().photo);
           
         }
       })
@@ -125,7 +125,7 @@ const UserProfileScreen = ({navigation}) => {
         <View style={styles.upScreenTop}>
 
           <View style={styles.upScreenTopLeft}>
-            <Image source={require('../../assets/Yo.jpg')} style={styles.image}></Image>
+            <Image source={{uri: String(userProfileImage)}} style={styles.image}></Image>
             <Text style={styles.name}>{userProfileName}</Text>
           </View>
 
