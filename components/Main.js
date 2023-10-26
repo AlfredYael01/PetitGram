@@ -18,6 +18,7 @@ export default class MainScreen extends Component {
             <Tab.Navigator
                 screenOptions={{
                     showLabel: false,
+                    headerShown: false,
                     style: {
                         backgroundColor: "#fff",
                         borderTopWidth: 0,

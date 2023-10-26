@@ -19,20 +19,23 @@ const Feed = () => {
     
         const postsData = [];
         const userPromises = [];
-    
+        if (!querySnapshot) {
+            console.log("No posts");
+            return;
+        }
         querySnapshot.forEach((doc) => {
             const post = doc.data();
             if (post.userId !== userId) {
                 postsData.push(post);
-                if (!users[post.userId]) {
-                    // Create a promise to fetch the user data
-                    const userPromise = (async () => {
-                        const userDoc = await getDocs(query(collection(db, "users"), where("_id", "==", post.userId)));
-                        const userData = userDoc.docs[0].data();
-                        return { [post.userId]: userData };
-                    })();
-                    userPromises.push(userPromise);
-                }
+            }
+            if (!users[post.userId]) {
+                // Create a promise to fetch the user data
+                const userPromise = (async () => {
+                    const userDoc = await getDocs(query(collection(db, "users"), where("_id", "==", post.userId)));
+                    const userData = userDoc.docs[0].data();
+                    return { [post.userId]: userData };
+                })();
+                userPromises.push(userPromise);
             }
         });
     
@@ -90,6 +93,11 @@ const Feed = () => {
 
     return (
         <ScrollView style={styles.container}>
+             {/* Header */}
+             <View style={styles.header}>
+                <Text style={styles.headerTitle}>Feed</Text>
+                <Text style={styles.headerUser}>{users[auth.currentUser.uid]?.pseudo}</Text>
+            </View>
             {posts.map((post) => (
                 <View style={styles.imageContainer} key={post._id}>
                     <View style={styles.profileContainer}>
@@ -124,6 +132,22 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
+    },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10,
+        padding: 15,
+        borderBottomWidth: 0.5,
+        borderBottomColor: "black",
+    },
+    headerTitle: {
+        fontWeight: "bold",
+        fontSize: 20,
+        flex: 1,
+    },
+    headerUser: {
+        color: "gray",
     },
     imageContainer: {
         flex: 1,
