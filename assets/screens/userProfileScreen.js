@@ -6,7 +6,6 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, onSnapshot  } from 'firebase/firestore';
 import { useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { navigation } from '@react-navigation/native';
 
 
 const data = [{key: "Sign out"}];
@@ -111,8 +110,6 @@ const UserProfileScreen = ({navigation}) => {
     return(
 
     <View style={styles.container}>
-
-      <StatusBar/>
 
 {/* --------- Up screen-------------- */}
 

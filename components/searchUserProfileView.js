@@ -9,20 +9,20 @@ import { navigation } from '@react-navigation/native';
 
 
 
-const SearchUserProfileView = (props) => {
+const SearchUserProfileView = ({user, navigation}) => {
 
     return(
     <View style-={styles.container}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('searchUserProfileScreen', {user: user})}>
             <View style={styles.element}>
                 <View style={styles.containerImage}>
-                    <Image source={{uri: String(props.user.photo)}} height={60} width={60} style={styles.elementImage}/>
+                    <Image source={{uri: String(user.photo)}} height={60} width={60} style={styles.elementImage}/>
                 </View>
 
                 <View style={styles.containerText}>
-                    <Text style={styles.elementPseudo}>{props.user.pseudo}</Text>
-                    <Text style={styles.elementName}>{props.user.name}</Text>
-                    <Text style={styles.elementDescription}>{props.user.description}</Text>
+                    <Text style={styles.elementPseudo}>{user.pseudo}</Text>
+                    <Text style={styles.elementName}>{user.name}</Text>
+                    <Text style={styles.elementDescription}>{user.description}</Text>
                 </View>
             </View>
         </TouchableOpacity>

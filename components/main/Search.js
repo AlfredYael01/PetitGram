@@ -5,7 +5,7 @@ import * as Icon from 'react-native-feather';
 import React, { useState, useEffect } from 'react';
 import SearchUserProfileView from '../searchUserProfileView';
 
-const SearchScreen = () => {
+const SearchScreen = ({navigation}) => {
 
   const [text, setText] = useState('');
   const [users, setUsers] = useState([]);
@@ -19,7 +19,7 @@ const SearchScreen = () => {
     // only docs where the user id is equal to the current user id
     const querySnapshot = await getDocs(collection(db, "users"));
 
-    setUsers([]);
+    setUsers([])
     querySnapshot.forEach((doc) => {
       if (doc.data()._id != userId) {
         //users.push(doc.data());
@@ -84,8 +84,6 @@ const SearchScreen = () => {
 
     <View style={styles.container}>
 
-      <StatusBar barStyle={'light-content'} />
-
       <View style={styles.searchContainer}>
         <TextInput placeholder='Search' placeholderTextColor={'#828282'} style={styles.searchInput} onChangeText={inputText => {
           setText(inputText);
@@ -95,7 +93,7 @@ const SearchScreen = () => {
       </View>
 
       <View style={styles.profilesViewContainer}>
-        <FlatList data={text === "" ? users : searchedUser} renderItem={({ item }) => <SearchUserProfileView user={item} />} keyExtractor={item => item._id} />
+        <FlatList data={text === "" ? users : searchedUser} renderItem={({ item }) => <SearchUserProfileView user={item} navigation={navigation}/>} keyExtractor={item => item._id} />
       </View>
 
     </View>
@@ -113,7 +111,6 @@ const styles = StyleSheet.create({
 
   searchContainer: {
     flex: 0.12,
-    backgroundColor: 'orange',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
@@ -134,6 +131,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     borderWidth: 0.5,
     borderColor: '#828282',
+    marginTop: Dimensions.get('window').height * 0.01
   },
 
 });

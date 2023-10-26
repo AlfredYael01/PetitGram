@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StatusBar } from 'react-native';
 import MainScreen from './components/Main';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import store from './components/redux/store';
@@ -141,6 +141,9 @@ function App() {
 export default function ReduxApp() {
   return (
     <Provider store={store}>
+      <View>
+        <StatusBar barStyle={'light-content'}/>
+      </View>
       <App />
     </Provider>
   );

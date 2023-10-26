@@ -7,12 +7,11 @@ import {View, TouchableOpacity, FlatList} from "react-native";
 import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestore';
-import UserProfileHeader from './userProfileHeader';
-import ProfileDrawer from './profileDrawer';
+
 
 const Stack = createStackNavigator();
 
-const ProfileStack = ({navigation}) => {
+const ProfileStack = () => {
 
   const [userProfilePseudo, setUserProfilePseudo] = useState('');
   //const [showFlatList, setShowFlatList] = useState(false);
@@ -62,7 +61,7 @@ const ProfileStack = ({navigation}) => {
                   </TouchableOpacity > 
               ) */ headerTitle: userProfilePseudo}}>
           </Stack.Screen>
-          <Stack.Screen name="ViewPost" component={ViewPost}/>
+          <Stack.Screen name="ViewPost" component={ViewPost} options={{headerTitle: "Publications"}}/>
       </Stack.Navigator>
     </NavigationContainer>
 
