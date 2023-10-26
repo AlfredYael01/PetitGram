@@ -134,7 +134,7 @@ function App() {
   }, [dispatch]); */
 
 
-  useEffect(() => {
+  /* useEffect(() => {
     // Create user with email and password if not exists
     const auth = getAuth();
       signInWithEmailAndPassword(auth, email, password)
@@ -170,7 +170,7 @@ function App() {
     });
 
     return subscriber; // Unsubscribe on unmount
-  }, [dispatch]);
+  }, [dispatch]); */
 
   if (!loggedIn) {
     return (
