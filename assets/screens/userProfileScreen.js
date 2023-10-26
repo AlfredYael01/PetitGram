@@ -3,7 +3,7 @@ import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} 
 import Feather from 'react-native-vector-icons/Feather';
 import ImageComponent from "../../components/ImageComponent";
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, getDocs, onSnapshot  } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore, where, orderBy  } from 'firebase/firestore';
 import { useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { navigation } from '@react-navigation/native';
@@ -21,22 +21,20 @@ const UserProfileScreen = ({navigation}) => {
 
   const auth = getAuth();
   const userId = auth.currentUser.uid;
-    const ImagesArray = [
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
-        require('./GenerationImage/whiteBackground.jpg'),
+    const postsArray = [
+      { id : 1, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 2, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 3, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 4, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 5, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 6, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 7, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 8, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 9, images : [require('./GenerationImage/whiteBackground.jpg')]},
+      { id : 10, images : [require('./GenerationImage/whiteBackground.jpg')]},
     ];
-    const [images, setImages] = useState(ImagesArray);
-    const [userProfileName, setUserProfileName] = useState('');
-    const [userProfileDescription, setUserProfileDescription] = useState('');
-    const [userProfileImage, setUserProfileImage] =  useState(null);
+    const [ profile, setProfile ] = useState({});
+    const [posts, setPosts] = useState(postsArray);
 
     const getUserInfo = async () => {
       const auth = getAuth();
@@ -48,11 +46,7 @@ const UserProfileScreen = ({navigation}) => {
       querySnapshot.forEach((doc) => {
         //console.log("Data: ", doc.data());
         if(doc.data()._id === userId) {
-       
-          setUserProfileName(doc.data().name);
-          setUserProfileDescription(doc.data().description);
-          setUserProfileImage(doc.data().photo);
-          
+          setProfile(doc.data());
         }
       })
     }
@@ -61,28 +55,16 @@ const UserProfileScreen = ({navigation}) => {
 
 
     const getPosts = async () => {
-        const imagesArray = [];
         const auth = getAuth();
         const userId = auth.currentUser.uid;
         const db = getFirestore();
-        // only docs where the user id is equal to the current user id
-        const querySnapshot = await getDocs(collection(db, "posts"));
-
-      const posts = [];
-        querySnapshot.forEach((doc) => {
-            if (doc.data().userId === userId) {
-                posts.push(doc.data());
-            }
-        });
-
-      posts.forEach((item) => {
-        if (item.images) {
-          imagesArray.push(...item.images);
-        }
-      });
-        setImages(imagesArray);   
-        //console.log(imagesArray);
-       
+        // only docs where the user id is equal to the current user id ordered by date
+        const querySnapshot = await getDocs(queryFirestore(collection(db, "posts"), where("userId", "==", userId)));
+        // order by date
+        const orderedPosts = querySnapshot.docs
+        .map(doc => ({ ...doc.data(), id: doc.id }))
+        .sort((a, b) => b.date - a.date);
+      setPosts(orderedPosts);
     }
 
     // call getPosts when the component mounts
@@ -125,14 +107,14 @@ const UserProfileScreen = ({navigation}) => {
         <View style={styles.upScreenTop}>
 
           <View style={styles.upScreenTopLeft}>
-            <Image source={{uri: String(userProfileImage)}} style={styles.image}></Image>
-            <Text style={styles.name}>{userProfileName}</Text>
+            <Image source={{uri: String(profile.photo)}} style={styles.image}></Image>
+            <Text style={styles.name}>{profile.name}</Text>
           </View>
 
           <View style={styles.upScreenTopRight}>
        {/*      <View>{showFlatList && renderFlatList()}</View> */}
             <View style={styles.section1}>
-              <Text style={styles.numberSection}>4</Text>
+              <Text style={styles.numberSection}>{posts.length}</Text>
               <Text style={styles.textSection}>Publications</Text>
             </View>
 
@@ -154,7 +136,7 @@ const UserProfileScreen = ({navigation}) => {
 
         {/* -----Up middle----- */}
         <View style={styles.upScreenMiddle}>
-          <Text style={styles.description}>{userProfileDescription}</Text>
+          <Text style={styles.description}>{profile.description}</Text>
         </View>
 
           {/* -----Up bottom ----- */}
@@ -169,8 +151,8 @@ const UserProfileScreen = ({navigation}) => {
             <FlatList
                 style={{backgroundColor: 'white'}}
                 numColumns={3}
-                data={images}
-                renderItem={({ item }) => <ImageComponent image={item} navigation={navigation} />}
+                data={posts}
+                renderItem={({ item }) => <ImageComponent post={item} navigation={navigation} profile={profile} />}
                 />
         </View>
     </View>
