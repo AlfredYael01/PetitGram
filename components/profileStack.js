@@ -2,11 +2,13 @@ import UserProfileScreen from '../assets/screens/userProfileScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import ViewPost from "../assets/screens/ViewPost";
 import { NavigationContainer } from '@react-navigation/native';
-import Feather from 'react-native-vector-icons/Feather';
-import {View, TouchableOpacity, FlatList} from "react-native";
+//import Feather from 'react-native-vector-icons/Feather';
+//import {View, TouchableOpacity, FlatList} from "react-native";
 import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestore';
+//import UserProfileHeader from './userProfileHeader';
+//import ProfileDrawer from './profileDrawer';
 
 
 const Stack = createStackNavigator();
@@ -21,10 +23,10 @@ const ProfileStack = () => {
       const userId = auth.currentUser.uid;
       const db = getFirestore();
       const querySnapshot = await getDocs(collection(db, "users"));
-      console.log("QuerySnapshot: ",querySnapshot);
+      //console.log("QuerySnapshot: ",querySnapshot);
 
       querySnapshot.forEach((doc) => {
-        console.log("Data j'arrive pas ! ", doc.data());
+        //console.log("Data j'arrive pas ! ", doc.data());
         if(doc.data()._id === userId) {
       
           setUserProfilePseudo(doc.data().pseudo);        

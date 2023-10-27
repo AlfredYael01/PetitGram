@@ -124,7 +124,7 @@ export default function AddScreen( {navigation} ) {
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>New Post</Text>
-                <TouchableOpacity style={styles.nextButton} onPress={() => handlePost()}>
+                <TouchableOpacity style={styles.nextButton} testID='nextButton' onPress={() => handlePost()}>
                     <Text style={styles.nextButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
@@ -133,7 +133,7 @@ export default function AddScreen( {navigation} ) {
             <View style={styles.selectedImagesContainer}>
                 {selectedImages.map((imageUri, index) => (
                     <View key={index} style={styles.selectedImageItem}>
-                        <Image source={{ uri: imageUri }} style={styles.selectedImageThumbnail} />
+                        <Image source={{ uri: imageUri }} style={styles.selectedImageThumbnail}testID="publication-image" />
                         <TouchableOpacity style={styles.removeImageButton} onPress={() => removeSelectedImage(imageUri)}>
                             <Text style={styles.removeImageText}>X</Text>
                         </TouchableOpacity>
@@ -144,13 +144,13 @@ export default function AddScreen( {navigation} ) {
             {/* Image Preview */}
             <View style={styles.imagePreview}>
                 {lastSelectedImage && (
-                    <Image source={{ uri: lastSelectedImage }} style={styles.selectedImageThumbnailBig} />
+                    <Image source={{ uri: lastSelectedImage }} style={styles.selectedImageThumbnailBig} testID='previewImage' />
                 )}
             </View>
 
             {/* Image Picker and Camera */}
             <View style={styles.imagePickerCamera}>
-                <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
+                <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage} testID='galleryButton'>
                     <Text style={styles.buttonText}>Pick Image</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.cameraButton} onPress={toggleCameraType}>

@@ -1,11 +1,15 @@
 import React from 'react';
 import { Dimensions, Image, TouchableOpacity } from 'react-native';
 
-const ImageCompenent = ({ image, navigation }) => {
+const ImageCompenent = ({ post, navigation, profile }) => {
+    if (!post) {
+        console.log("No posts");
+        return null;
+    }
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('ViewPost', { selectedImage: image })}>
+        <TouchableOpacity onPress={() => navigation.navigate('ViewPost', { post : post, profile : profile })}>
             <Image
-                source={{uri: String(image)}}
+                source={{uri: String(post.images[0])}}
                 style={{
                     borderColor: 'black',
                     borderWidth: 0.5,
