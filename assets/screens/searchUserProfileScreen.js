@@ -92,7 +92,7 @@ const SearchUserProfileScreen = ({route, navigation}) => {
 
 
             <View style={styles.upScreenContainerBottom}>
-                <Text style={{color: 'white', left: Dimensions.get('window').width * 0.04}}>{user.description}</Text>
+                <Text style={{color: 'white', marginLeft: Dimensions.get('window').width * 0.05}}>{user.description}</Text>
             </View>
          
         </View>
