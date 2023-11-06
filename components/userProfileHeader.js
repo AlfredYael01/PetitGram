@@ -6,21 +6,17 @@ import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestor
 import React from 'react';
 
 
-const UserProfileHeader = ({navigation, params}) => {
+const UserProfileHeader = ({route, navigation}) => {
 
     return(
-    <View style={styles.screenHeader}>
+    <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name='arrow-left' color={'black'} style={{marginLeft: 20}} size={30}/>
       </TouchableOpacity>
-      <Text style={styles.pseudo}>{params.pseudo}</Text>
+      <Text style={styles.pseudo}>{route.params.user.pseudo}</Text>
     </View>
     )
 }
-
-
-export default UserProfileHeader;
-
 
 const styles = StyleSheet.create({
 
@@ -47,7 +43,7 @@ const styles = StyleSheet.create({
     marginBottom: Dimensions.get('window').height * 0.005
 }
 
-
 });
 
 
+export default UserProfileHeader;

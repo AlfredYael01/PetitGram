@@ -8,6 +8,7 @@ import AddScreen from "./main/Add";
 import ProfileStack from "./profileStack";
 import ProfileDrawer from "./profileDrawer";
 import SearchStack from "./searchStack";
+import FeedStack from "./feedStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +29,7 @@ export default class MainScreen extends Component {
                 }}>
                 <Tab.Screen
                     name="Feed"
-                    component={FeedScreen}
+                    component={FeedStack}
                     options={{
                         tabBarIcon: ({ focused }) => (
                             <Icon.Home

@@ -49,7 +49,7 @@ const ProfileStack = () => {
                   </TouchableOpacity > 
               ) */ headerTitle: userProfilePseudo}}>
           </Stack.Screen>
-          <Stack.Screen name="ViewPost" component={ViewPost} options={{headerTitle: "Publications", headerStyle: {backgroundColor: 'black'}}}/>
+          <Stack.Screen name="ViewPost" component={ViewPost} options={{headerTitle: "Publications", headerStyle: {backgroundColor: 'white'}}}/>
       </Stack.Navigator>
     </NavigationContainer>
 
