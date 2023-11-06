@@ -37,8 +37,8 @@ jest.mock('react-redux', () => ({
 
 test('Connexion réussie avec un email et un mot de passe valides', async () => {
     const { getByPlaceholderText, getByText } = render(<Login />);
-    const emailInput = getByPlaceholderText('email');
-    const passwordInput = getByPlaceholderText('password');
+    const emailInput = getByPlaceholderText('Email');
+    const passwordInput = getByPlaceholderText('Password');
     const loginButton = getByText('Sign In');
     fireEvent.changeText(emailInput, 'anis@gmail.com');
     fireEvent.changeText(passwordInput, 'password');
