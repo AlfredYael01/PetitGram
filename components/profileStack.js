@@ -10,9 +10,10 @@ import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestor
 //import UserProfileHeader from './userProfileHeader';
 //import ProfileDrawer from './profileDrawer';
 
+
 const Stack = createStackNavigator();
 
-const ProfileStack = ({navigation}) => {
+const ProfileStack = () => {
 
   const [userProfilePseudo, setUserProfilePseudo] = useState('');
   //const [showFlatList, setShowFlatList] = useState(false);
@@ -62,7 +63,7 @@ const ProfileStack = ({navigation}) => {
                   </TouchableOpacity > 
               ) */ headerTitle: userProfilePseudo}}>
           </Stack.Screen>
-          <Stack.Screen name="ViewPost" component={ViewPost}/>
+          <Stack.Screen name="ViewPost" component={ViewPost} options={{headerTitle: "Publications", headerStyle: {backgroundColor: 'black'}}}/>
       </Stack.Navigator>
     </NavigationContainer>
 

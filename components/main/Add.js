@@ -124,7 +124,7 @@ export default function AddScreen( {navigation} ) {
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>New Post</Text>
-                <TouchableOpacity style={styles.nextButton} testID='nextButton' onPress={() => handlePost()}>
+                <TouchableOpacity style={styles.nextButton}  onPress={() => handlePost()} testID ="nextButton">
                     <Text style={styles.nextButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
