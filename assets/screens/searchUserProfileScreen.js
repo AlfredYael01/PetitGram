@@ -7,7 +7,6 @@ import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore,
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 
-
 const SearchUserProfileScreen = ({route, navigation}) => {
 
     const postsArray = [
@@ -125,12 +124,12 @@ const SearchUserProfileScreen = ({route, navigation}) => {
         <View style={styles.bottomScreenContainer}>
             <FlatList
                     style={{backgroundColor: 'black'}}
-                    numColumwns={3}
+                    numColumns={3}
                     data={posts}
                     renderItem={({ item }) => <ImageComponent post={item} navigation={navigation} profile={profile}/>}
                     />
         </View>
-        
+                
     </View>
 
     )
@@ -208,7 +207,8 @@ const styles = StyleSheet.create({
     bottomScreenContainer: {
 
         flex: 0.57,
-        backgroundColor: 'purple'    },
+        backgroundColor: 'purple',
+    },
 
     pseudo: {
         color: 'white',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Image, TouchableOpacity } from 'react-native';
+import {View, Dimensions, Image, TouchableOpacity } from 'react-native';
 
 const ImageCompenent = ({ post, navigation, profile }) => {
 
@@ -7,6 +7,7 @@ const ImageCompenent = ({ post, navigation, profile }) => {
         return null;
     }
     return (
+
         <TouchableOpacity onPress={() => navigation.navigate('ViewPost', { post : post, profile : profile })}>
             <Image
                 source={{uri: String(post.images[0])}}
