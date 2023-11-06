@@ -7,17 +7,19 @@ import SearchScreen from "./main/Search";
 import AddScreen from "./main/Add";
 import ProfileStack from "./profileStack";
 import ProfileDrawer from "./profileDrawer";
+import SearchStack from "./searchStack";
 
 const Tab = createBottomTabNavigator();
 
 export default class MainScreen extends Component {
     render() {
         return (
+           
             <NavigationContainer>
-
             <Tab.Navigator
                 screenOptions={{
                     showLabel: false,
+                    headerShown: false,
                     style: {
                         backgroundColor: "#fff",
                         borderTopWidth: 0,
@@ -40,8 +42,9 @@ export default class MainScreen extends Component {
 
                 <Tab.Screen
                     name="Search"
-                    component={SearchScreen}
+                    component={SearchStack}
                     options={{
+                        headerShown: false,
                         tabBarIcon: ({ focused }) => (
                             <Icon.Search
                                 color={focused ? "#000" : "#ddd"}
