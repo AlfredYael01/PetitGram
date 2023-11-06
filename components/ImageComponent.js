@@ -2,8 +2,8 @@ import React from 'react';
 import { Dimensions, Image, TouchableOpacity } from 'react-native';
 
 const ImageCompenent = ({ post, navigation, profile }) => {
+
     if (!post) {
-        console.log("No posts");
         return null;
     }
     return (
