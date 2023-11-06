@@ -15,6 +15,7 @@ export default function AddScreen( {navigation} ) {
     const [galleryImages, setGalleryImages] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
     const [lastSelectedImage, setLastSelectedImage] = useState(null);
+    const [postButtonDisabled, setPostButtonDisabled] = useState(false);
 
     function toggleCameraType() {
         setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
@@ -69,11 +70,15 @@ export default function AddScreen( {navigation} ) {
     }
 
     const handlePost = async () => {
+        // Disable the touchable opacity button
+        setPostButtonDisabled(true);
         if (selectedImages.length === 0) {
             alert('Please select at least one image to post.');
+            // Enable the touchable opacity button
+            setPostButtonDisabled(false);
             return;
         }
-    
+
         // Define post info
         const auth = getAuth();
         const user = auth.currentUser.uid;
@@ -81,11 +86,10 @@ export default function AddScreen( {navigation} ) {
         const date = new Date();
         const timestamp = date.getTime();
         const imageUrls = [];
-    
+
         const storage = getStorage();
         try {
-            for (let i = 0; i < selectedImages.length; i++) {
-                const base64Image = selectedImages[i];
+            const uploadPromises = selectedImages.map(async (base64Image, i) => {
                 // folder name is the user id
                 const imageFileName = `${user}/${postId}/${i}.jpg`;
                 const imageRef = ref(storage, imageFileName);
@@ -94,11 +98,16 @@ export default function AddScreen( {navigation} ) {
                 await uploadBytes(imageRef, blob);
                 const imageUrl = await getDownloadURL(imageRef);
                 imageUrls.push(imageUrl);
-            }
+            });
+            await Promise.all(uploadPromises);
         } catch (error) {
             console.log(error);
+            alert('An error occurred when uploading the images.');
+            // Enable the touchable opacity button
+            setPostButtonDisabled(false);
+            return;
         }
-    
+
         // Upload data to Firestore
         const db = getFirestore();
         const docRef = await addDoc(collection(db, "posts"), {
@@ -108,12 +117,15 @@ export default function AddScreen( {navigation} ) {
             timestamp: timestamp,
             date: date,
         });
-    
+
         console.log("Document written with ID: ", docRef.id);
 
         // Clear selected images
         setSelectedImages([]);
         setLastSelectedImage(null);
+
+        // Enable the touchable opacity button
+        setPostButtonDisabled(false);
 
         // navigate to the profile screen
         navigation.navigate('Profile');
@@ -124,7 +136,7 @@ export default function AddScreen( {navigation} ) {
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>New Post</Text>
-                <TouchableOpacity style={styles.nextButton}  onPress={() => handlePost()} testID ="nextButton">
+                <TouchableOpacity style={styles.nextButton}  onPress={() => handlePost()} testID ="nextButton" disabled={postButtonDisabled}>
                     <Text style={styles.nextButtonText}>Post</Text>
                 </TouchableOpacity>
             </View>
