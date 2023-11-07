@@ -1,0 +1,307 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Register component renders correctly 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#F7F7F7",
+      "flex": 1,
+      "justifyContent": "center",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "width": "80%",
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "marginBottom": 20,
+        }
+      }
+    >
+      <Image
+        source={
+          {
+            "uri": "https://firebasestorage.googleapis.com/v0/b/petitgram-b48fd.appspot.com/o/Profile%2FuserImage.png?alt=media&token=29660ffe-caba-4fe6-b028-09af3f446b74&_gl=1*i459ow*_ga*NDMzMjcyMjA3LjE2OTU4ODMxMjk.*_ga_CW55HF8NVT*MTY5OTM0NzExOC4xOS4xLjE2OTkzNDcxNzIuNi4wLjA",
+          }
+        }
+        style={
+          {
+            "borderRadius": 50,
+            "height": 100,
+            "marginBottom": 10,
+            "width": 100,
+          }
+        }
+      />
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "backgroundColor": "#3498DB",
+            "borderRadius": 5,
+            "opacity": 1,
+            "padding": 10,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#FFFFFF",
+            }
+          }
+        >
+          Change Profile Picture
+        </Text>
+      </View>
+    </View>
+    <Text>
+      Account Information
+    </Text>
+    <TextInput
+      onChangeText={[Function]}
+      placeholder="Email"
+      required={true}
+      style={
+        [
+          {
+            "borderColor": "#E0E0E0",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "color": "#333",
+            "height": 40,
+            "marginBottom": 10,
+            "paddingLeft": 10,
+          },
+          false,
+        ]
+      }
+    />
+    <TextInput
+      onChangeText={[Function]}
+      placeholder="Password"
+      secureTextEntry={true}
+      style={
+        [
+          {
+            "borderColor": "#E0E0E0",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "color": "#333",
+            "height": 40,
+            "marginBottom": 10,
+            "paddingLeft": 10,
+          },
+          false,
+        ]
+      }
+    />
+    <TextInput
+      onChangeText={[Function]}
+      placeholder="Validate Password"
+      secureTextEntry={true}
+      style={
+        [
+          {
+            "borderColor": "#E0E0E0",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "color": "#333",
+            "height": 40,
+            "marginBottom": 10,
+            "paddingLeft": 10,
+          },
+          {
+            "borderColor": "green",
+          },
+        ]
+      }
+    />
+    <Text>
+      Profile Information
+    </Text>
+    <TextInput
+      onChangeText={[Function]}
+      placeholder="Pseudo"
+      style={
+        [
+          {
+            "borderColor": "#E0E0E0",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "color": "#333",
+            "height": 40,
+            "marginBottom": 10,
+            "paddingLeft": 10,
+          },
+          false,
+        ]
+      }
+    />
+    <TextInput
+      onChangeText={[Function]}
+      placeholder="Name"
+      style={
+        [
+          {
+            "borderColor": "#E0E0E0",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "color": "#333",
+            "height": 40,
+            "marginBottom": 10,
+            "paddingLeft": 10,
+          },
+          false,
+        ]
+      }
+    />
+    <TextInput
+      onChangeText={[Function]}
+      placeholder="Description"
+      style={
+        [
+          {
+            "borderColor": "#E0E0E0",
+            "borderRadius": 5,
+            "borderWidth": 1,
+            "color": "#333",
+            "height": 40,
+            "marginBottom": 10,
+            "paddingLeft": 10,
+          },
+          false,
+        ]
+      }
+    />
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#3498DB",
+          "borderRadius": 5,
+          "opacity": 1,
+          "padding": 10,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#FFFFFF",
+          }
+        }
+      >
+        Sign Up
+      </Text>
+    </View>
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "marginTop": 20,
+          "opacity": 1,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "#3498DB",
+          }
+        }
+      >
+        Already have an account? Login
+      </Text>
+    </View>
+  </View>
+</View>
+`;
