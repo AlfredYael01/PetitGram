@@ -73,7 +73,8 @@ export default Register = ({ navigation }) => {
         // Validate data integrity
         if (checkForEmptyFields() || checkForEmailFormat() || checkForPasswordStrength()) {
             if (error === '')
-                setError('Something went wrong. Please try again.');
+                // we wait for the error to be set
+                await new Promise(resolve => setTimeout(resolve, 1000));
             return;
         }
 
@@ -148,7 +149,7 @@ export default Register = ({ navigation }) => {
           <View style={styles.form}>
             <View style={styles.imagePicker}>
               <Image source={{ uri: photo }} style={styles.image} />
-              <TouchableOpacity style={styles.imagePickerButton} onPress={imagePicker}>
+              <TouchableOpacity style={styles.imagePickerButton} onPress={imagePicker} testID="imagePickerButton">
                 <Text style={styles.imagePickerButtonText}>Change Profile Picture</Text>
               </TouchableOpacity>
             </View>
@@ -191,7 +192,7 @@ export default Register = ({ navigation }) => {
             />
       
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            <TouchableOpacity style={styles.button} onPress={() => onSignUp()}>
+            <TouchableOpacity style={styles.button} onPress={() => onSignUp()} testID="signUpButton">
               <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
 
