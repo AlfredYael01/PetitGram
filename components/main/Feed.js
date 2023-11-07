@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
+import {View, Text, StyleSheet, Image, Dimensions, ScrollView, Button, TouchableOpacity, TextInput} from "react-native";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, onSnapshot, orderBy} from 'firebase/firestore';
 import { query, where } from 'firebase/firestore';
@@ -16,7 +16,9 @@ const Feed = () => {
         const db = getFirestore();
         const postsCollection = collection(db, "posts");
         const querySnapshot = await getDocs(query(postsCollection, orderBy("date", "desc")));
-    
+        const commentsCollection = collection(db,"posts", "DLexg2kSqKn8A802qnkp","comments");
+        const querySnapshotComments = await getDocs(query(commentsCollection, orderBy("date", "desc")));
+        console.log(querySnapshotComments.data);
         const postsData = [];
         const userPromises = [];
         if (!querySnapshot) {
@@ -38,20 +40,20 @@ const Feed = () => {
                 userPromises.push(userPromise);
             }
         });
-    
+
         // Wait for all user data promises to resolve
         const userDataArray = await Promise.all(userPromises);
-    
+
         // Convert the array of user data objects into a single object
         const usersData = Object.assign({}, ...userDataArray);
-    
+
         // Merge new user data with existing user data
         const updatedUsers = { ...users, ...usersData };
-    
+
         setUsers(updatedUsers);
         setPosts(postsData);
     };
-    
+
 
     useEffect(() => {
         getPosts();
@@ -71,12 +73,12 @@ const Feed = () => {
         const now = new Date();
         const pastDate = new Date(timestamp.toDate());
         const timeDifference = now - pastDate;
-    
+
         const seconds = Math.floor(timeDifference / 1000);
         const minutes = Math.floor(seconds / 60);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
-    
+
         if (days > 0) {
             return days + ' day' + (days === 1 ? '' : 's') + ' ago';
         } else if (hours > 0) {
@@ -87,14 +89,14 @@ const Feed = () => {
             return seconds + ' second' + (seconds === 1 ? '' : 's') + ' ago';
         }
     }
-    
+
 
 
 
     return (
         <ScrollView style={styles.container}>
-             {/* Header */}
-             <View style={styles.header}>
+            {/* Header */}
+            <View style={styles.header}>
                 <Text style={styles.headerTitle}>Feed</Text>
                 <Text style={styles.headerUser}>{users[auth.currentUser.uid]?.pseudo}</Text>
             </View>
@@ -111,7 +113,7 @@ const Feed = () => {
                     </View>
                     <Swiper
                         style={styles.imageSlider}
-                         loop={false}
+                        loop={false}
                         paginationStyle={styles.pagination}
                     >
                         {post.images.map((image) => (
@@ -120,12 +122,37 @@ const Feed = () => {
                             </View>
                         ))}
                     </Swiper>
-                    <Text style={styles.comment}>Commentaire de la post</Text>
+                    {/* "Voir les commentaires" button */}
+                    <TouchableOpacity
+                        style={styles.commentButton}
+                        onPress={() => navigation.navigate("Comments", { postId: post._id })}
+                    >
+                        <Text style={styles.commentButtonText}>Voir les commentaires</Text>
+                    </TouchableOpacity>
+                    {/* Separator Line */}
+                    <View style={styles.separator} />
+
+                    {/* "Premier commentaire" section */}
+                    <View style={styles.commentSection}>
+                        <Text style={styles.nameComment}>{users[post.userId]?.name}</Text>
+                        <Text style={styles.commentText}></Text>
+
+                    </View>
+
+                    {/* Separator Line */
+                        <View style={styles.separator} ></View>}
+
+                    {/* "Ajouter un commentaire" section (empty for now) */}
+                        <View style={styles.commentSection}>
+                    <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.commentProfileImage} />
+                    <TouchableOpacity style={styles.commentButton}>
+                        <TextInput style={styles.commentButtonText}>Ajouter un commentaire</TextInput>
+                    </TouchableOpacity>
                 </View>
-            ))}
+                </View>
+                ))}
         </ScrollView>
     );
-    
 };
 
 const styles = StyleSheet.create({
@@ -152,7 +179,7 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         borderTopWidth: 0.5,
-        borderTopColor: "black",
+        marginBottom: 60,
     },
     profileContainer: {
         flexDirection: "row",
@@ -160,6 +187,12 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     profileImage: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 10,
+    },
+    commentProfileImage: {
         width: 40,
         height: 40,
         borderRadius: 20,
@@ -184,12 +217,39 @@ const styles = StyleSheet.create({
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height / 2,
     },
-    comment: {
+    commentButton: {
+        backgroundColor: "transparent",
         padding: 10,
+    },
+    commentButtonText: {
+        fontSize: 16,
+        color: "gray",
+    },
+    separator: {
+        borderBottomWidth: 0.5,
+        borderBottomColor: "grey",
+    },
+    commentSection: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 10
+
+    },
+    commentText: {
+        fontSize: 13,
+    },
+    commentTitle: {
+        fontWeight: "bold",
+        fontSize: 16,
     },
     dateText: {
         color: "gray",
     },
+    nameComment: {
+        fontWeight: "bold",
+        marginRight: 25,
+
+    }
 });
 
 export default Feed;
