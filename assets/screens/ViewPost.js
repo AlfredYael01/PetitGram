@@ -41,17 +41,22 @@ const ViewPost = ({ route }) => {
                             </Text>
                         </View>
                     </View>
-                    <Swiper
-                        style={styles.imageSlider}
-                         loop={false}
-                        paginationStyle={styles.pagination}
-                    >
-                        {post.images.map((image) => (
-                            <View key={image} style={styles.mainImage}>
-                                <Image source={{ uri: String(image) }} style={styles.mainImage} />
-                            </View>
-                        ))}
-                    </Swiper>
+            </View>
+                <Swiper
+                    style={styles.imageSlider}
+                    loop={false}
+                    paginationStyle={styles.pagination}
+                >
+                    {post.images.map((image) => (
+                        <View key={image} style={styles.mainImage}>
+                            <Image source={{ uri: String(image) }} style={styles.mainImage} />
+                        </View>
+                    ))
+                    }
+                </Swiper>
+
+                <View style={styles.bottomScreen}>
+                    <Text style={styles.description}>{post.description}</Text>
                     <Text style={styles.comment}>Commentaire de la post</Text>
                 </View>
         </View>
@@ -63,7 +68,7 @@ export default ViewPost;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: 'white'
     },
     header: {
         flexDirection: "row",
@@ -82,7 +87,7 @@ const styles = StyleSheet.create({
         color: "gray",
     },
     imageContainer: {
-        flex: 1,
+        flex: 0.15,
         borderTopWidth: 0.5,
         borderTopColor: "black",
     },
@@ -107,10 +112,11 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     imageSlider: {
-        height: Dimensions.get('window').height / 2,
+        height: Dimensions.get('window').height * 0.55,
     },
     pagination: {
-        bottom : 100,
+        top: Dimensions.get('window').height * 0.52,
+        backgroundColor: 'orange'
     },
     mainImage: {
         width: Dimensions.get('window').width,
@@ -122,4 +128,12 @@ const styles = StyleSheet.create({
     dateText: {
         color: "gray",
     },
+
+    bottomScreen: {
+        height: Dimensions.get('window').height * 0.23,
+    },
+
+    description: {
+        marginLeft: Dimensions.get('window').width * 0.05,        
+    }
 });
