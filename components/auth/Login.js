@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { Button, Text, TextInput, View, StyleSheet, Image } from 'react-native';
-import { onAuthStateChanged, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { Provider, useSelector, useDispatch } from 'react-redux';
-import store from '../redux/store';
-import { setUser } from '../redux/userActions';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
-export default function Login(props) {
+export default function Login( {navigation} ) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-
-    const dispatch = useDispatch();
 
     const onSignUp = () => {
         // Create user with email and password if not exists
@@ -20,7 +15,6 @@ export default function Login(props) {
             .then((userCredential) => {
                 // Signed in
                 const user = userCredential.user;
-                dispatch(setUser(user.uid)); // Dispatch user data to Redux
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -43,12 +37,6 @@ export default function Login(props) {
                         break;
                 }
             });
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                dispatch(setUser(user.uid)); // Dispatch user data to Redux
-            }
-        });
     }
 
     return (
@@ -64,7 +52,7 @@ export default function Login(props) {
                     style={styles.textInput}
                     placeholder="Password"
                     secureTextEntry={true}
-                    onChangeText={(password) => setPassword(password)}
+                    onChangeText={(pass) => setPassword(pass)}
                 />
 
                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -78,7 +66,7 @@ export default function Login(props) {
 
             <Text
                 style={styles.registerLink}
-                onPress={() => props.navigation.navigate("Register")}
+                onPress={() => navigation.navigate('Register')}
             >
                 Don't have an account? Sign Up.
             </Text>

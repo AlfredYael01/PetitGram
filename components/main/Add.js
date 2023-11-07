@@ -74,7 +74,13 @@ export default function AddScreen( {navigation} ) {
             <View style={styles.header}>
                 <Text style={styles.title}>New Post</Text>
                 <TouchableOpacity style={styles.nextButton}  onPress={() => {
-                
+
+                    if (selectedImages.length === 0) {
+                        alert('Please select at least one image to post.');
+                        // Enable the touchable opacity button
+                        return;
+                    }
+
                     navigation.navigate('AddPostDescriptionScreen', {selectedImages: selectedImages})
                     setSelectedImages([]);
                     setLastSelectedImage(null);

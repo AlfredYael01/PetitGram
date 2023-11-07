@@ -15,12 +15,6 @@ const AddPostDescriptionScreen = ({route, navigation}) => {
     const handlePost = async () => {
         // Disable the touchable opacity button
         setPostButtonDisabled(true);
-        if (selectedImages.length === 0) {
-            alert('Please select at least one image to post.');
-            // Enable the touchable opacity button
-            setPostButtonDisabled(false);
-            return;
-        }
 
         // Define post info
         const auth = getAuth();

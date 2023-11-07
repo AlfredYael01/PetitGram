@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from "react-native";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, onSnapshot, orderBy} from 'firebase/firestore';
 import { query, where } from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
 
 
-const Feed = () => {
+const FeedScreen = ({navigation}) => {
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
     const [users, setUsers] = useState({})
@@ -101,9 +101,12 @@ const Feed = () => {
             {posts.map((post) => (
                 <View style={styles.imageContainer} key={post._id}>
                     <View style={styles.profileContainer}>
-                        <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
-                        <View style={styles.profileInfo}>
+                        <TouchableOpacity  style={styles.touchable} onPress={() => navigation.navigate('searchUserProfileScreen', {user: users[post.userId]})}>
+                            <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
                             <Text style={styles.name}>{users[post.userId]?.name}</Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.profileInfo}>
                             <Text style={styles.dateText}>
                                 {timeAgo(post.date)}
                             </Text>
@@ -169,7 +172,7 @@ const styles = StyleSheet.create({
     profileInfo: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "flex-end",
         flex: 1,
     },
     name: {
@@ -191,6 +194,11 @@ const styles = StyleSheet.create({
     dateText: {
         color: "gray",
     },
+
+    touchable: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    }
 });
 
-export default Feed;
+export default FeedScreen;
