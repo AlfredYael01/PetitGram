@@ -16,9 +16,13 @@ const Feed = () => {
         const db = getFirestore();
         const postsCollection = collection(db, "posts");
         const querySnapshot = await getDocs(query(postsCollection, orderBy("date", "desc")));
-        const commentsCollection = collection(db,"posts", "DLexg2kSqKn8A802qnkp","comments");
-        const querySnapshotComments = await getDocs(query(commentsCollection, orderBy("date", "desc")));
-        console.log(querySnapshotComments.data);
+        for (const doc of querySnapshot.docs) {
+            const commentsCollection = collection(db,"posts", doc.id, "comments");
+            const querySnapshotComments = await getDocs(query(commentsCollection, orderBy("date", "desc")));
+            for (const docComment of querySnapshotComments.docs) {
+                console.log(docComment.data());
+            }
+        }
         const postsData = [];
         const userPromises = [];
         if (!querySnapshot) {
