@@ -120,12 +120,21 @@ export default Register = ({ navigation }) => {
         if (photo === defaultPhoto) {
             return;
         }
-        const storage = getStorage();
-        const storageRef = ref(storage, 'users/' + userId + '/profilePicture');
-        const response = await fetch(photo);
-        const blob = await response.blob();
-        await uploadBytes(storageRef, blob);
-        const url = await getDownloadURL(storageRef);
+        const promiseUpload = new Promise((resolve, reject) => {
+            const storage = getStorage();
+            const storageRef = ref(storage, 'Profile/' + userId);
+            uploadBytes(storageRef, photo)
+                .then((snapshot) => {
+                    console.log('Uploaded a blob or file!');
+                    resolve(snapshot);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        });
+        const snapshot = await promiseUpload;
+        const url = await getDownloadURL(snapshot.ref);
         setPhoto(url);
     }
 
