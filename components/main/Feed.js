@@ -4,12 +4,15 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, onSnapshot, orderBy} from 'firebase/firestore';
 import { query, where } from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
-
+require('firebase/firestore')
 
 const Feed = () => {
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
     const [users, setUsers] = useState({})
+    const [refreshing, setRefreshing] = useState(false)
+    const [unmutted, setUnmutted] = useState(null)
+    const [inViewPort, setInViewPort] = useState(0)
 
     const getPosts = async () => {
         const userId = auth.currentUser.uid;
@@ -66,6 +69,31 @@ const Feed = () => {
             unsubscribe();
         };
     }, []);
+    
+    useEffect(() => {
+        if (props.usersFollowingLoaded == props.following.length && props.following.length !== 0) {
+            props.feed.sort(function (x, y) {
+                return y.creation.toDate() - x.creation.toDate();
+            })
+
+            setPosts(props.feed);
+            setRefreshing(false)
+            for (let i = 0; i < props.feed.length; i++) {
+                if (props.feed[i].type == 0) {
+                    setUnmutted(i)
+                    return;
+                }
+            }
+        }
+        props.navigation.setParams({ param: "value" })
+
+    }, [props.usersFollowingLoaded, props.feed])
+
+    const onViewableItemsChanged = useRef(({ viewableItems, changed }) => {
+        if (changed && changed.length > 0) {
+            setInViewPort(changed[0].index);
+        }
+    })
 
     function timeAgo(timestamp) {
         const now = new Date();
@@ -89,7 +117,26 @@ const Feed = () => {
     }
     
 
-
+    const onLikePress = (userId, postId) => {
+        firebase.firestore()
+            .collection("users")
+            .doc(userId)
+            .collection("posts")
+            .doc(postId)
+            .collection("likes")
+            .doc(firebase.auth().currentUser.uid)
+            .set({})
+    }
+    const onDislikePress = (userId, postId) => {
+        firebase.firestore()
+            .collection("users")
+            .doc(userId)
+            .collection("posts")
+            .doc(postId)
+            .collection("likes")
+            .doc(firebase.auth().currentUser.uid)
+            .delete()
+    }
 
     return (
         <ScrollView style={styles.container}>
@@ -104,6 +151,21 @@ const Feed = () => {
                         <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
                         <View style={styles.profileInfo}>
                             <Text style={styles.name}>{users[post.userId]?.name}</Text>
+                            { item.currentUserLike ?
+                            (
+                                <Button
+                                    title = "Dislike"
+                                    onPress={() => onDislikePress(item.user.uid , item._id)}>  
+                                </Button>
+                            )
+                            :
+                            (
+                                <Button
+                                    title = "Like"
+                                    onPress={() => onLikePress(item.user.uid , item._id)}>  
+                                </Button>
+                            )
+                            }
                             <Text style={styles.dateText}>
                                 {timeAgo(post.date)}
                             </Text>
