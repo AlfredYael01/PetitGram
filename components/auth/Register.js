@@ -30,15 +30,12 @@ export default Register = ({ navigation }) => {
 
     const checkForPasswordStrength = () => {
         // check if they match
-        console.log(password);
-        console.log(validatePassword);
         if (password !== validatePassword) {
             setError('Passwords do not match.');
             return true;
         }
         // at least one number, one lowercase and one uppercase letter and at least six characters
         re = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
-        console.log(re.test(password));
         if (!re.test(password)) {
             setError('Password must contain at least one number, one lowercase and one uppercase letter and at least six characters.');
             return true;
@@ -106,13 +103,13 @@ export default Register = ({ navigation }) => {
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
           allowsEditing: true,
-          aspect: [4, 3],
+          aspect: [1, 1],
           quality: 1,
           base64: true,
         });
     
         if (!result.canceled) {
-          setPhoto(result.uri);
+          setPhoto(result.assets[0].uri);
         }
       };
 
@@ -120,25 +117,14 @@ export default Register = ({ navigation }) => {
         if (photo === defaultPhoto) {
             return;
         }
-        const promiseUpload = new Promise((resolve, reject) => {
-            const storage = getStorage();
-            const storageRef = ref(storage, 'Profile/' + userId);
-            uploadBytes(storageRef, photo)
-                .then((snapshot) => {
-                    console.log('Uploaded a blob or file!');
-                    resolve(snapshot);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
-        const snapshot = await promiseUpload;
-        const url = await getDownloadURL(snapshot.ref);
+        const storage = getStorage();
+        const imageFileName = 'Profile/' + userId + '.jpg';
+        const storageRef = ref(storage, imageFileName);
+        const uploadTask = uploadBytes(storageRef, photo);
+        await uploadTask;
+        const url = await getDownloadURL(storageRef);
         setPhoto(url);
     }
-
-
 
     const addUser = async (userId) => {
         const db = getFirestore();
