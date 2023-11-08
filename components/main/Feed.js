@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {View, Text, StyleSheet, Image, Dimensions, ScrollView, Button, TouchableOpacity, TextInput} from "react-native";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, onSnapshot, orderBy} from 'firebase/firestore';
-import { query, where } from 'firebase/firestore';
+import { query, where, doc } from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
 
 
@@ -16,12 +16,14 @@ const Feed = () => {
         const db = getFirestore();
         const postsCollection = collection(db, "posts");
         const querySnapshot = await getDocs(query(postsCollection, orderBy("date", "desc")));
+        const commentData = [];
         for (const doc of querySnapshot.docs) {
             const commentsCollection = collection(db,"posts", doc.id, "comments");
             const querySnapshotComments = await getDocs(query(commentsCollection, orderBy("date", "desc")));
             for (const docComment of querySnapshotComments.docs) {
-                console.log(docComment.data());
+                commentData.push({[doc.id]: docComment.data()});
             }
+
         }
         const postsData = [];
         const userPromises = [];
@@ -32,8 +34,11 @@ const Feed = () => {
         querySnapshot.forEach((doc) => {
             const post = doc.data();
             if (post.userId !== userId) {
-                postsData.push(post);
+                const id = doc.id;
+                const temp = {...post, comments: commentData.find((comment) => comment[id])?.[id]};
+                postsData.push(temp);
             }
+
             if (!users[post.userId]) {
                 // Create a promise to fetch the user data
                 const userPromise = (async () => {
@@ -42,8 +47,22 @@ const Feed = () => {
                     return { [post.userId]: userData };
                 })();
                 userPromises.push(userPromise);
+
+
+            }
+
+            if (!users[post.comments?.userId]!=null) {
+                    const userPromise2 = (async () => {
+                    const userDoc = await getDocs(query(collection(db, "users"), where("_id", "==", posts?.comments?.userId)));
+                    const userData = userDoc.docs[0].data();
+                    return { [posts.comments.userId]: userData };
+                    console.log("users")
+                })();
+                userPromises.push(userPromise2);
+
             }
         });
+        //console.log(postsData);
 
         // Wait for all user data promises to resolve
         const userDataArray = await Promise.all(userPromises);
@@ -138,8 +157,11 @@ const Feed = () => {
 
                     {/* "Premier commentaire" section */}
                     <View style={styles.commentSection}>
-                        <Text style={styles.nameComment}>{users[post.userId]?.name}</Text>
-                        <Text style={styles.commentText}></Text>
+                        <Text style={styles.nameComment}>
+
+                            {post?.comments?.userId ? post.comments?.userId.name : ''}
+                        </Text>
+                        <Text style={styles.commentText}>{post.comments?.comment}</Text>
 
                     </View>
 
@@ -251,7 +273,8 @@ const styles = StyleSheet.create({
     },
     nameComment: {
         fontWeight: "bold",
-        marginRight: 25,
+        fontSize: 16,
+        marginRight: 20,
 
     }
 });
