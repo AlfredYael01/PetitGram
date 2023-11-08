@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import {View, Text, StyleSheet, Image, Dimensions, ScrollView, Button, TouchableOpacity, TextInput} from "react-native";
 import { getAuth } from "firebase/auth";
-import { getFirestore, collection, getDocs, onSnapshot, orderBy} from 'firebase/firestore';
+import { getFirestore, collection, getDocs, onSnapshot, orderBy, addDoc} from 'firebase/firestore';
 import { query, where, doc } from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
-
 
 const Feed = () => {
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
     const [users, setUsers] = useState({})
+    const [comment, setComment] = useState("");
+    const [refreshing, setRefreshing] = useState(false);
 
     const getPosts = async () => {
         const userId = auth.currentUser.uid;
@@ -21,10 +22,14 @@ const Feed = () => {
             const commentsCollection = collection(db,"posts", doc.id, "comments");
             const querySnapshotComments = await getDocs(query(commentsCollection, orderBy("date", "desc")));
             for (const docComment of querySnapshotComments.docs) {
-                commentData.push({[doc.id]: docComment.data()});
+                // array of comments for each post
+                const comment = docComment.data();
+                const id = doc.id;
+                const temp = {...comment, id: id};
+                commentData.push({ [id]: temp });
             }
-
         }
+        console.log(commentData);
         const postsData = [];
         const userPromises = [];
         if (!querySnapshot) {
@@ -35,7 +40,7 @@ const Feed = () => {
             const post = doc.data();
             if (post.userId !== userId) {
                 const id = doc.id;
-                const temp = {...post, comments: commentData.find((comment) => comment[id])?.[id]};
+                const temp = {...post, comments: commentData.find((comment) => comment[id])?.[id], id: id};
                 postsData.push(temp);
             }
 
@@ -47,19 +52,15 @@ const Feed = () => {
                     return { [post.userId]: userData };
                 })();
                 userPromises.push(userPromise);
-
-
             }
-
-            if (!users[post.comments?.userId]!=null) {
-                    const userPromise2 = (async () => {
-                    const userDoc = await getDocs(query(collection(db, "users"), where("_id", "==", posts?.comments?.userId)));
+            const commentUserId = postsData[postsData.length - 1]?.comments?.userId;
+            if (commentUserId && !users[commentUserId]) {
+                const userPromise2 = (async () => {
+                    const userDoc = await getDocs(query(collection(db, "users"), where("_id", "==", commentUserId)));
                     const userData = userDoc.docs[0].data();
-                    return { [posts.comments.userId]: userData };
-                    console.log("users")
+                    return { [commentUserId]: userData };
                 })();
                 userPromises.push(userPromise2);
-
             }
         });
         //console.log(postsData);
@@ -79,18 +80,21 @@ const Feed = () => {
 
 
     useEffect(() => {
-        getPosts();
         const db = getFirestore();
         const postsCollection = collection(db, 'posts');
         const unsubscribe = onSnapshot(postsCollection, (querySnapshot) => {
             // When the database changes, re-run getPosts
             getPosts();
         });
-
         return () => {
             unsubscribe();
         };
     }, []);
+
+    useEffect(() => {
+        getPosts();
+        setRefreshing(false);
+    }, [refreshing]);
 
     function timeAgo(timestamp) {
         const now = new Date();
@@ -114,7 +118,28 @@ const Feed = () => {
     }
 
 
-
+    const firstComment = (post) => {
+        if (!post?.comments) {
+            return;
+        }
+        const comment = post.comments;
+        return (
+            <View style={styles.commentSection}>
+                <View style={styles.ImageProfileComment}>
+                    <Image source={{ uri: String(users[comment.userId]?.photo) }} style={styles.commentProfileImage} />
+                </View>
+                <View style={styles.commentRight}>
+                    <Text style={styles.nameComment}>
+                            {post?.comments?.userId ? users[comment.userId].name + ' ' : ''}
+                            <Text style={styles.commentText}>{comment.comment}</Text>
+                    </Text>
+                    <Text style={styles.dateText}>
+                        {comment.date ? timeAgo(comment.date) : ''}
+                    </Text>
+                </View>
+            </View>
+        );
+    }
 
     return (
         <ScrollView style={styles.container}>
@@ -145,38 +170,55 @@ const Feed = () => {
                             </View>
                         ))}
                     </Swiper>
-                    {/* "Voir les commentaires" button */}
-                    <TouchableOpacity
-                        style={styles.commentButton}
-                        onPress={() => navigation.navigate("Comments", { postId: post._id })}
-                    >
-                        <Text style={styles.commentButtonText}>Voir les commentaires</Text>
-                    </TouchableOpacity>
-                    {/* Separator Line */}
-                    <View style={styles.separator} />
+                    <View>
+                        {/* comment button */}
+                        <TouchableOpacity
+                            style={styles.commentButton}
+                            onPress={() => navigation.navigate("Comments", { post: post })}
+                        >
+                            <Text style={styles.commentButtonText}>See comments</Text>
+                        </TouchableOpacity>
+                        {/* Separator Line */}
+                        <View style={styles.separator} />
 
-                    {/* "Premier commentaire" section */}
-                    <View style={styles.commentSection}>
-                        <Text style={styles.nameComment}>
-
-                            {post?.comments?.userId ? post.comments?.userId.name : ''}
-                        </Text>
-                        <Text style={styles.commentText}>{post.comments?.comment}</Text>
-
-                    </View>
-
-                    {/* Separator Line */
+                        {/* first comment */}
+                        {firstComment(post)}
+                        
+                        {/* Separator Line */
                         <View style={styles.separator} ></View>}
-
-                    {/* "Ajouter un commentaire" section (empty for now) */}
-                        <View style={styles.commentSection}>
-                    <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.commentProfileImage} />
-                    <TouchableOpacity style={styles.commentButton}>
-                        <TextInput style={styles.commentButtonText}>Ajouter un commentaire</TextInput>
-                    </TouchableOpacity>
+                        {/* add comment */}
+                        <View style={styles.commentAddSection}>
+                            <View style={styles.commentTitle}>
+                                <Image source={{ uri: String(users[auth.currentUser.uid]?.photo) }} style={styles.commentProfileImage} />
+                                <Text style={styles.nameComment}>
+                                    {users[auth.currentUser.uid]?.name}
+                                </Text>
+                            </View>
+                            <TextInput
+                                style={styles.commentAddText}
+                                placeholder="Add a comment..."
+                                onChangeText={(text) => setComment(text)}
+                                value={comment}
+                            />
+                            <Button
+                                title="Post"
+                                onPress={() => {
+                                    const db = getFirestore();
+                                    const commentsCollection = collection(db, "posts", post.id, "comments");
+                                    const commentData = {
+                                        comment: comment,
+                                        date: new Date(),
+                                        userId: auth.currentUser.uid,
+                                    };
+                                    setComment("");
+                                    addDoc(commentsCollection, commentData);
+                                    setRefreshing(true);
+                                }}
+                            />
+                        </View>
+                    </View> 
                 </View>
-                </View>
-                ))}
+            ))}
         </ScrollView>
     );
 };
@@ -205,7 +247,7 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         borderTopWidth: 0.5,
-        marginBottom: 60,
+        marginBottom: 3,
     },
     profileContainer: {
         flexDirection: "row",
@@ -244,39 +286,63 @@ const styles = StyleSheet.create({
         height: Dimensions.get('window').height / 2,
     },
     commentButton: {
-        backgroundColor: "transparent",
         padding: 10,
     },
     commentButtonText: {
-        fontSize: 16,
-        color: "gray",
+        color: "#007AFF",
     },
     separator: {
         borderBottomWidth: 0.5,
-        borderBottomColor: "grey",
+        borderBottomColor: "black",
     },
     commentSection: {
         flexDirection: "row",
-        alignItems: "center",
-        padding: 10
-
+        padding: 5,
     },
-    commentText: {
-        fontSize: 13,
+    ImageProfileComment: {
+        flexDirection: "row",
+        alignItems: "top",
+    },
+    commentRight: {
+        flexDirection: "column",
+        alignItems: "flex-start",
+        flex: 1,
+    },
+    commentAddSection: {
+        flexDirection: "row",
+        padding: 5,
     },
     commentTitle: {
-        fontWeight: "bold",
-        fontSize: 16,
+        flexDirection: "row",
+        alignItems: "center",
     },
-    dateText: {
-        color: "gray",
+    commentAddText: {
+        flex: 1,
+        height: 40,
+        borderColor: "gray",
+        borderWidth: 1,
+        borderRadius: 15,
+        padding: 10,
+        marginRight: 10,
     },
     nameComment: {
         fontWeight: "bold",
-        fontSize: 16,
+        marginRight: 10,
+    },
+    commentText: {
+        fontWeight: "normal",
         marginRight: 20,
-
-    }
+    },
+    commentProfileImage: {
+        width: 30,
+        height: 30,
+        borderRadius: 20,
+        marginRight: 10,
+    },
+    dateText: {
+        color: "gray",
+        fontSize: 12,
+    },
 });
 
 export default Feed;
