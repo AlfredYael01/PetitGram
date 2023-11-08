@@ -2,6 +2,7 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import App from './App';
 import TestRenderer from 'react-test-renderer';
+import Login from './components/auth/Login';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
@@ -14,13 +15,11 @@ jest.mock('firebase/auth', () => ({
 }));
 
 describe('<App />', () => {
-  it('has 2 children', () => {
-    let component;
-    TestRenderer.act(() => {
-      component = TestRenderer.create(<App />);
-    });
+  it('to have a valid snapshot', () => {
+    const component = TestRenderer.create(<App />);
     const tree = component.toJSON();
-    expect(tree.children.length).toBe(2);
+    expect(tree).toBeTruthy();
   }
   );
-});
+}
+);

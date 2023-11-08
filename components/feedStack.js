@@ -1,23 +1,22 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import SearchScreen from './main/Search';
+import FeedScreen from './main/Feed';
 import SearchUserProfileScreen from '../assets/screens/searchUserProfileScreen';
 import ViewPost from '../assets/screens/ViewPost';
-import UserProfileHeader from './userProfileHeader'
 
 const Stack = createStackNavigator();
 
-const SearchStack = () => {
+const FeedStack = () => {
 
     return(
         <Stack.Navigator>
-            <Stack.Screen name='searchScreen' component={SearchScreen} options={{headerShown: false}}/>
+            <Stack.Screen name='feedScreen' component={FeedScreen} options={{headerShown: false}}/>
             <Stack.Screen name='searchUserProfileScreen' component={SearchUserProfileScreen} options={{headerShown: false}}/>
-            <Stack.Screen name='ViewPost' component={ViewPost} options={{headerTitle: "Publications"}}/>
+            <Stack.Screen name='ViewPost' component={ViewPost} options={{headerTitle: 'Publications'}}/>
         </Stack.Navigator>
 
     )
 
 }
 
-export default SearchStack;
+export default FeedStack;

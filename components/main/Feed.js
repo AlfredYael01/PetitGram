@@ -5,7 +5,8 @@ import { getFirestore, collection, getDocs, onSnapshot, orderBy, addDoc} from 'f
 import { query, where, doc } from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
 
-const Feed = () => {
+
+const FeedScreen = ({navigation}) => {
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
     const [users, setUsers] = useState({})
@@ -151,9 +152,12 @@ const Feed = () => {
             {posts.map((post) => (
                 <View style={styles.imageContainer} key={post._id}>
                     <View style={styles.profileContainer}>
-                        <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
-                        <View style={styles.profileInfo}>
+                        <TouchableOpacity  style={styles.touchable} onPress={() => navigation.navigate('searchUserProfileScreen', {user: users[post.userId]})}>
+                            <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
                             <Text style={styles.name}>{users[post.userId]?.name}</Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.profileInfo}>
                             <Text style={styles.dateText}>
                                 {timeAgo(post.date)}
                             </Text>
@@ -170,6 +174,7 @@ const Feed = () => {
                             </View>
                         ))}
                     </Swiper>
+                    <Text style={{marginLeft: 10}}>{post.description}</Text>
                     <View>
                         {/* comment button */}
                         <TouchableOpacity
@@ -269,7 +274,7 @@ const styles = StyleSheet.create({
     profileInfo: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "flex-end",
         flex: 1,
     },
     name: {
@@ -343,6 +348,11 @@ const styles = StyleSheet.create({
         color: "gray",
         fontSize: 12,
     },
+
+    touchable: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    }
 });
 
-export default Feed;
+export default FeedScreen;

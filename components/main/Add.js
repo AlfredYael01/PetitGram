@@ -6,7 +6,6 @@ import * as MediaLibrary from 'expo-media-library';
 import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { navigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -66,66 +65,29 @@ export default function AddScreen( {navigation} ) {
 
     const removeSelectedImage = (imageUri) => {
         setSelectedImages(selectedImages.filter(uri => uri !== imageUri));
-    }
-
-    const handlePost = async () => {
-        if (selectedImages.length === 0) {
-            alert('Please select at least one image to post.');
-            return;
-        }
-    
-        // Define post info
-        const auth = getAuth();
-        const user = auth.currentUser.uid;
-        const postId = Math.random().toString(36).substring(7);
-        const date = new Date();
-        const timestamp = date.getTime();
-        const imageUrls = [];
-    
-        const storage = getStorage();
-        try {
-            for (let i = 0; i < selectedImages.length; i++) {
-                const base64Image = selectedImages[i];
-                // folder name is the user id
-                const imageFileName = `${user}/${postId}/${i}.jpg`;
-                const imageRef = ref(storage, imageFileName);
-                const response = await fetch(base64Image);
-                const blob = await response.blob();
-                await uploadBytes(imageRef, blob);
-                const imageUrl = await getDownloadURL(imageRef);
-                imageUrls.push(imageUrl);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    
-        // Upload data to Firestore
-        const db = getFirestore();
-        const docRef = await addDoc(collection(db, "posts"), {
-            _id: postId,
-            userId: user,
-            images: imageUrls,
-            timestamp: timestamp,
-            date: date,
-        });
-    
-        console.log("Document written with ID: ", docRef.id);
-
-        // Clear selected images
-        setSelectedImages([]);
         setLastSelectedImage(null);
-
-        // navigate to the profile screen
-        navigation.navigate('Profile');
-    };
-    
+    }
+     
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>New Post</Text>
-                <TouchableOpacity style={styles.nextButton} testID='nextButton' onPress={() => handlePost()}>
-                    <Text style={styles.nextButtonText}>Post</Text>
+                <TouchableOpacity style={styles.nextButton}  onPress={() => {
+
+                    if (selectedImages.length === 0) {
+                        alert('Please select at least one image to post.');
+                        // Enable the touchable opacity button
+                        return;
+                    }
+
+                    navigation.navigate('AddPostDescriptionScreen', {selectedImages: selectedImages})
+                    setSelectedImages([]);
+                    setLastSelectedImage(null);
+                }} 
+                           
+                    testID ="nextButton">
+                    <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
             </View>
 

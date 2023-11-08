@@ -40,20 +40,6 @@ const ProfileStack = () => {
     }, []);
 
       return(
-     /*  <NavigationContainer independent={true}>
-          <Stack.Navigator screenOptions={{headerTitle: userProfilePseudo}}>
-              <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ headerRight: () => (
-                      <TouchableOpacity >
-                          <Feather name='menu' color="black" size={25} onPress={() => {
-                          setShowFlatList(!showFlatList);
-
-                      }}/>
-                      </TouchableOpacity > 
-                  ) }} initialParams={{ showFlatList: false }}>
-              </Stack.Screen>
-              <Stack.Screen name="ViewPost" component={ViewPost} />
-          </Stack.Navigator>
-      </NavigationContainer> */
 
     <NavigationContainer independent={true}>
       <Stack.Navigator>
@@ -63,7 +49,7 @@ const ProfileStack = () => {
                   </TouchableOpacity > 
               ) */ headerTitle: userProfilePseudo}}>
           </Stack.Screen>
-          <Stack.Screen name="ViewPost" component={ViewPost} options={{headerTitle: "Publications", headerStyle: {backgroundColor: 'black'}}}/>
+          <Stack.Screen name="ViewPost" component={ViewPost} options={{ headerTitle: 'Publications'}}/>
       </Stack.Navigator>
     </NavigationContainer>
 
