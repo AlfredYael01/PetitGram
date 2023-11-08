@@ -123,6 +123,7 @@ const FeedScreen = ({navigation}) => {
                             </View>
                         ))}
                     </Swiper>
+                    <Text style={{marginLeft: 10}}>{post.description}</Text>
                     <Text style={styles.comment}>Commentaire de la post</Text>
                 </View>
             ))}

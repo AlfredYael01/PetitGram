@@ -52,7 +52,7 @@ test('renders AddScreen component without errors', () => {
   // Check if the component renders without errors
   expect(getByText('New Post')).toBeTruthy();
   expect(getByText('Pick Image')).toBeTruthy();
-  expect(queryByText('Post')).toBeTruthy();
+  expect(queryByText('Next')).toBeTruthy();
   expect(getByText('Switch Camera')).toBeTruthy();
 });
 
