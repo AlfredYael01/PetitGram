@@ -118,6 +118,19 @@ const FeedScreen = ({navigation}) => {
         }
     }
 
+    const description = (post) => {
+        if (!post?.description) {
+            return;
+        }
+        return (
+            <View style={styles.descriptionContainer}>
+                <Text style={styles.descriptionText}>
+                    {post.description}
+                </Text>
+            </View>
+        );
+    }
+
 
     const firstComment = (post) => {
         if (!post?.comments) {
@@ -125,20 +138,29 @@ const FeedScreen = ({navigation}) => {
         }
         const comment = post.comments;
         return (
-            <View style={styles.commentSection}>
-                <View style={styles.ImageProfileComment}>
-                    <Image source={{ uri: String(users[comment.userId]?.photo) }} style={styles.commentProfileImage} />
+            <>
+                <View style={styles.commentSection}>
+                    <View style={styles.ImageProfileComment}>
+                        <Image source={{ uri: String(users[comment.userId]?.photo) }} style={styles.commentProfileImage} />
+                    </View>
+                    <View style={styles.commentRight}>
+                        <Text style={styles.nameComment}>
+                                {post?.comments?.userId ? users[comment.userId].name + ' ' : ''}
+                                <Text style={styles.commentText}>{comment.comment}</Text>
+                        </Text>
+                        <Text style={styles.dateText}>
+                            {comment.date ? timeAgo(comment.date) : ''}
+                        </Text>
+                    </View>
                 </View>
-                <View style={styles.commentRight}>
-                    <Text style={styles.nameComment}>
-                            {post?.comments?.userId ? users[comment.userId].name + ' ' : ''}
-                            <Text style={styles.commentText}>{comment.comment}</Text>
-                    </Text>
-                    <Text style={styles.dateText}>
-                        {comment.date ? timeAgo(comment.date) : ''}
-                    </Text>
-                </View>
-            </View>
+                {/* comment button */}
+                <TouchableOpacity
+                            style={styles.commentButton}
+                            onPress={() => navigation.navigate("Comments", { post: post })}
+                        >
+                            <Text style={styles.commentButtonText}>See comments</Text>
+                </TouchableOpacity>
+            </>
         );
     }
 
@@ -174,18 +196,11 @@ const FeedScreen = ({navigation}) => {
                             </View>
                         ))}
                     </Swiper>
-                    <Text style={{marginLeft: 10}}>{post.description}</Text>
+                    {/* description */}
+                    {description(post)}
+                    
                     <View>
-                        {/* comment button */}
-                        <TouchableOpacity
-                            style={styles.commentButton}
-                            onPress={() => navigation.navigate("Comments", { post: post })}
-                        >
-                            <Text style={styles.commentButtonText}>See comments</Text>
-                        </TouchableOpacity>
-                        {/* Separator Line */}
                         <View style={styles.separator} />
-
                         {/* first comment */}
                         {firstComment(post)}
                         
@@ -291,7 +306,8 @@ const styles = StyleSheet.create({
         height: Dimensions.get('window').height / 2,
     },
     commentButton: {
-        padding: 10,
+        alignItems: "center",
+        padding: 3,
     },
     commentButtonText: {
         color: "#007AFF",
@@ -347,6 +363,12 @@ const styles = StyleSheet.create({
     dateText: {
         color: "gray",
         fontSize: 12,
+    },
+    descriptionContainer: {
+        padding: 10,
+    },
+    descriptionText: {
+        fontSize: 15,
     },
 
     touchable: {
