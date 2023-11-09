@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Animated, ImageBackground, View, Text, StyleSheet, Image, Dimensions, ScrollView, Button, TouchableOpacity, TextInput} from "react-native";
 import {getAuth} from "firebase/auth";
-import {getFirestore, collection, getDocs, onSnapshot, orderBy, addDoc} from 'firebase/firestore';
+import {getFirestore, collection, getDocs, onSnapshot, orderBy, addDoc, updateDoc} from 'firebase/firestore';
 import {query, where, doc} from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
 import { createStackNavigator } from "@react-navigation/stack";
@@ -195,6 +195,31 @@ const FeedScreen = ({navigation}) => {
         );
     }
 
+    const likeControl = async (post) =>  {
+        const db = getFirestore();
+        console.log(post.id)
+        const userRef = await doc(db, "posts", post.id);
+        console.log(userRef)
+        const likes = post?.likes ? [...post.likes, auth.currentUser.uid] : [auth.currentUser.uid];
+        await updateDoc(userRef, {
+            likes: likes
+        });
+        posts.likes = likes;
+    }
+
+    const dislikeControl = async (post) =>  {
+        const db = getFirestore();
+        console.log(post.id)
+        const userRef = await doc(db, "posts", post.id);
+        console.log(userRef)
+        const likes = post?.likes ? post.likes.filter((like) => like !== auth.currentUser.uid) : [];
+        await updateDoc(userRef, {
+            likes: likes
+        }
+        );
+        posts.likes = likes;
+    }
+
     const PostScreen = ( {navigation} ) => {
         return (
             <ScrollView style={styles.container}>
@@ -203,7 +228,7 @@ const FeedScreen = ({navigation}) => {
                     <Text style={styles.headerTitle}>Feed</Text>
                     <Text style={styles.headerUser}>{users[auth.currentUser.uid]?.pseudo}</Text>
                 </View>
-                {posts.map((post) => (
+                {posts.map((post,index) => (
                     <View style={styles.imageContainer} key={post._id}>
                         <View style={styles.profileContainer}>
                             <TouchableOpacity  style={styles.touchable} onPress={() => navigation.navigate('searchUserProfileScreen', {user: users[post.userId]})}>
@@ -244,11 +269,12 @@ const FeedScreen = ({navigation}) => {
                         </Swiper>
                         <AntDesign name={liked && index == counter ? "heart" : "hearto"} size={30} color={"#fa635c"}
                                    onPress={() => {
-                                       console.log(index)
-                                       console.log(counter)
 
                                        if (liked == false) {
+                                           likeControl(post)
                                            setVisible(true)
+                                       }else {
+                                           dislikeControl(post)
                                        }
                                        setLiked(!liked)
                                        setCounter(index)
@@ -424,12 +450,6 @@ const styles = StyleSheet.create({
     commentText: {
         fontWeight: "normal",
         marginRight: 20,
-    },
-    commentProfileImage: {
-        width: 30,
-        height: 30,
-        borderRadius: 20,
-        marginRight: 10,
     },
     dateText: {
         color: "gray",
