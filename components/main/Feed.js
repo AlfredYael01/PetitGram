@@ -4,6 +4,9 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, onSnapshot, orderBy, addDoc} from 'firebase/firestore';
 import { query, where, doc } from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
+import { createStackNavigator } from "@react-navigation/stack";
+import CommentsScreen from "./Comments";
+import * as Icon from 'react-native-feather';
 
 
 const FeedScreen = ({navigation}) => {
@@ -12,13 +15,14 @@ const FeedScreen = ({navigation}) => {
     const [users, setUsers] = useState({})
     const [comment, setComment] = useState("");
     const [refreshing, setRefreshing] = useState(false);
+    const Stack = createStackNavigator();
 
     const getPosts = async () => {
         const userId = auth.currentUser.uid;
         const db = getFirestore();
         const postsCollection = collection(db, "posts");
         const querySnapshot = await getDocs(query(postsCollection, orderBy("date", "desc")));
-        const commentData = [];
+        const commentData = {}
         for (const doc of querySnapshot.docs) {
             const commentsCollection = collection(db,"posts", doc.id, "comments");
             const querySnapshotComments = await getDocs(query(commentsCollection, orderBy("date", "desc")));
@@ -27,10 +31,9 @@ const FeedScreen = ({navigation}) => {
                 const comment = docComment.data();
                 const id = doc.id;
                 const temp = {...comment, id: id};
-                commentData.push({ [id]: temp });
+                commentData[id] = [...commentData[id] || [], temp ];
             }
         }
-        console.log(commentData);
         const postsData = [];
         const userPromises = [];
         if (!querySnapshot) {
@@ -41,7 +44,7 @@ const FeedScreen = ({navigation}) => {
             const post = doc.data();
             if (post.userId !== userId) {
                 const id = doc.id;
-                const temp = {...post, comments: commentData.find((comment) => comment[id])?.[id], id: id};
+                const temp = {...post, id: id, comments: commentData[id]};
                 postsData.push(temp);
             }
 
@@ -53,18 +56,23 @@ const FeedScreen = ({navigation}) => {
                     return { [post.userId]: userData };
                 })();
                 userPromises.push(userPromise);
-            }
-            const commentUserId = postsData[postsData.length - 1]?.comments?.userId;
-            if (commentUserId && !users[commentUserId]) {
-                const userPromise2 = (async () => {
+            }    
+        });
+        // get all users who commented or skip if undefined
+        const comments = Object.values(commentData);
+        const commentUserIds = comments.map((comment) => comment.map((comment) => comment.userId)).flat();
+        commentUserIds?.forEach((commentUserId) => {
+            if (!users[commentUserId]) {
+                // Create a promise to fetch the user data
+                const userPromise = (async () => {
                     const userDoc = await getDocs(query(collection(db, "users"), where("_id", "==", commentUserId)));
                     const userData = userDoc.docs[0].data();
                     return { [commentUserId]: userData };
                 })();
-                userPromises.push(userPromise2);
+                userPromises.push(userPromise);
             }
         });
-        //console.log(postsData);
+
 
         // Wait for all user data promises to resolve
         const userDataArray = await Promise.all(userPromises);
@@ -87,8 +95,14 @@ const FeedScreen = ({navigation}) => {
             // When the database changes, re-run getPosts
             getPosts();
         });
+        // also when returning to the feed screen
+        const unsubscribe2 = navigation.addListener('focus', () => {
+            getPosts();
+        });
+
         return () => {
             unsubscribe();
+            unsubscribe2();
         };
     }, []);
 
@@ -136,7 +150,7 @@ const FeedScreen = ({navigation}) => {
         if (!post?.comments) {
             return;
         }
-        const comment = post.comments;
+        const comment = post.comments.length > 0 ? post.comments[0] : null;
         return (
             <>
                 <View style={styles.commentSection}>
@@ -156,92 +170,104 @@ const FeedScreen = ({navigation}) => {
                 {/* comment button */}
                 <TouchableOpacity
                             style={styles.commentButton}
-                            onPress={() => navigation.navigate("Comments", { post: post })}
+                            onPress={() => {
+                                navigation.navigate('Comments', {post: post, users: users});
+                            }}
                         >
-                            <Text style={styles.commentButtonText}>See comments</Text>
+                            <Text style={styles.commentButtonText}>Read more</Text>
                 </TouchableOpacity>
             </>
         );
     }
 
-    return (
-        <ScrollView style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Feed</Text>
-                <Text style={styles.headerUser}>{users[auth.currentUser.uid]?.pseudo}</Text>
-            </View>
-            {posts.map((post) => (
-                <View style={styles.imageContainer} key={post._id}>
-                    <View style={styles.profileContainer}>
-                        <TouchableOpacity  style={styles.touchable} onPress={() => navigation.navigate('searchUserProfileScreen', {user: users[post.userId]})}>
-                            <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
-                            <Text style={styles.name}>{users[post.userId]?.name}</Text>
-                        </TouchableOpacity>
+    const PostScreen = ( {navigation} ) => {
+        return (
+            <ScrollView style={styles.container}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Feed</Text>
+                    <Text style={styles.headerUser}>{users[auth.currentUser.uid]?.pseudo}</Text>
+                </View>
+                {posts.map((post) => (
+                    <View style={styles.imageContainer} key={post._id}>
+                        <View style={styles.profileContainer}>
+                            <TouchableOpacity  style={styles.touchable} onPress={() => navigation.navigate('searchUserProfileScreen', {user: users[post.userId]})}>
+                                <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
+                                <Text style={styles.name}>{users[post.userId]?.name}</Text>
+                            </TouchableOpacity>
 
-                        <View style={styles.profileInfo}>
-                            <Text style={styles.dateText}>
-                                {timeAgo(post.date)}
-                            </Text>
-                        </View>
-                    </View>
-                    <Swiper
-                        style={styles.imageSlider}
-                        loop={false}
-                        paginationStyle={styles.pagination}
-                    >
-                        {post.images.map((image) => (
-                            <View key={image} style={styles.mainImage}>
-                                <Image source={{ uri: String(image) }} style={styles.mainImage} />
-                            </View>
-                        ))}
-                    </Swiper>
-                    {/* description */}
-                    {description(post)}
-                    
-                    <View>
-                        <View style={styles.separator} />
-                        {/* first comment */}
-                        {firstComment(post)}
-                        
-                        {/* Separator Line */
-                        <View style={styles.separator} ></View>}
-                        {/* add comment */}
-                        <View style={styles.commentAddSection}>
-                            <View style={styles.commentTitle}>
-                                <Image source={{ uri: String(users[auth.currentUser.uid]?.photo) }} style={styles.commentProfileImage} />
-                                <Text style={styles.nameComment}>
-                                    {users[auth.currentUser.uid]?.name}
+                            <View style={styles.profileInfo}>
+                                <Text style={styles.dateText}>
+                                    {timeAgo(post.date)}
                                 </Text>
                             </View>
-                            <TextInput
-                                style={styles.commentAddText}
-                                placeholder="Add a comment..."
-                                onChangeText={(text) => setComment(text)}
-                                value={comment}
-                            />
-                            <Button
-                                title="Post"
-                                onPress={() => {
-                                    const db = getFirestore();
-                                    const commentsCollection = collection(db, "posts", post.id, "comments");
-                                    const commentData = {
-                                        comment: comment,
-                                        date: new Date(),
-                                        userId: auth.currentUser.uid,
-                                    };
-                                    setComment("");
-                                    addDoc(commentsCollection, commentData);
-                                    setRefreshing(true);
-                                }}
-                            />
                         </View>
-                    </View> 
-                </View>
-            ))}
-        </ScrollView>
+                        <Swiper
+                            style={styles.imageSlider}
+                            loop={false}
+                            paginationStyle={styles.pagination}
+                        >
+                            {post.images.map((image) => (
+                                <View key={image} style={styles.mainImage}>
+                                    <Image source={{ uri: String(image) }} style={styles.mainImage} />
+                                </View>
+                            ))}
+                        </Swiper>
+                        {/* description */}
+                        {description(post)}
+                        
+                        <View>
+                            <View style={styles.separator} />
+                            {/* first comment */}
+                            {firstComment(post)}
+                            
+                            {/* Separator Line */
+                            <View style={styles.separator} ></View>}
+                            {/* add comment */}
+                            <View style={styles.commentAddSection}>
+                                <View style={styles.commentTitle}>
+                                    <Image source={{ uri: String(users[auth.currentUser.uid]?.photo) }} style={styles.commentProfileImage} />
+                                    <Text style={styles.nameComment}>
+                                        {users[auth.currentUser.uid]?.name}
+                                    </Text>
+                                </View>
+                                <TextInput
+                                    style={styles.commentAddText}
+                                    placeholder="Add a comment..."
+                                    onChangeText={(text) => setComment(text)}
+                                    value={comment}
+                                />
+                                <Button
+                                    title="Post"
+                                    onPress={() => {
+                                        const db = getFirestore();
+                                        const commentsCollection = collection(db, "posts", post.id, "comments");
+                                        const commentData = {
+                                            comment: comment,
+                                            date: new Date(),
+                                            userId: auth.currentUser.uid,
+                                        };
+                                        setComment("");
+                                        addDoc(commentsCollection, commentData);
+                                        setRefreshing(true);
+                                    }}
+                                />
+                            </View>
+                        </View> 
+                    </View>
+                ))}
+            </ScrollView>
+        );
+    }
+
+    return (
+        <Stack.Navigator initialRouteName="Feed" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Feed" component={PostScreen} />
+            <Stack.Screen name="Comments" component={CommentsScreen} />
+        </Stack.Navigator>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
