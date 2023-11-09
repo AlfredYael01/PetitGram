@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { View, StatusBar } from 'react-native';
 import MainScreen from './components/Main';
-import { Provider, useSelector, useDispatch } from 'react-redux';
+import { Provider } from 'react-redux';
 import store from './components/redux/store';
 import { getApps, initializeApp } from 'firebase/app';
 import { onAuthStateChanged, getAuth} from 'firebase/auth';
@@ -32,8 +32,6 @@ if (getApps().length === 0) {
 }
 
 function App() {
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
   const db = getFirestore();
   const loginStack = createStackNavigator();
   
@@ -69,7 +67,7 @@ function App() {
   );
 }
 
-export default function ReduxApp() {
+export default () => {
   return (
     <Provider store={store}>
       <View>

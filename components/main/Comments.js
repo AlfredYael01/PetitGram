@@ -5,12 +5,16 @@ import { useEffect, useState } from 'react';
 import * as Icon from 'react-native-feather';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { toggle } from "../redux/refreshSlice";
 
 
 const CommentsScreen = ({ route , navigation }) => {
     const { post, users } = route.params;
     const [comments, setComments] = useState([]);
     const [comment, setComment] = useState('');
+    const dispatch = useDispatch();
+    const refresh = useSelector((state) => state.refresh.refresh);
 
     useEffect(() => {
         if (post.comments) {
@@ -86,6 +90,7 @@ const CommentsScreen = ({ route , navigation }) => {
                                             userId: getAuth().currentUser.uid,
                                         };
                                         setComment("");
+                                        dispatch(toggle());
                                         addDoc(commentsCollection, commentData);
                                         navigation.goBack();
                                     }}>

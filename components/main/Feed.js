@@ -1,31 +1,34 @@
 import React, {useEffect, useState} from "react";
-import {Animated, ImageBackground, View, Text, StyleSheet, Image, Dimensions, ScrollView, Button, TouchableOpacity, TextInput} from "react-native";
+import {Animated, ImageBackground, View, Text, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity} from "react-native";
 import {getAuth} from "firebase/auth";
 import {getFirestore, collection, getDocs, onSnapshot, orderBy, addDoc, updateDoc} from 'firebase/firestore';
 import {query, where, doc} from 'firebase/firestore';
 import Swiper from 'react-native-swiper';
 import { createStackNavigator } from "@react-navigation/stack";
 import CommentsScreen from "./Comments";
-import * as Icon from 'react-native-feather';
-
 import {AntDesign} from '@expo/vector-icons';
+import { useDispatch, useSelector } from "react-redux";
+import { toggle } from "../redux/refreshSlice";
 
 const FeedScreen = ({navigation}) => {
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
     const [users, setUsers] = useState({})
-    const [comment, setComment] = useState("");
-    const [refreshing, setRefreshing] = useState(false);
     const Stack = createStackNavigator();
-
+    const dispatch = useDispatch();
+    const refresh = useSelector((state) => state.refresh.refresh);
     const [liked, setLiked] = useState(false)
     const [visible, setVisible] = useState(false)
     const [counter, setCounter] = useState(-2)
     const AnimatedIcon = Animated.createAnimatedComponent(AntDesign)
     useEffect(() => {
+        // add useNativeDriver={true} to AnimatedIcon
         if (liked == true) {
-            Animated.spring(currentValue, {toValue: 2, friction: 2}).start(() => {
-                Animated.spring(currentValue, {toValue: 1}).start(() => setVisible(false))
+            Animated.spring(currentValue, {toValue: 2, friction: 2, useNativeDriver: true}).start(() => {
+
+                Animated.spring(currentValue, {toValue: 1, useNativeDriver: true}).start(() => {
+                    setVisible(false)
+                })
             })
         }
     }, [liked]);
@@ -103,28 +106,23 @@ const FeedScreen = ({navigation}) => {
 
 
     useEffect(() => {
-        getPosts();
         const db = getFirestore();
         const postsCollection = collection(db, 'posts');
         const unsubscribe = onSnapshot(postsCollection, (querySnapshot) => {
             // When the database changes, re-run getPosts
             getPosts();
         });
-        // also when returning to the feed screen
-        const unsubscribe2 = navigation.addListener('focus', () => {
-            getPosts();
-        });
-
         return () => {
             unsubscribe();
-            unsubscribe2();
         };
     }, []);
 
     useEffect(() => {
-        getPosts();
-        setRefreshing(false);
-    }, [refreshing]);
+        if (refresh) {
+            getPosts();
+            dispatch(toggle());
+        }
+    }, [refresh]);
 
     function timeAgo(timestamp) {
         const now = new Date();
@@ -182,15 +180,6 @@ const FeedScreen = ({navigation}) => {
                         </Text>
                     </View>
                 </View>
-                {/* comment button */}
-                <TouchableOpacity
-                            style={styles.commentButton}
-                            onPress={() => {
-                                navigation.navigate('Comments', {post: post, users: users});
-                            }}
-                        >
-                            <Text style={styles.commentButtonText}>Read more</Text>
-                </TouchableOpacity>
             </>
         );
     }
@@ -222,7 +211,7 @@ const FeedScreen = ({navigation}) => {
 
     const PostScreen = ( {navigation} ) => {
         return (
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Feed</Text>
@@ -254,7 +243,6 @@ const FeedScreen = ({navigation}) => {
                                                 name={"heart"}
                                                 size={50}
                                                 color={"#fa635c"}
-                                                useNativeDriver={true}
                                                 style={{
                                                     position: "absolute",
                                                     top: 150,
@@ -267,62 +255,37 @@ const FeedScreen = ({navigation}) => {
                                 </View>
                             ))}
                         </Swiper>
-                        <AntDesign name={liked && index == counter ? "heart" : "hearto"} size={30} color={"#fa635c"}
-                                   onPress={() => {
+                        <View style={styles.IconContainer}>
+                            <AntDesign name={liked && index == counter ? "heart" : "hearto"} size={30} color={ liked && index == counter ? "#fa635c" : "#bbbbbb"}
+                                    onPress={() => {
 
-                                       if (liked == false) {
-                                           likeControl(post)
-                                           setVisible(true)
-                                       }else {
-                                           dislikeControl(post)
-                                       }
-                                       setLiked(!liked)
-                                       setCounter(index)
-                                   }}
-                                   useNativeDriver={true}
-                                   style={{marginLeft: 5}}
-                        />
-                        {/* description */}
-                        {description(post)}
+                                        if (liked == false) {
+                                            likeControl(post)
+                                            setVisible(true)
+                                        }else {
+                                            dislikeControl(post)
+                                        }
+                                        setLiked(!liked)
+                                        setCounter(index)
+                                    }}
+                                    style={{marginLeft: 5}}
+                            />
+                            { /* icon for toggoling add comment for a post */}
 
+                            <AntDesign name="message1" size={30} color="#bbbbbb"
+                                    onPress={() => {
+                                        navigation.navigate('Comments', {post: post, users: users});
+                                    }}
+                                    style={{marginLeft: 10}}
+                            />    
+                        </View>
                         <View>
-                            <View style={styles.separator} />
+                            {/* description */}
+                            {description(post)}
                             {/* first comment */}
                             {firstComment(post)}
-
-                            {/* Separator Line */
-                            <View style={styles.separator} ></View>}
-                            {/* add comment */}
-                            <View style={styles.commentAddSection}>
-                                <View style={styles.commentTitle}>
-                                    <Image source={{ uri: String(users[auth.currentUser.uid]?.photo) }} style={styles.commentProfileImage} />
-                                    <Text style={styles.nameComment}>
-                                        {users[auth.currentUser.uid]?.name}
-                                    </Text>
-                                </View>
-                                <TextInput
-                                    style={styles.commentAddText}
-                                    placeholder="Add a comment..."
-                                    onChangeText={(text) => setComment(text)}
-                                    value={comment}
-                                />
-                                <Button
-                                    title="Post"
-                                    onPress={() => {
-                                        const db = getFirestore();
-                                        const commentsCollection = collection(db, "posts", post.id, "comments");
-                                        const commentData = {
-                                            comment: comment,
-                                            date: new Date(),
-                                            userId: auth.currentUser.uid,
-                                        };
-                                        setComment("");
-                                        addDoc(commentsCollection, commentData);
-                                        setRefreshing(true);
-                                    }}
-                                />
-                            </View>
                         </View>
+                        
                     </View>
                 ))}
             </ScrollView>
@@ -387,6 +350,12 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
         flex: 1,
     },
+    IconContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        padding: 10,
+    },
     name: {
         fontWeight: "bold",
     },
@@ -425,23 +394,6 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         alignItems: "flex-start",
         flex: 1,
-    },
-    commentAddSection: {
-        flexDirection: "row",
-        padding: 5,
-    },
-    commentTitle: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    commentAddText: {
-        flex: 1,
-        height: 40,
-        borderColor: "gray",
-        borderWidth: 1,
-        borderRadius: 15,
-        padding: 10,
-        marginRight: 10,
     },
     nameComment: {
         fontWeight: "bold",
