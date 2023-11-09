@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions, ScrollView, ImageBackground,TouchableOpacity, Animated} from "react-native";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, getDocs, onSnapshot, orderBy} from 'firebase/firestore';
 import { query, where } from 'firebase/firestore';
@@ -87,46 +87,82 @@ const Feed = () => {
             return seconds + ' second' + (seconds === 1 ? '' : 's') + ' ago';
         }
     }
+
+
+    // const PostComponent = ({ post }) => {
+         const [liked, setLiked] = useState(false);
+         const likeAnimation = new Animated.Value(0);
     
-
-
-
-    return (
-        <ScrollView style={styles.container}>
-             {/* Header */}
-             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Feed</Text>
-                <Text style={styles.headerUser}>{users[auth.currentUser.uid]?.pseudo}</Text>
-            </View>
-            {posts.map((post) => (
-                <View style={styles.imageContainer} key={post._id}>
-                    <View style={styles.profileContainer}>
-                        <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
-                        <View style={styles.profileInfo}>
-                            <Text style={styles.name}>{users[post.userId]?.name}</Text>
-                            <Text style={styles.dateText}>
-                                {timeAgo(post.date)}
-                            </Text>
-                        </View>
-                    </View>
-                    <Swiper
-                        style={styles.imageSlider}
-                         loop={false}
-                        paginationStyle={styles.pagination}
-                    >
-                        {post.images.map((image) => (
-                            <View key={image} style={styles.mainImage}>
-                                <Image source={{ uri: String(image) }} style={styles.mainImage} />
-                            </View>
-                        ))}
-                    </Swiper>
-                    <Text style={styles.comment}>Commentaire de la post</Text>
+        const handleLike = () => {
+            setLiked(!liked);
+            Animated.sequence([
+                Animated.spring(likeAnimation, { toValue: 1, friction: 4, useNativeDriver: true }),
+                Animated.timing(likeAnimation, { toValue: 0, duration: 0, useNativeDriver: true }),
+            ]).start();
+        };
+    
+        const likeScale = likeAnimation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [1, 1.5],
+        });
+    
+        const handleDoublePress = () => {
+            // Mettre à jour le statut de "like" lors du double clic
+            setLiked(!liked);
+            handleLike(); // Appel à la fonction handleLike si nécessaire
+        };
+    
+        return (
+            <ScrollView style={styles.container}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Feed</Text>
+                    <Text style={styles.headerUser}>{users[auth.currentUser.uid]?.pseudo}</Text>
                 </View>
-            ))}
-        </ScrollView>
-    );
-    
-};
+                {posts.map((post) => (
+                    <View style={styles.imageContainer} key={post._id}>
+                        <View style={styles.profileContainer}>      
+                            <Image source={{ uri: String(users[post.userId]?.photo) }} style={styles.profileImage} />
+                            <View style={styles.profileInfo}>
+                                <Text style={styles.name}>{users[post.userId]?.name}</Text>
+                                <Text style={styles.dateText}>
+                                    {timeAgo(post.date)}
+                                </Text>
+                            </View>
+                        </View>
+                        <Swiper
+                            style={styles.imageSlider}
+                            loop={false}
+                            paginationStyle={styles.pagination}
+                        >
+                             {post.images.map((image, index) => ( 
+                         
+
+                                  <TouchableOpacity key={index} onPress={() => handleDoublePress(likeAnimation,liked)}>
+                                   
+                            
+                               
+                                    <View key={image} style={styles.mainImage}>
+                                        <ImageBackground source={{ uri: String(image) }} style={styles.mainImage}>
+                                        <Animated.Image
+                                        source={require('../../assets/heart.png')}
+                                        style={[
+                                            { width: 70, height: 70, tintColor: 'white', resizeMode: 'center' },
+                                            { transform: [{ scale: likeAnimation }] },
+                                        ]}
+                                    />
+                                        </ImageBackground>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </Swiper>
+                        <Text style={styles.comment}>Commentaire de la post</Text>
+                    </View>
+                ))}
+            </ScrollView>
+        );
+                                    // };
+        };
 
 const styles = StyleSheet.create({
     container: {
@@ -183,6 +219,8 @@ const styles = StyleSheet.create({
     mainImage: {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height / 2,
+        justifyContent:'center',
+        alignItems:'center',
     },
     comment: {
         padding: 10,
