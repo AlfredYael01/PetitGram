@@ -51,7 +51,7 @@ const FeedScreen = ({navigation}) => {
         const userPromises = [];
         if (!querySnapshot) {
             console.log("No posts");
-            return;
+            return; 
         }
         querySnapshot.forEach((doc) => {
             const post = doc.data();

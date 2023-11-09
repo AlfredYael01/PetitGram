@@ -23,8 +23,8 @@ const SearchScreen = ({navigation}) => {
     querySnapshot.forEach((doc) => {
       if (doc.data()._id != userId) {
         //users.push(doc.data());
-
-        setUsers(users => [...users, doc.data()]);
+        
+        setUsers(users => [...users, {...doc.data(), id: doc.id}]);
       }
     });
 
