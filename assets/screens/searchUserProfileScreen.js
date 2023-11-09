@@ -6,6 +6,7 @@ import { useRoute } from '@react-navigation/native';
 import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore, where, orderBy  } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
+import UserProfileHeader from '../../components/userProfileHeader';
 
 const SearchUserProfileScreen = ({route, navigation}) => {
 
