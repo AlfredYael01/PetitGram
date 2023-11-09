@@ -3,7 +3,7 @@ import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} 
 import Feather from 'react-native-vector-icons/Feather';
 import ImageComponent from "../../components/ImageComponent";
 import { useRoute } from '@react-navigation/native';
-import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore, where, orderBy  } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore, where, orderBy, doc, updateDoc, setDoc} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import UserProfileHeader from '../../components/userProfileHeader';
@@ -25,25 +25,27 @@ const SearchUserProfileScreen = ({route, navigation}) => {
     
     const {user} = route.params;
     const [posts, setPosts] = useState(postsArray);
-    const [profile, setProfile ] = useState({});
+    const [currentUser, setCurrentUser ] = useState({});
+    const [buttonFollow, setButtonFollow] = useState("Follow");
+
+    const db = getFirestore();
 
     const getUserInfo = async () => {
       const auth = getAuth();
       const userId = auth.currentUser.uid;
-      const db = getFirestore();
       const querySnapshot = await getDocs(collection(db, "users"));
       //console.log("QuerySnapshot: ",querySnapshot);
 
       querySnapshot.forEach((doc) => {
         //console.log("Data: ", doc.data());
-        if(doc.data()._id === user._id) {
-          setProfile(doc.data());
+        if(doc.data()._id === userId) {
+          setCurrentUser({...doc.data(), id: doc.id});
         }
       })
     }
 
+
     const getPosts = async () => {
-        const db = getFirestore();
         // only docs where the user id is equal to the current user id ordered by date
         console.log(user._id)
         const querySnapshot = await getDocs(queryFirestore(collection(db, "posts"), where("userId", "==", user._id)));
@@ -54,6 +56,13 @@ const SearchUserProfileScreen = ({route, navigation}) => {
         .sort((a, b) => b.date - a.date);
         console.log("Orderer: ", orderedPosts)
       setPosts(orderedPosts);
+    }
+
+
+    const removeElement = (array, element) => {
+
+       return array.filter((item) => (item == element));
+
     }
 
     // call getPosts when the component mounts
@@ -117,8 +126,66 @@ const SearchUserProfileScreen = ({route, navigation}) => {
         </View>
 
         <View style={styles.middleScreenContainer}>
-            <TouchableOpacity style={{borderColor:'gray', backgroundColor: 'black', borderWidth:0.5, borderRadius : 5, height : 25, width : 125, justifyContent : 'center', alignItems : 'center'}}>
-                    <Text style={{color: 'white'}}>Follow</Text>
+            <TouchableOpacity style={styles.followButton} onPress={ async () => {
+
+                if(buttonFollow == "Follow"){
+
+                    setButtonFollow("Unfollow");
+    
+                    const profileRef =  doc(db, "users", user.id);
+                    const userRef = doc(db, "users", currentUser.id);
+                    
+                    console.log("Profile ref :", profileRef);
+                    console.log("User ref :", userRef);
+    
+                    await updateDoc(profileRef, {
+                        followers: user?.followers ? [...user.followers, currentUser._id] : [currentUser._id]
+                    });
+
+                    user.followers = user?.followers ? [...user.followers, currentUser._id] : [currentUser._id];
+    
+
+                    await updateDoc(userRef, {
+                        followed: currentUser?.followed ? [...currentUser.followed, user._id] : [user._id]
+                    })
+
+                    currentUser.followed = currentUser?.followed ? [...currentUser.followed, user._id] : [user._id];
+
+
+                }
+
+                else if(buttonFollow == "Unfollow"){
+
+                    setButtonFollow("Follow");
+
+                    const profileRef =  doc(db, "users", user.id);
+                    const userRef = doc(db, "users", currentUser.id);
+                    const newFollower = removeElement(user.followers, currentUser.id);
+                    const newFollowed = removeElement(currentUser.followed, user.id);
+
+
+                    
+                    console.log("New follower :", newFollower);
+                    console.log("New followed :", newFollowed);
+
+                    await updateDoc(profileRef, {
+
+                        followers: newFollower
+                    });
+
+
+                    user.followers = newFollower;
+    
+                    await updateDoc(userRef, {
+                        followed: newFollowed
+                    });
+
+                    currentUser.followed = newFollowed;
+
+                }
+
+            }}>
+                    <Text style={{color: 'white'}}>{buttonFollow}</Text>
             </TouchableOpacity>
         </View>
 
@@ -127,7 +194,7 @@ const SearchUserProfileScreen = ({route, navigation}) => {
                     style={{backgroundColor: 'black'}}
                     numColumns={3}
                     data={posts}
-                    renderItem={({ item }) => <ImageComponent post={item} navigation={navigation} profile={profile}/>}
+                    renderItem={({ item }) => <ImageComponent post={item} navigation={navigation} profile={user}/>}
                     />
         </View>
                 
@@ -235,6 +302,18 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 40,
         marginTop: Dimensions.get('window').height * 0.02
+    },
+
+    followButton: {
+
+        borderColor:'gray', 
+        backgroundColor: 'black', 
+        borderWidth:0.5, 
+        borderRadius : 5, 
+        height : 25, 
+        width : 125, 
+        justifyContent : 'center', 
+        alignItems : 'center'
     }
 
 

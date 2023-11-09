@@ -21,7 +21,7 @@ const FeedScreen = ({navigation}) => {
         const userPromises = [];
         if (!querySnapshot) {
             console.log("No posts");
-            return;
+            return; 
         }
         querySnapshot.forEach((doc) => {
             const post = doc.data();
@@ -37,8 +37,7 @@ const FeedScreen = ({navigation}) => {
                 })();
                 userPromises.push(userPromise);
             }
-        });
-    
+        }); 
         // Wait for all user data promises to resolve
         const userDataArray = await Promise.all(userPromises);
     
@@ -129,7 +128,6 @@ const FeedScreen = ({navigation}) => {
             ))}
         </ScrollView>
     );
-    
 };
 
 const styles = StyleSheet.create({
