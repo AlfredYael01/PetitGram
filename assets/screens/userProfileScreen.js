@@ -116,12 +116,12 @@ const UserProfileScreen = ({navigation}) => {
             </View>
 
             <View style={styles.section2}>
-              <Text style={styles.numberSection}>275</Text>
+              <Text style={styles.numberSection}>{profile?.followers?.length ? profile.followers.length : 0}</Text>
               <Text style={styles.textSection}>Followers</Text>
             </View>
 
             <View style={styles.section3}>
-              <Text style={styles.numberSection}>509</Text>
+              <Text style={styles.numberSection}>{profile?.followed?.length ? profile.followed.lenght : 0}</Text>
               <Text style={styles.textSection}>Followed</Text>
             </View>
 
