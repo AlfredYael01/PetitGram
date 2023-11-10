@@ -1,11 +1,10 @@
 // store.js
 import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './userSlice'; // Import your slice(s)
+import refreshReducer from './refreshSlice';
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
-    user: userReducer, // Add your slices here
-    // Add other slices as needed
+    refresh: refreshReducer,
   },
 });
 
