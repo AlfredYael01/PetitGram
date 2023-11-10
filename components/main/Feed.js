@@ -101,6 +101,16 @@ const FeedScreen = ({navigation}) => {
 
         setUsers(updatedUsers);
         setPosts(postsData);
+        // if the user liked the post then set likedPosts to true
+        // postsData.forEach(
+        //     (post, index) => {
+        //         if (post.likes && post.likes.includes(auth.currentUser.uid)) {
+        //             const newLikedPosts = { ...likedPosts };
+        //             newLikedPosts[index] = true;
+        //             setLikedPosts(newLikedPosts);
+        //         }
+        //     }
+        // )
     };
 
 
@@ -251,7 +261,7 @@ const FeedScreen = ({navigation}) => {
                         </Swiper>
                         <View style={styles.IconContainer}>
 
-                            <AntDesign name={liked && index == counter ? "heart" : "hearto"} size={30} color={ liked && index == counter ? "#fa635c" : "#bbbbbb"}
+                            <AntDesign name={likedPosts[index] ? "heart" : "hearto"} size={30} color={ liked && index == counter ? "#fa635c" : "#bbbbbb"}
                                        onPress={() => {
                                            // Mise à jour de l'état liked du post spécifique
                                            const newLikedPosts = { ...likedPosts };
