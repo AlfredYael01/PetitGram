@@ -171,8 +171,8 @@ const FeedScreen = ({navigation}) => {
                     </View>
                     <View style={styles.commentRight}>
                         <Text style={styles.nameComment}>
-                                {post?.comments?.userId ? users[comment.userId].name + ' ' : ''}
-                                <Text style={styles.commentText}>{comment.comment}</Text>
+                            {post?.comments?.userId ? users[comment.userId].name + ' ' : ''}
+                            <Text style={styles.commentText}>{comment.comment}</Text>
                         </Text>
                         <Text style={styles.dateText}>
                             {comment.date ? timeAgo(comment.date) : ''}
@@ -198,8 +198,8 @@ const FeedScreen = ({navigation}) => {
         const userRef = await doc(db, "posts", post.id);
         const likes = post?.likes ? post.likes.filter((like) => like !== auth.currentUser.uid) : [];
         await updateDoc(userRef, {
-            likes: likes
-        }
+                likes: likes
+            }
         );
         posts.likes = likes;
     }
@@ -252,24 +252,24 @@ const FeedScreen = ({navigation}) => {
                         <View style={styles.IconContainer}>
 
                             <AntDesign name={liked && index == counter ? "heart" : "hearto"} size={30} color={ liked && index == counter ? "#fa635c" : "#bbbbbb"}
-                            onPress={() => {
-                                // Mise à jour de l'état liked du post spécifique
-                                const newLikedPosts = { ...likedPosts };
-                                newLikedPosts[index] = !likedPosts[index];
-                                setLikedPosts(newLikedPosts);
+                                       onPress={() => {
+                                           // Mise à jour de l'état liked du post spécifique
+                                           const newLikedPosts = { ...likedPosts };
+                                           newLikedPosts[index] = !likedPosts[index];
+                                           setLikedPosts(newLikedPosts);
 
-                                // Reste de votre logique de like ici
-                                if (!likedPosts[index]) {
-                                    likeControl(post);
-                                    setVisible(true);
-                                } else {
-                                    dislikeControl(post);
-                                }
-                                setCounter(index);
-                                setLiked(!liked);
-                            }}
-                            useNativeDriver={true}
-                            style={{ marginLeft: 5 }}
+                                           // Reste de votre logique de like ici
+                                           if (!likedPosts[index]) {
+                                               likeControl(post);
+                                               setVisible(true);
+                                           } else {
+                                               dislikeControl(post);
+                                           }
+                                           setCounter(index);
+                                           setLiked(!liked);
+                                       }}
+                                       useNativeDriver={true}
+                                       style={{ marginLeft: 5 }}
                             />
                             { /* icon for toggoling add comment for a post */}
 
