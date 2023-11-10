@@ -11,6 +11,7 @@ import * as Icon from 'react-native-feather';
 import {AntDesign} from '@expo/vector-icons';
 
 const FeedScreen = ({navigation}) => {
+    const [likedPosts, setLikedPosts] = useState({});
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
     const [users, setUsers] = useState({})
@@ -86,7 +87,6 @@ const FeedScreen = ({navigation}) => {
                 userPromises.push(userPromise);
             }
         });
-
 
         // Wait for all user data promises to resolve
         const userDataArray = await Promise.all(userPromises);
@@ -197,9 +197,7 @@ const FeedScreen = ({navigation}) => {
 
     const likeControl = async (post) =>  {
         const db = getFirestore();
-        console.log(post.id)
         const userRef = await doc(db, "posts", post.id);
-        console.log(userRef)
         const likes = post?.likes ? [...post.likes, auth.currentUser.uid] : [auth.currentUser.uid];
         await updateDoc(userRef, {
             likes: likes
@@ -209,9 +207,7 @@ const FeedScreen = ({navigation}) => {
 
     const dislikeControl = async (post) =>  {
         const db = getFirestore();
-        console.log(post.id)
         const userRef = await doc(db, "posts", post.id);
-        console.log(userRef)
         const likes = post?.likes ? post.likes.filter((like) => like !== auth.currentUser.uid) : [];
         await updateDoc(userRef, {
             likes: likes
@@ -249,38 +245,45 @@ const FeedScreen = ({navigation}) => {
                             {post.images.map((image) => (
                                 <View key={image} style={styles.mainImage}>
                                     <ImageBackground source={{uri: String(image)}} style={styles.mainImage}>
-                                        {visible && index == counter &&
+                                        {visible && index == counter && likedPosts[index] && (
                                             <AnimatedIcon
                                                 name={"heart"}
                                                 size={50}
                                                 color={"#fa635c"}
                                                 useNativeDriver={true}
                                                 style={{
-                                                    position: "absolute",
-                                                    top: 150,
-                                                    left: "40%",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
                                                     transform: [{scale: currentValue}],
                                                 }}
-                                            />
-                                        }
+                                            ></AnimatedIcon>
+                                        )}
                                     </ImageBackground>
                                 </View>
                             ))}
                         </Swiper>
-                        <AntDesign name={liked && index == counter ? "heart" : "hearto"} size={30} color={"#fa635c"}
-                                   onPress={() => {
+                        <AntDesign
+                            name={likedPosts[index] ? "heart" : "hearto"}
+                            size={30}
+                            color={"#fa635c"}
+                            onPress={() => {
+                                // Mise à jour de l'état liked du post spécifique
+                                const newLikedPosts = { ...likedPosts };
+                                newLikedPosts[index] = !likedPosts[index];
+                                setLikedPosts(newLikedPosts);
 
-                                       if (liked == false) {
-                                           likeControl(post)
-                                           setVisible(true)
-                                       }else {
-                                           dislikeControl(post)
-                                       }
-                                       setLiked(!liked)
-                                       setCounter(index)
-                                   }}
-                                   useNativeDriver={true}
-                                   style={{marginLeft: 5}}
+                                // Reste de votre logique de like ici
+                                if (!likedPosts[index]) {
+                                    likeControl(post);
+                                    setVisible(true);
+                                } else {
+                                    dislikeControl(post);
+                                }
+                                setCounter(index);
+                                setLiked(!liked);
+                            }}
+                            useNativeDriver={true}
+                            style={{ marginLeft: 5 }}
                         />
                         {/* description */}
                         {description(post)}
