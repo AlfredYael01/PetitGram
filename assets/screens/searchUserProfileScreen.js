@@ -27,6 +27,8 @@ const SearchUserProfileScreen = ({route, navigation}) => {
     const [posts, setPosts] = useState(postsArray);
     const [currentUser, setCurrentUser ] = useState({});
     const [buttonFollow, setButtonFollow] = useState("");
+    const [nbFollowers, setNbFollowers] = useState(0);
+    const [nbFollowed, setNbFollowed] = useState(0);
 
     const db = getFirestore();
 
@@ -96,12 +98,11 @@ const SearchUserProfileScreen = ({route, navigation}) => {
         else{
             setButtonFollow("Follow");
         }
+        setNbFollowed(user?.followed?.length ? user.followed.length : 0);
+        setNbFollowers(user?.followers?.length ? user.followers.length : 0);
       }, [currentUser])
-
-
-      useEffect(() => {
         
-      })
+      
 
     return(
 
@@ -129,12 +130,12 @@ const SearchUserProfileScreen = ({route, navigation}) => {
                     </View>
 
                     <View style={styles.section2}>
-                        <Text style={{fontWeight: 'bold', color:'white'}}>{user?.followers?.length ? user.followers.length : 0}</Text>
+                        <Text style={{fontWeight: 'bold', color:'white'}}>{nbFollowers}</Text>
                         <Text style={{color: 'white'}}>Followers</Text>
                     </View>
 
                     <View style={styles.section3}>
-                        <Text style={{fontWeight: 'bold', color:'white'}}>{user?.followed?.length ? user.followed.lenght : 0}</Text>
+                        <Text style={{fontWeight: 'bold', color:'white'}}>{nbFollowed}</Text>
                         <Text style={{color: 'white'}}>Followed</Text>
                     </View>
                 </View>
@@ -162,6 +163,7 @@ const SearchUserProfileScreen = ({route, navigation}) => {
                     });
 
                     user.followers = user?.followers ? [...user.followers, currentUser._id] : [currentUser._id];
+                    setNbFollowers(nbFollowers + 1);
     
 
                     await updateDoc(userRef, {
@@ -183,12 +185,12 @@ const SearchUserProfileScreen = ({route, navigation}) => {
                     const newFollowed = removeElement(currentUser.followed, user.id);
 
                     await updateDoc(profileRef, {
-
                         followers: newFollower
                     });
 
 
                     user.followers = newFollower;
+                    setNbFollowers(nbFollowers - 1);
     
                     await updateDoc(userRef, {
                         followed: newFollowed
