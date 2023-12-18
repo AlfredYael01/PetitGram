@@ -125,7 +125,7 @@ const SearchUserProfileScreen = ({route, navigation}) => {
 
                 <View style={styles.upScreenContainerRight}>
                     <View style={styles.section1}>
-                        <Text style={{fontWeight: 'bold', color:'white'}}>6</Text>
+                        <Text style={{fontWeight: 'bold', color:'white'}}>{posts.length}</Text>
                         <Text style={{color: 'white'}}>Publications</Text>
                     </View>
 

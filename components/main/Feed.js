@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {Animated, ImageBackground, View, Text, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity} from "react-native";
 import {getAuth} from "firebase/auth";
 import {getFirestore, collection, getDocs, onSnapshot, orderBy, addDoc, updateDoc} from 'firebase/firestore';
@@ -22,6 +22,8 @@ const FeedScreen = ({navigation}) => {
     const [visible, setVisible] = useState(false)
     const [counter, setCounter] = useState(-2)
     const AnimatedIcon = Animated.createAnimatedComponent(AntDesign)
+    const scrollRef = useRef();
+    const [scrollPosition, setScrollPosition] = useState(0);
     useEffect(() => {
         if (liked == true) {
             Animated.spring(currentValue, {toValue: 2, friction: 2, useNativeDriver: true}).start(() => {
@@ -101,19 +103,23 @@ const FeedScreen = ({navigation}) => {
 
         setUsers(updatedUsers);
         setPosts(postsData);
+
+        postsData.forEach(
+            (post, index) => {
+                if (post.likes && post.likes.includes(auth.currentUser.uid)) {
+                    const newLikedPosts = { ...likedPosts };
+                    newLikedPosts[index] = true;
+                    setLikedPosts(newLikedPosts);
+                }
+            }
+        )
     };
 
-
+    
     useEffect(() => {
-        const db = getFirestore();
-        const postsCollection = collection(db, 'posts');
-        const unsubscribe = onSnapshot(postsCollection, (querySnapshot) => {
             // When the database changes, re-run getPosts
             getPosts();
-        });
-        return () => {
-            unsubscribe();
-        };
+
     }, []);
 
     useEffect(() => {
@@ -183,17 +189,33 @@ const FeedScreen = ({navigation}) => {
         );
     }
 
-    const likeControl = async (post) =>  {
+    const likeControl = async (post, positionsBefore) => {
         const db = getFirestore();
-        const userRef = await doc(db, "posts", post.id);
-        const likes = post?.likes ? [...post.likes, auth.currentUser.uid] : [auth.currentUser.uid];
-        await updateDoc(userRef, {
-            likes: likes
-        });
-        posts.likes = likes;
+        const postRef = doc(db, "posts", post.id);
+        // if user already liked then remove like
+        const newLikes = post.likes ? post.likes.filter((like) => like !== auth.currentUser.uid) : [];
+        if (post.likes && post.likes.includes(auth.currentUser.uid)) {
+            await updateDoc(postRef, { likes: newLikes });
+        } else {
+            // else add like
+            newLikes.push(auth.currentUser.uid);
+            await updateDoc(postRef, { likes: newLikes });
+        }
+        setPosts(posts.map((postn) => { return postn.id === post.id ? {...postn, likes: newLikes} : postn}));
+        // Restore the scroll position
+        
     }
 
-    const dislikeControl = async (post) =>  {
+    useEffect(() => {
+        console.log(scrollPosition)
+        if (scrollPosition > 0) {
+            scrollRef.current.scrollTo({y: scrollPosition, animated: false})
+        }
+    }, [posts, visible])
+
+   
+
+   /*  const dislikeControl = async (post) =>  {
         const db = getFirestore();
         const userRef = await doc(db, "posts", post.id);
         const likes = post?.likes ? post.likes.filter((like) => like !== auth.currentUser.uid) : [];
@@ -203,10 +225,12 @@ const FeedScreen = ({navigation}) => {
         );
         posts.likes = likes;
     }
+ */
 
     const PostScreen = ( {navigation} ) => {
         return (
-            <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
+            <ScrollView style={styles.container} keyboardShouldPersistTaps="always"  ref={scrollRef} onScroll={(event) => setScrollPosition((event.nativeEvent.layoutMeasurement.height -100) * counter)}
+            >
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Feed</Text>
@@ -251,22 +275,21 @@ const FeedScreen = ({navigation}) => {
                         </Swiper>
                         <View style={styles.IconContainer}>
 
-                            <AntDesign name={liked && index == counter ? "heart" : "hearto"} size={30} color={ liked && index == counter ? "#fa635c" : "#bbbbbb"}
+                            <AntDesign name={likedPosts[index] ? "heart" : "hearto"} size={30} color={ liked && index == counter ? "#fa635c" : "#bbbbbb"}
                             onPress={() => {
+                                const positionsBefore = scrollPosition;
                                 // Mise à jour de l'état liked du post spécifique
                                 const newLikedPosts = { ...likedPosts };
                                 newLikedPosts[index] = !likedPosts[index];
                                 setLikedPosts(newLikedPosts);
-
+                                setLiked(!liked);
                                 // Reste de votre logique de like ici
                                 if (!likedPosts[index]) {
-                                    likeControl(post);
+                                    setCounter(index);
                                     setVisible(true);
-                                } else {
-                                    dislikeControl(post);
                                 }
-                                setCounter(index);
-                                setLiked(!liked);
+                                likeControl(post, positionsBefore);
+                                
                             }}
                             useNativeDriver={true}
                             style={{ marginLeft: 5 }}

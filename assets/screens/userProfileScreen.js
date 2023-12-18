@@ -50,9 +50,6 @@ const UserProfileScreen = ({navigation}) => {
       })
     }
 
-
-
-
     const getPosts = async () => {
         const auth = getAuth();
         const userId = auth.currentUser.uid;
