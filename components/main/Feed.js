@@ -177,8 +177,8 @@ const FeedScreen = ({navigation}) => {
                     </View>
                     <View style={styles.commentRight}>
                         <Text style={styles.nameComment}>
-                                {post?.comments?.userId ? users[comment.userId].name + ' ' : ''}
-                                <Text style={styles.commentText}>{comment.comment}</Text>
+                            {post?.comments?.userId ? users[comment.userId].name + ' ' : ''}
+                            <Text style={styles.commentText}>{comment.comment}</Text>
                         </Text>
                         <Text style={styles.dateText}>
                             {comment.date ? timeAgo(comment.date) : ''}
@@ -220,8 +220,8 @@ const FeedScreen = ({navigation}) => {
         const userRef = await doc(db, "posts", post.id);
         const likes = post?.likes ? post.likes.filter((like) => like !== auth.currentUser.uid) : [];
         await updateDoc(userRef, {
-            likes: likes
-        }
+                likes: likes
+            }
         );
         posts.likes = likes;
     }
