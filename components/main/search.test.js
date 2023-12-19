@@ -113,6 +113,6 @@ describe('SearchScreen Component', () => {
         fireEvent.press(user);
         
         // Add an assertion to check if the navigation function is called with the correct route
-        expect(navigation.navigate).toHaveBeenCalledWith('searchUserProfileScreen', { user: { name: 'John Doe', pseudo: 'john_doe' } }); // Replace 'searchUserProfileScreen' with your actual route and the user object with the expected user data.
+        expect(navigation.navigate).toHaveBeenCalledWith('searchUserProfileScreen', { user: { id: 'user_id_here',  name: 'John Doe', pseudo: 'john_doe' } }); // Replace 'searchUserProfileScreen' with your actual route and the user object with the expected user data.
     });
 });
