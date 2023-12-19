@@ -226,29 +226,35 @@ const FeedScreen = ({ navigation }) => {
         paginationStyle={styles.pagination}
       >
         {post.images.map((image) => (
-          <View key={image} style={styles.mainImage}>
-            <ImageBackground
-              source={{ uri: String(image) }}
-              style={styles.mainImage}
-            >
-              {visible && index == counter && likedPosts[index] && (
-                <AnimatedIcon
-                  name={"heart"}
-                  size={50}
-                  color={"#fa635c"}
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transform: [{ scale: currentValue }],
-                  }}
-                ></AnimatedIcon>
-              )}
-            </ImageBackground>
-          </View>
+          <MemoizedImage key={image} image={image} index={index} />
         ))}
       </Swiper>
     );
   }
+
+  const MemoizedImage = React.memo(({ image, index }) => {
+    return (
+      <View style={styles.mainImage}>
+        <ImageBackground
+          source={{ uri: String(image), cache: "force-cache" }}
+          style={styles.mainImage}
+        >
+          {visible && index == counter && likedPosts[index] && (
+            <AnimatedIcon
+              name={"heart"}
+              size={50}
+              color={"#fa635c"}
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                transform: [{ scale: currentValue }],
+              }}
+            ></AnimatedIcon>
+          )}
+        </ImageBackground>
+      </View>
+    );
+  });
 
   function iconsSection(index, post, navigation) {
     return (
@@ -310,7 +316,7 @@ const FeedScreen = ({ navigation }) => {
         <View style={styles.commentSection}>
           <View style={styles.ImageProfileComment}>
             <Image
-              source={{ uri: String(users[comment.userId]?.photo) }}
+              source={{ uri: String(users[comment.userId]?.photo), cache: "only-if-cached" }}
               style={styles.commentProfileImage}
             />
           </View>
@@ -357,17 +363,19 @@ const FeedScreen = ({ navigation }) => {
     }
   }, [posts, visible]);
 
-  const PostScreen = ({ navigation }) => {
+    const handleScroll = (event) => {
+        setScrollPosition(
+            (event.nativeEvent.layoutMeasurement.height - 130) * counter
+          );
+    };
+
+  const PostScreen = React.memo(({ navigation }) => {
     return (
-      <ScrollView
+      <Animated.ScrollView
         style={styles.container}
         keyboardShouldPersistTaps="always"
         ref={scrollRef}
-        onScroll={(event) =>
-          setScrollPosition(
-            (event.nativeEvent.layoutMeasurement.height - 130) * counter
-          )
-        }
+        onScroll={handleScroll}
       >
         {/* Header */}
         <View style={styles.header}>
@@ -377,9 +385,9 @@ const FeedScreen = ({ navigation }) => {
           </Text>
         </View>
         {posts.map((post, index) => postView(post, navigation, index))}
-      </ScrollView>
+      </Animated.ScrollView>
     );
-  };
+  });
 
   return (
     <Stack.Navigator
