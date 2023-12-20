@@ -25,15 +25,18 @@ import CommentsScreen from "./Comments";
 import { AntDesign } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
+import { getUsersByIds } from "../redux/userSlice";
 
 const FeedScreen = ({ navigation }) => {
   const [likedPosts, setLikedPosts] = useState({});
   const auth = getAuth();
   const [posts, setPosts] = useState([]);
-  const [users, setUsers] = useState({});
+  //const [users, setUsers] = useState({});
   const Stack = createStackNavigator();
   const dispatch = useDispatch();
   const refresh = useSelector((state) => state.refresh.refresh);
+  const user = useSelector((state) => state.user.currentUser);
+  const users = useSelector((state) => state.user.users);
   const [liked, setLiked] = useState(false);
   const [visible, setVisible] = useState(false);
   const [counter, setCounter] = useState(-2);
@@ -79,7 +82,7 @@ const FeedScreen = ({ navigation }) => {
       }
     }
     const postsData = [];
-    const userPromises = [];
+    const usersToFetch = [];
     if (!querySnapshot) {
       console.log("No posts");
       return;
@@ -91,18 +94,7 @@ const FeedScreen = ({ navigation }) => {
         const temp = { ...post, id: id, comments: commentData[id] };
         postsData.push(temp);
       }
-
-      if (!users[post.userId]) {
-        // Create a promise to fetch the user data
-        const userPromise = (async () => {
-          const userDoc = await getDocs(
-            query(collection(db, "users"), where("_id", "==", post.userId))
-          );
-          const userData = userDoc.docs[0].data();
-          return { [post.userId]: userData };
-        })();
-        userPromises.push(userPromise);
-      }
+      usersToFetch.push(post.userId);
     });
 
     // get all users who commented or skip if undefined
@@ -110,30 +102,14 @@ const FeedScreen = ({ navigation }) => {
     const commentUserIds = comments
       .map((comment) => comment.map((comment) => comment.userId))
       .flat();
-    commentUserIds?.forEach((commentUserId) => {
-      if (!users[commentUserId]) {
-        // Create a promise to fetch the user data
-        const userPromise = (async () => {
-          const userDoc = await getDocs(
-            query(collection(db, "users"), where("_id", "==", commentUserId))
-          );
-          const userData = userDoc.docs[0].data();
-          return { [commentUserId]: userData };
-        })();
-        userPromises.push(userPromise);
-      }
-    });
+    const uniqueUsersToFetch = [...new Set(usersToFetch.concat(commentUserIds))];
 
-    // Wait for all user data promises to resolve
-    const userDataArray = await Promise.all(userPromises);
+    const fetchUsersData = async (userIds) => {
+      dispatch(getUsersByIds(userIds));
+    };
 
-    // Convert the array of user data objects into a single object
-    const usersData = Object.assign({}, ...userDataArray);
-
-    // Merge new user data with existing user data
-    const updatedUsers = { ...users, ...usersData };
-
-    setUsers(updatedUsers);
+    console.log("uniqueUsersToFetch", uniqueUsersToFetch);
+    fetchUsersData(uniqueUsersToFetch);
     setPosts(postsData);
 
     postsData.forEach((post, index) => {
@@ -357,7 +333,6 @@ const FeedScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    console.log(scrollPosition);
     if (scrollPosition > 0) {
       scrollRef.current.scrollTo({ y: scrollPosition, animated: false });
     }
