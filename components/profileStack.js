@@ -7,6 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestore';
+import UserMod from "./auth/UserMod";
 //import UserProfileHeader from './userProfileHeader';
 //import ProfileDrawer from './profileDrawer';
 
@@ -50,6 +51,7 @@ const ProfileStack = () => {
               ) */ headerTitle: userProfilePseudo}}>
           </Stack.Screen>
           <Stack.Screen name="ViewPost" component={ViewPost} options={{ headerTitle: 'Publications'}}/>
+          <Stack.Screen name={"UserMod"} component={UserMod} options={{headerTitle: 'Modification des informations personels'}}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
 

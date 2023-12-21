@@ -3,14 +3,19 @@ import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} 
 import Feather from 'react-native-vector-icons/Feather';
 import ImageComponent from "../../components/ImageComponent";
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore, where, orderBy  } from 'firebase/firestore';
-import { useRoute } from '@react-navigation/native';
+import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore, where, orderBy } from 'firebase/firestore';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
+import UserMod from "../../components/auth/UserMod";
+import { useDispatch, useSelector } from "react-redux";
+import { toggle } from "../../components/redux/refreshSlice";
 
 
 const data = [{key: "Sign out"}];
 
 const UserProfileScreen = ({navigation}) => {
+    const dispatch = useDispatch();
+    const refresh = useSelector((state) => state.refresh.refresh);
 
 //   const { showFlatList } = route.params; 
 
@@ -49,6 +54,12 @@ const UserProfileScreen = ({navigation}) => {
         }
       })
     }
+    useEffect(() => {
+        if (refresh) {
+            getUserInfo();
+            dispatch(toggle());
+        }
+    }, [refresh]);
 
     const getPosts = async () => {
         const auth = getAuth();
@@ -85,6 +96,9 @@ const UserProfileScreen = ({navigation}) => {
         <FlatList data={data} renderItem={({item}) => <Text>{item}</Text>}/>
     )
 
+    const handleEditProfilePress = () => {
+        navigation.navigate('UserMod');
+    }
 
     return(
 
@@ -135,8 +149,9 @@ const UserProfileScreen = ({navigation}) => {
 
           {/* -----Up bottom ----- */}
           <View style={styles.upscreenBottom}>
-              <TouchableOpacity style={{borderColor:'black', borderWidth:0.5, borderRadius : 5, height : 25, width : 125, justifyContent : 'center', alignItems : 'center'}}>
+              <TouchableOpacity style={{borderColor:'black', borderWidth:0.5, borderRadius : 5, height : 25, width : 125, justifyContent : 'center', alignItems : 'center'}} onPress={handleEditProfilePress}>
                   <Text>Edit profile</Text>
+
               </TouchableOpacity>
           </View>
       </View>
