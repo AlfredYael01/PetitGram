@@ -34,10 +34,10 @@ export default Register = ({ navigation }) => {
             setError('Passwords do not match.');
             return true;
         }
-        // at least one number, one lowercase and one uppercase letter and at least six characters
-        re = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+        // one lowercase and one uppercase letter and at least six characters
+        re = /(?=.*[a-z])(?=.*[A-Z]).{6,}/;
         if (!re.test(password)) {
-            setError('Password must contain at least one number, one lowercase and one uppercase letter and at least six characters.');
+            setError('Password must contain at least one lowercase and one uppercase letter and at least six characters.');
             return true;
         }
         return false;
