@@ -43,12 +43,7 @@ const ProfileStack = () => {
 
     <NavigationContainer independent={true}>
       <Stack.Navigator>
-          <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ /* headerRight: () => (
-                  <TouchableOpacity >
-                      <Feather name='menu' color="black" size={25}/>
-                  </TouchableOpacity > 
-              ) */ headerTitle: userProfilePseudo}}>
-          </Stack.Screen>
+          <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ headerTitle: userProfilePseudo}}/>
           <Stack.Screen name="ViewPost" component={ViewPost} options={{ headerTitle: 'Publications'}}/>
       </Stack.Navigator>
     </NavigationContainer>

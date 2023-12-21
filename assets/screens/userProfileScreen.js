@@ -118,7 +118,7 @@ const UserProfileScreen = ({navigation}) => {
             </View>
 
             <View style={styles.section3}>
-              <Text style={styles.numberSection}>{profile?.followed?.length ? profile.followed.lenght : 0}</Text>
+              <Text style={styles.numberSection}>{profile?.followed?.length ? profile.followed.length : 0}</Text>
               <Text style={styles.textSection}>Followed</Text>
             </View>
 
