@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, doc, getDoc, query, where } from 'firebase/firestore';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 const userSlice = createSlice({
     name: 'user',
     initialState: {
@@ -8,6 +9,7 @@ const userSlice = createSlice({
         users: {},
         currentUserPosts: [],
         feedPosts: [],
+        comments : {},
     },
     reducers: {
         setCurrentUser: (state, action) => {
@@ -16,29 +18,18 @@ const userSlice = createSlice({
         setUsers: (state, action) => {
             state.users = action.payload;
         },
+        setCurrentUserPosts: (state, action) => {
+            state.currentUserPosts = action.payload;
+        },
+        setFeedPosts: (state, action) => {
+            state.feedPosts = action.payload;
+        },
+        setComments: (state, action) => {
+            state.comments = action.payload;
+        },
     },
 });
 
-export const { setCurrentUser, setUsers } = userSlice.actions;
-
-export const getUsersByIds = (userIds) => {
-    return async (dispatch) => {
-        // remove userIds that are already in state
-        const state = store.getState();
-        const userIdsToFetch = userIds.filter((userId) => !state.user.users[userId]);
-        if (userIdsToFetch.length === 0) {
-            return;
-        }
-        const db = getFirestore();
-        const usersCol = collection(db, 'users');
-        const q = query(usersCol, where('_id', 'in', userIds));
-        const userSnapshot = await getDocs(q);
-        const usersTemp = userSnapshot.docs.reduce((acc, user) => {
-            acc[user.data()._id] = user.data();
-            return acc;
-        }, {});
-        dispatch(setUsers(usersTemp));
-    };
-};
+export const { setCurrentUser, setUsers, setCurrentUserPosts, setFeedPosts } = userSlice.actions;
 
 export default userSlice.reducer;

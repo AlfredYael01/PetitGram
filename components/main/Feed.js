@@ -10,33 +10,24 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { getAuth } from "firebase/auth";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  orderBy,
-  updateDoc,
-} from "firebase/firestore";
-import { query, where, doc } from "firebase/firestore";
 import Swiper from "react-native-swiper";
 import { createStackNavigator } from "@react-navigation/stack";
 import CommentsScreen from "./Comments";
 import { AntDesign } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
-import { getUsersByIds } from "../redux/userSlice";
+import { fetchCurrentUser } from "../helper/user";
+import { fetchFeedPosts, fetchComments, likeControl } from "../helper/posts";
 
 const FeedScreen = ({ navigation }) => {
   const [likedPosts, setLikedPosts] = useState({});
-  const auth = getAuth();
-  const [posts, setPosts] = useState([]);
-  //const [users, setUsers] = useState({});
   const Stack = createStackNavigator();
   const dispatch = useDispatch();
+  const posts = useSelector((state) => state.user.feedPosts);
   const refresh = useSelector((state) => state.refresh.refresh);
   const user = useSelector((state) => state.user.currentUser);
   const users = useSelector((state) => state.user.users);
+  const comments = useSelector((state) => state.user.comments);
   const [liked, setLiked] = useState(false);
   const [visible, setVisible] = useState(false);
   const [counter, setCounter] = useState(-2);
@@ -59,61 +50,14 @@ const FeedScreen = ({ navigation }) => {
       });
     }
   }, [liked]);
+
   const currentValue = new Animated.Value(1);
-  const getPosts = async () => {
-    const userId = auth.currentUser.uid;
-    const db = getFirestore();
-    const postsCollection = collection(db, "posts");
-    const querySnapshot = await getDocs(
-      query(postsCollection, orderBy("date", "desc"))
-    );
-    const commentData = {};
-    for (const doc of querySnapshot.docs) {
-      const commentsCollection = collection(db, "posts", doc.id, "comments");
-      const querySnapshotComments = await getDocs(
-        query(commentsCollection, orderBy("date", "desc"))
-      );
-      for (const docComment of querySnapshotComments.docs) {
-        // array of comments for each post
-        const comment = docComment.data();
-        const id = doc.id;
-        const temp = { ...comment, id: id };
-        commentData[id] = [...(commentData[id] || []), temp];
-      }
-    }
-    const postsData = [];
-    const usersToFetch = [];
-    if (!querySnapshot) {
-      console.log("No posts");
-      return;
-    }
-    querySnapshot.forEach((doc) => {
-      const post = doc.data();
-      if (post.userId !== userId) {
-        const id = doc.id;
-        const temp = { ...post, id: id, comments: commentData[id] };
-        postsData.push(temp);
-      }
-      usersToFetch.push(post.userId);
-    });
-
-    // get all users who commented or skip if undefined
-    const comments = Object.values(commentData);
-    const commentUserIds = comments
-      .map((comment) => comment.map((comment) => comment.userId))
-      .flat();
-    const uniqueUsersToFetch = [...new Set(usersToFetch.concat(commentUserIds))];
-
-    const fetchUsersData = async (userIds) => {
-      dispatch(getUsersByIds(userIds));
-    };
-
-    console.log("uniqueUsersToFetch", uniqueUsersToFetch);
-    fetchUsersData(uniqueUsersToFetch);
-    setPosts(postsData);
-
-    postsData.forEach((post, index) => {
-      if (post.likes && post.likes.includes(auth.currentUser.uid)) {
+  const chargeData = async () => {
+    dispatch(fetchCurrentUser());
+    dispatch (fetchFeedPosts());
+    dispatch(fetchComments());
+    posts.forEach((post, index) => {
+      if (post.likes && post.likes.includes(user._id)) {
         const newLikedPosts = { ...likedPosts };
         newLikedPosts[index] = true;
         setLikedPosts(newLikedPosts);
@@ -122,13 +66,13 @@ const FeedScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    // When the database changes, re-run getPosts
-    getPosts();
-  }, []);
+    // When the database changes, re-run chargeData
+    chargeData();
+  }, [user]);
 
   useEffect(() => {
     if (refresh) {
-      getPosts();
+      chargeData();
       dispatch(toggle());
     }
   }, [refresh]);
@@ -251,7 +195,7 @@ const FeedScreen = ({ navigation }) => {
               setCounter(index);
               setVisible(true);
             }
-            likeControl(post, positionsBefore);
+            dispatch(likeControl(post));
           }}
           useNativeDriver={true}
           style={{ marginLeft: 5 }}
@@ -263,7 +207,7 @@ const FeedScreen = ({ navigation }) => {
           size={30}
           color="#bbbbbb"
           onPress={() => {
-            navigation.navigate("Comments", { post: post, users: users });
+            navigation.navigate("Comments", { comments: comments[post.id], users: users, post: post });
           }}
           style={{ marginLeft: 10 }}
         />
@@ -283,10 +227,10 @@ const FeedScreen = ({ navigation }) => {
   };
 
   const firstComment = (post) => {
-    if (!post?.comments) {
+    if (comments[post.id]?.length === 0) {
       return;
     }
-    const comment = post.comments.length > 0 ? post.comments[0] : null;
+    const comment = comments[post.id][0];
     return (
       <>
         <View style={styles.commentSection}>
@@ -308,28 +252,6 @@ const FeedScreen = ({ navigation }) => {
         </View>
       </>
     );
-  };
-
-  const likeControl = async (post, positionsBefore) => {
-    const db = getFirestore();
-    const postRef = doc(db, "posts", post.id);
-    // if user already liked then remove like
-    const newLikes = post.likes
-      ? post.likes.filter((like) => like !== auth.currentUser.uid)
-      : [];
-    if (post.likes && post.likes.includes(auth.currentUser.uid)) {
-      await updateDoc(postRef, { likes: newLikes });
-    } else {
-      // else add like
-      newLikes.push(auth.currentUser.uid);
-      await updateDoc(postRef, { likes: newLikes });
-    }
-    setPosts(
-      posts.map((postn) => {
-        return postn.id === post.id ? { ...postn, likes: newLikes } : postn;
-      })
-    );
-    // Restore the scroll position
   };
 
   useEffect(() => {
@@ -356,7 +278,7 @@ const FeedScreen = ({ navigation }) => {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Feed</Text>
           <Text style={styles.headerUser}>
-            {users[auth.currentUser.uid]?.pseudo}
+            {user ? user.pseudo : "Loading..."}
           </Text>
         </View>
         {posts.map((post, index) => postView(post, navigation, index))}

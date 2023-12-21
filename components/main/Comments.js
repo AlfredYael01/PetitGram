@@ -1,29 +1,19 @@
 // page to display comments using the props post passed from the parent component
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as Icon from 'react-native-feather';
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
+import { addComment } from "../helper/posts";
 
 
 const CommentsScreen = ({ route , navigation }) => {
-    const { post, users } = route.params;
-    const [comments, setComments] = useState([]);
+    const { post } = route.params;
     const [comment, setComment] = useState('');
+    const comments = useSelector((state) => state.user.comments[post.id]);
     const dispatch = useDispatch();
     const refresh = useSelector((state) => state.refresh.refresh);
-
-    useEffect(() => {
-        if (post.comments) {
-            setComments(post.comments);
-        }
-        /* console.log(comments);
-        console.log(users); */
-    }, []);
-
 
     function timeAgo(timestamp) {
         const now = new Date();
@@ -82,17 +72,9 @@ const CommentsScreen = ({ route , navigation }) => {
                     onChangeText={(text) => setComment(text)}
                 />
                 <TouchableOpacity style={styles.postButton} onPress={() => {
-                                        const db = getFirestore();
-                                        const commentsCollection = collection(db, "posts", post.id, "comments");
-                                        const commentData = {
-                                            comment: comment,
-                                            date: new Date(),
-                                            userId: getAuth().currentUser.uid,
-                                        };
+                                        dispatch(addComment(post, comment));
                                         setComment("");
                                         dispatch(toggle());
-                                        addDoc(commentsCollection, commentData);
-                                        navigation.goBack();
                                     }}>
                     <Icon.Send style={styles.postText} width={24} height={24} color={'#fff'} />
                 </TouchableOpacity>
