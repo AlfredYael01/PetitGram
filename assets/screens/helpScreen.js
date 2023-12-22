@@ -5,6 +5,7 @@ import { getAuth, deleteUser, signInWithEmailAndPassword} from 'firebase/auth';
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Feather from 'react-native-vector-icons/Feather';
 import { getStorage, deleteObject, ref} from 'firebase/storage';
+import Dialog from "react-native-dialog";
 
 const HelpScreen = () => {
 
@@ -15,6 +16,11 @@ const HelpScreen = () => {
     const [accountDeletiontoggle, setAccountDeletionToggle] = useState(false);
     const [postsId, setPostsId] = useState([]);
     const infoSupressionDeCompte = "Deleting your account involves the complete elimination of all your data (posts and personal information) generated since the creation of your accout. This action is irreversible."
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [profile, setProfile] = useState();
+    const [inputPassoword, setInputPassword] = useState("");
+    const defaultPhoto = 'https://firebasestorage.googleapis.com/v0/b/petitgram-b48fd.appspot.com/o/Profile%2FuserImage.png?alt=media&token=29660ffe-caba-4fe6-b028-09af3f446b74&_gl=1*i459ow*_ga*NDMzMjcyMjA3LjE2OTU4ODMxMjk.*_ga_CW55HF8NVT*MTY5OTM0NzExOC4xOS4xLjE2OTkzNDcxNzIuNi4wLjA';
+
 
     const getUserId = async () => {
         const auth = getAuth();
@@ -37,6 +43,19 @@ const HelpScreen = () => {
         setMessageInfo({...messageInfo, message: message})
     }
 
+
+    const getUserInfo = async (userId) => {
+        const db = getFirestore();
+        const querySnapshot = await getDocs(collection(db, "users"));
+        //console.log("QuerySnapshot: ",querySnapshot);
+  
+        querySnapshot.forEach((doc) => {
+          if(doc.data()._id === userId) {
+            setProfile(doc.data());
+          }
+        })
+      }
+
     const createMessage = async () => {
 
         const db = getFirestore();
@@ -57,26 +76,27 @@ const HelpScreen = () => {
 
 
         const auth = getAuth();
-        const user = auth.currentUser;
+        //const user = auth.currentUser;
+    
 
 // Code for signing in before deleting auth
 
-     /*    signInWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, profile.email, inputPassoword)
             .then((userCredential) => {
             // User re-authenticated
             const user = userCredential.user;
+
+                deleteUser(user).then(() => {
+                    console.log("User deleted")
+                }).catch((error) => {
+                    console.log("Error deleting user: ", error);
+                })
             })
             .catch((error) => {
             // An error occurred
             console.log('Error re-authenticating user:', error);
-            }); */
+            });
 
-
-        deleteUser(user).then(() => {
-            console.log("User deleted")
-        }).catch((error) => {
-            console.log("Error deleting user: ", error);
-        })
     }
 
 
@@ -120,6 +140,14 @@ const HelpScreen = () => {
 
                 const imageRef = ref(storage, link);
 
+                if(imageRef == undefined){
+                    continue;
+                }
+
+                if(link == defaultPhoto){
+                    continue;
+                }
+                
                 deleteObject(imageRef).then(() => {
                     console.log("Image deleted")
                 }).catch((error) => {
@@ -195,9 +223,30 @@ const HelpScreen = () => {
     
     }
 
+    const dialog = () => {
+
+        return (
+            <View>
+                <Dialog.Container visible={dialogVisible}>
+                    <Dialog.Title>Are you sure you want to delete your account?, this action is irreversible</Dialog.Title>
+                    <Dialog.Description>
+                        If you want to delete your account, please enter your password
+                    </Dialog.Description>
+                    <Dialog.Input placeholder='Password' secureTextEntry={true} onChangeText={(text) => setInputPassword(text)}/>
+                    <Dialog.Button label="Delete account" onPress={() => setDialogVisible(false)}/>
+                </Dialog.Container>
+            </View>
+ 
+        )
+    }
+
+
+
+
     useEffect( async () => {
         const userId = await getUserId();
         setMessageInfo({...messageInfo, userId: userId})
+        getUserInfo(userId);
     }, [])
 
 
@@ -236,11 +285,28 @@ const HelpScreen = () => {
                     {accountDeletiontoggle && 
                         <View>
                             <Text style={styles.accountDeletionMessage}>{infoSupressionDeCompte}</Text>
-                            <TouchableOpacity style={styles.deleteAccountButton} onPress={showAlert}>
+                            <TouchableOpacity style={styles.deleteAccountButton} onPress={() => setDialogVisible(!dialogVisible)}>
                                 <Text style={styles.deleteAccountButtonText}>Delete account</Text>
                             </TouchableOpacity>
                         </View>
                     }
+                </View>
+
+                <View>
+                    <Dialog.Container visible={dialogVisible}>
+                        <Dialog.Title>Are you sure you want to delete your account?, this action is irreversible</Dialog.Title>
+                        <Dialog.Description>
+                            If you want to delete your account, please enter your password
+                        </Dialog.Description>
+                        <Dialog.Input placeholder='Password' secureTextEntry={true} onChangeText={(text) => setInputPassword(text)}/>
+                        <Dialog.Button label="Cancel" onPress={() => {setDialogVisible(false)}}/>
+                        <Dialog.Button label="Delete account" onPress={() => {
+                            
+                            setDialogVisible(false);
+                            deleteAccount();
+                            
+                            }}/>
+                    </Dialog.Container>
                 </View>
 
         </ScrollView>
