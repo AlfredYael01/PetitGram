@@ -39,7 +39,12 @@ const UserProfileScreen = ({navigation}) => {
     ];
     const [ profile, setProfile ] = useState({});
     const [posts, setPosts] = useState(postsArray);
+    const [showFollowersList, setShowFollowersList] = useState(false);
 
+    const toggleFollowersList = () => {
+      setShowFollowersList(!showFollowersList);
+    };
+    
     const getUserInfo = async () => {
       const auth = getAuth();
       const userId = auth.currentUser.uid;
@@ -127,8 +132,10 @@ const UserProfileScreen = ({navigation}) => {
             </View>
 
             <View style={styles.section2}>
-              <Text style={styles.numberSection}>{profile?.followers?.length ? profile.followers.length : 0}</Text>
-              <Text style={styles.textSection}>Followers</Text>
+             <TouchableOpacity style={{ borderRadius : 5, height : 25, width : 125, justifyContent : 'center', alignItems : 'center'}}onPress={() => navigation.navigate ('FollowersListScreen')}>
+               <Text style={styles.numberSection}>{profile?.followers?.length ? profile.followers.length : 0}</Text>
+               <Text style={styles.textSection}>Followers</Text>
+             </TouchableOpacity>
             </View>
 
             <View style={styles.section3}>
@@ -140,6 +147,7 @@ const UserProfileScreen = ({navigation}) => {
 
         </View>
 
+       
 
 
         {/* -----Up middle----- */}
@@ -208,7 +216,9 @@ container: {
     numberSection: {
     fontSize: 15,
     fontWeight: 'bold',
-    marginTop: Dimensions.get('window').height * 0.000001
+    
+    marginTop: Dimensions.get('window').height * 0.000001,
+    
     },
 
     section1: {
@@ -219,10 +229,10 @@ container: {
     },
 
     section2: {
-    flex: 1/3,
-    //backgroundColor: '#e6fa8c',
-    alignItems: 'center',
-    justifyContent: 'center'
+      flex: 1/3,
+      //backgroundColor: '#e6fa8c',
+      alignItems: 'center',
+      justifyContent: 'center'
 
     },
     section3: {
