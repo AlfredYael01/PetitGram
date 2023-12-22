@@ -139,8 +139,10 @@ const UserProfileScreen = ({navigation}) => {
             </View>
 
             <View style={styles.section3}>
-              <Text style={styles.numberSection}>{profile?.followed?.length ? profile.followed.lenght : 0}</Text>
+            <TouchableOpacity style={{ borderRadius : 5, height : 25, width : 125, justifyContent : 'center', alignItems : 'center'}}onPress={() => navigation.navigate ('FollowingsListScreen')}>
+              <Text style={styles.numberSection}>{profile?.followed?.length ? profile.followed.length : 0}</Text>
               <Text style={styles.textSection}>Followed</Text>
+            </TouchableOpacity>
             </View>
 
           </View>

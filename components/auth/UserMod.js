@@ -121,6 +121,11 @@ export default UserMod = ({ navigation }) => {
     if (await checkForPseudoUniqueness()) {
       return;
     }
+    console.log("updateUser");
+    console.log("photoUrl: ", photoUrl);
+    console.log("photo: ", photo);
+    console.log("pseudo: ", pseudo);
+    console.log("name: ", name);
     //update user in firestore
     const db = getFirestore();
     const userRef = collection(db, "users");
@@ -142,11 +147,16 @@ export default UserMod = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if (photoUrl) updateUser();
     if (save == true) {
         setSave(false);
-        if (error === "") {
-            navigation.goBack();
+        if (photoUrl){
+            updateUser();
+            if (error === "") {
+              navigation.goBack();
+          }
+        }else{
+            setError("Error while uploading image try again");
+            setSave(true);
         }
     }
   }, [photoUrl, save]);

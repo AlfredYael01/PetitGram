@@ -1,5 +1,6 @@
   import UserProfileScreen from '../assets/screens/userProfileScreen';
   import FollowersListScreen from '../assets/screens/FollowersListScreen';
+  import FollowingsListScreen from '../assets/screens/FollowingsListScreen';
   import { createStackNavigator } from '@react-navigation/stack';
   import ViewPost from "../assets/screens/ViewPost";
   import { NavigationContainer } from '@react-navigation/native';
@@ -54,7 +55,10 @@
                 ) */ headerTitle: userProfilePseudo}}>
             </Stack.Screen>
             <Stack.Screen name="FollowersListScreen" component={FollowersListScreen} options={{
-              headerTitle:'ListeDesFollowers'
+              headerTitle:'List of Followers'
+            }}></Stack.Screen>
+            <Stack.Screen name="FollowingsListScreen" component={FollowingsListScreen} options={{
+              headerTitle:'List of Followings'
             }}></Stack.Screen>
             <Stack.Screen name="SearchUserProfileScreen" component={SearchUserProfileScreen} options={{headerShown:false   }}/>
             <Stack.Screen name="ViewPost" component={ViewPost} options={{ headerTitle: 'Publications'}}/>
