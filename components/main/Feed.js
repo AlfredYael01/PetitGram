@@ -57,7 +57,7 @@ const FeedScreen = ({ navigation }) => {
     dispatch (fetchFeedPosts());
     dispatch(fetchComments());
     posts.forEach((post, index) => {
-      if (post.likes && post.likes.includes(user._id)) {
+      if (post?.likes && post.likes.includes(user._id)) {
         const newLikedPosts = { ...likedPosts };
         newLikedPosts[index] = true;
         setLikedPosts(newLikedPosts);
@@ -71,6 +71,12 @@ const FeedScreen = ({ navigation }) => {
   }, [user]);
 
   useEffect(() => {
+    dispatch(fetchComments());
+  }, [posts]);
+
+
+
+  useEffect(() => {
     if (refresh) {
       chargeData();
       dispatch(toggle());
@@ -79,7 +85,7 @@ const FeedScreen = ({ navigation }) => {
 
   function timeAgo(timestamp) {
     const now = new Date();
-    const pastDate = new Date(timestamp.toDate());
+    const pastDate = new Date(timestamp);
     const timeDifference = now - pastDate;
 
     const seconds = Math.floor(timeDifference / 1000);
@@ -227,10 +233,17 @@ const FeedScreen = ({ navigation }) => {
   };
 
   const firstComment = (post) => {
+    if (!comments) {
+      return;
+    }
+    if (!comments[post.id]) {
+      return;
+    }
     if (comments[post.id]?.length === 0) {
       return;
     }
     const comment = comments[post.id][0];
+    console.log("comment", comment);
     return (
       <>
         <View style={styles.commentSection}>

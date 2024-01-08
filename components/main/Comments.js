@@ -14,10 +14,11 @@ const CommentsScreen = ({ route , navigation }) => {
     const comments = useSelector((state) => state.user.comments[post.id]);
     const dispatch = useDispatch();
     const refresh = useSelector((state) => state.refresh.refresh);
+    const users = useSelector((state) => state.user.users);
 
     function timeAgo(timestamp) {
         const now = new Date();
-        const pastDate = new Date(timestamp.toDate());
+        const pastDate = new Date(timestamp);
         const timeDifference = now - pastDate;
 
         const seconds = Math.floor(timeDifference / 1000);

@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, query, where, getDocs, orderBy} from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, orderBy, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { store } from '../redux/store';
 import { setCurrentUserPosts , setFeedPosts, setComments} from '../redux/userSlice';
 import { getUserById } from './user';
@@ -48,10 +48,8 @@ export function fetchFeedPosts() {
             return;
         }
         const postsData = [];
-        console.log(querySnapshot.docs);
         for (const doc of querySnapshot.docs) {
             const post = doc.data();
-            console.log(post);
             if (post.userId !== userId) {
                 const id = doc.id;
                 const temp = { ...post, id: id };
@@ -66,7 +64,7 @@ export function fetchFeedPosts() {
                             dispatch(getUserById(post.userId));
                         }
                         // change temp.date to a serialized value
-                        temp.date = temp.date.toDate();
+                        temp.date = temp.date.toDate().toString();
 
                         postsData.push(temp);
                     }
@@ -79,33 +77,38 @@ export function fetchFeedPosts() {
 }
 
 export function fetchComments() {
-    return ((dispatch) => {
+    return (async (dispatch) => {
         console.log("fetching comments" + store.getState().user.currentUserPosts);
         const allPosts = { ...store.getState().user.feedPosts, ...store.getState().user.currentUserPosts };
         // get comments form database
-        console.log(allPosts);
         const db = getFirestore();
-        const postIds = Object.keys(allPosts);
-        for (let i = 0; i < postIds.length; i++) {
-            const postId = postIds[i];
+        for (const post of Object.values(allPosts)) {
+            const postId = post.id;
+            console.log("fetching comments for post" + postId);
             // if the comments are not already in the state
             if (!store.getState().user.comments[postId]) {
+                console.log("fetching comments for post" + postId);
                 const commentsCollection = collection(db, "posts", postId, "comments");
-                const querySnapshotComments = getDocs(
+                const querySnapshotComments = await getDocs(
                     query(commentsCollection, orderBy("date", "desc"))
                 );
                 const commentData = [];
-                if (!querySnapshotComments) {
+                if (!querySnapshotComments.docs || querySnapshotComments.docs.length === 0) {
                     console.log("No comments");
-                    return;
+                    continue;
                 }
-                querySnapshotComments.forEach((doc) => {
+                console.log("fetched comments for post" + querySnapshotComments.docs[0].data());
+                for (const doc of querySnapshotComments.docs) {
                     const comment = doc.data();
                     const id = doc.id;
                     const temp = { ...comment, id: id };
+                    temp.date = temp.date.toDate().toString();
+                    console.log("comment" + temp);
                     commentData.push(temp);
                     dispatch(getUserById(comment.userId));
-                });
+                }
+                console.log("setting comments");
+                console.log(commentData);
                 dispatch(setComments({ ...store.getState().user.comments, [postId]: commentData }));
             }
         }
@@ -125,50 +128,55 @@ export const fetchCommentsForPost = (postId) => {
             console.log("No comments");
             return;
         }
-        querySnapshotComments.forEach((doc) => {
+        for (const doc of querySnapshotComments.docs) {
             const comment = doc.data();
             const id = doc.id;
             const temp = { ...comment, id: id };
+            temp.date = temp.date.toDate().toString();
             commentData.push(temp);
             dispatch(getUserById(comment.userId));
-        });
+        }
         dispatch(setComments({...store.getState().user.comments, [postId]: commentData}));
     };
 }
 
-export const addComment = async (post, comment) => {
-    const db = getFirestore();
-    const commentsCollection = collection(db, "posts", post.id, "comments");
-    const commentData = {
-        comment: comment,
-        date: new Date(),
-        userId: store.getState().user.currentUser._id,
-    };
-    await addDoc(commentsCollection, commentData);
-    dispatch(fetchCommentsForPost(post.id));
+export const addComment = (post, comment) => {
+    return (async (dispatch) => {
+        const db = getFirestore();
+        const commentsCollection = collection(db, "posts", post.id, "comments");
+        const commentData = {
+            comment: comment,
+            date: new Date(),
+            userId: store.getState().user.currentUser._id,
+        };
+        await addDoc(commentsCollection, commentData);
+        dispatch(fetchCommentsForPost(post.id));
+    });
 }
 
-export const likeControl = async (post) => {
-    const db = getFirestore();
-    const postRef = doc(db, "posts", post.id);
-    // if user already liked then remove like
-    const newLikes = store.getState().user.currentUserPosts[post.id].likes
-        ? store.getState().user.currentUserPosts[post.id].likes.filter((like) => like !== store.getState().user.currentUser._id)
-        : [];
-    if (store.getState().user.currentUserPosts[post.id].likes && store.getState().user.currentUserPosts[post.id].likes.includes(store.getState().user.currentUser._id)) {
-        await updateDoc(postRef, { likes: newLikes });
-    } else {
-        // else add like
-        newLikes.push(store.getState().user.currentUser._id);
-        await updateDoc(postRef, { likes: newLikes });
-    }
-    dispatch(
-        setCurrentUserPosts({
-            ...store.getState().user.currentUserPosts,
-            [post.id]: { ...store.getState().user.currentUserPosts[post.id], likes: newLikes },
-        })
-    );
+export const likeControl =  (post) => {
+    return (async (dispatch) => {
+        const db = getFirestore();
+        const postRef = doc(db, "posts", post.id);
+        // if user already liked then remove like
+        const newLikes = store.getState().user.currentUserPosts[post.id].likes
+            ? store.getState().user.currentUserPosts[post.id].likes.filter((like) => like !== store.getState().user.currentUser._id)
+            : [];
+        if (store.getState().user.currentUserPosts[post.id].likes && store.getState().user.currentUserPosts[post.id].likes.includes(store.getState().user.currentUser._id)) {
+            await updateDoc(postRef, { likes: newLikes });
+        } else {
+            // else add like
+            newLikes.push(store.getState().user.currentUser._id);
+            await updateDoc(postRef, { likes: newLikes });
+        }
+        dispatch(
+            setCurrentUserPosts({
+                ...store.getState().user.currentUserPosts,
+                [post.id]: { ...store.getState().user.currentUserPosts[post.id], likes: newLikes },
+            })
+        );
 
+    });
 }
 
 
