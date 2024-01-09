@@ -56,13 +56,6 @@ const FeedScreen = ({ navigation }) => {
     dispatch(fetchCurrentUser());
     dispatch (fetchFeedPosts());
     dispatch(fetchComments());
-    posts.forEach((post, index) => {
-      if (post?.likes && post.likes.includes(user._id)) {
-        const newLikedPosts = { ...likedPosts };
-        newLikedPosts[index] = true;
-        setLikedPosts(newLikedPosts);
-      }
-    });
   };
 
   useEffect(() => {
@@ -72,6 +65,13 @@ const FeedScreen = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(fetchComments());
+    posts.forEach((post, index) => {
+      if (post?.likes && post.likes.includes(user._id)) {
+        const newLikedPosts = { ...likedPosts };
+        newLikedPosts[index] = true;
+        setLikedPosts(newLikedPosts);
+      }
+    });
   }, [posts]);
 
 
@@ -134,6 +134,7 @@ const FeedScreen = ({ navigation }) => {
           <Image
             source={{ uri: String(users[post.userId]?.photo) }}
             style={styles.profileImage}
+            resizeMode="cover"
           />
           <Text style={styles.name}>{users[post.userId]?.name}</Text>
         </TouchableOpacity>
@@ -243,7 +244,6 @@ const FeedScreen = ({ navigation }) => {
       return;
     }
     const comment = comments[post.id][0];
-    console.log("comment", comment);
     return (
       <>
         <View style={styles.commentSection}>
@@ -255,7 +255,7 @@ const FeedScreen = ({ navigation }) => {
           </View>
           <View style={styles.commentRight}>
             <Text style={styles.nameComment}>
-              {post?.comments?.userId ? users[comment.userId].name + " " : ""}
+              {comment?.userId ? users[comment.userId]?.pseudo + " " : ""}
               <Text style={styles.commentText}>{comment.comment}</Text>
             </Text>
             <Text style={styles.dateText}>

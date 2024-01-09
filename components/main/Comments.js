@@ -37,6 +37,16 @@ const CommentsScreen = ({ route , navigation }) => {
         }
     }
 
+    const handleComment = async () => {
+        if (comment === '') {
+            return alert('Please enter a comment');
+        }
+        await dispatch(addComment({ post: post, comment: comment }));
+        dispatch(toggle());
+        setComment('');
+    }
+
+
 
     return (
         <View style={styles.container}>
@@ -70,13 +80,11 @@ const CommentsScreen = ({ route , navigation }) => {
                 <TextInput
                     style={styles.input}
                     placeholder="Add a comment..."
+                    value={comment}
                     onChangeText={(text) => setComment(text)}
+                    onSubmitEditing={() => handleComment()}
                 />
-                <TouchableOpacity style={styles.postButton} onPress={() => {
-                                        dispatch(addComment(post, comment));
-                                        setComment("");
-                                        dispatch(toggle());
-                                    }}>
+                <TouchableOpacity style={styles.postButton} onPress={ async () => handleComment()}>
                     <Icon.Send style={styles.postText} width={24} height={24} color={'#fff'} />
                 </TouchableOpacity>
             </View>
@@ -102,9 +110,11 @@ const styles = StyleSheet.create({
     },
     commentContent: {
         marginLeft: 10,
+        flex: 1,
     },
     commentText: {
         fontSize: 16,
+        flexWrap: 'wrap',
     },
     commentUsername: {
         fontSize: 14,
