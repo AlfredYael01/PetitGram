@@ -3,8 +3,8 @@ import React, {useEffect, useState} from "react";
 import {ImageBackground, View, Text, StyleSheet, Image, Dimensions, TouchableOpacity} from "react-native";
 import {getFirestore, collection, getDocs, orderBy} from 'firebase/firestore';
 import {query, where} from 'firebase/firestore';
-import {AntDesign} from '@expo/vector-icons';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signOut} from 'firebase/auth';
+
 
 const MainAdmin = () => {
 
@@ -164,6 +164,13 @@ const MainAdmin = () => {
                 </View>
             ))}
             </Swiper>
+
+            <TouchableOpacity onPress={() => {
+                      const auth = getAuth();
+                      signOut(auth);
+            }} style={{width: 20, height: 10}}>
+                <Text>Signout</Text>
+            </TouchableOpacity>
         </View>
     )
 }
