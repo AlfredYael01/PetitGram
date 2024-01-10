@@ -1,11 +1,12 @@
 import {View, Text, StyleSheet, Dimensions, TextInput, KeyboardAvoidingView, Platform, ScrollView,Alert} from 'react-native'
 import React, {useState, useEffect} from 'react'
-import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc} from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, updateDoc, doc} from 'firebase/firestore';
 import { getAuth, deleteUser, signInWithEmailAndPassword} from 'firebase/auth';
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Feather from 'react-native-vector-icons/Feather';
-import { getStorage, deleteObject, ref} from 'firebase/storage';
+import { getStorage, deleteObject, ref, listAll} from 'firebase/storage';
 import Dialog from "react-native-dialog";
+
 
 const HelpScreen = () => {
 
@@ -14,7 +15,7 @@ const HelpScreen = () => {
     const [messageInfo, setMessageInfo] = useState({userId: '', firstName: '', lastName: '', email: '', message: ''});
     const [contactToggle, setContactToggle] = useState(false);
     const [accountDeletiontoggle, setAccountDeletionToggle] = useState(false);
-    const [postsId, setPostsId] = useState([]);
+    //const [postsId, setPostsId] = useState([]);
     const infoSupressionDeCompte = "Deleting your account involves the complete elimination of all your data (posts and personal information) generated since the creation of your accout. This action is irreversible."
     const [dialogVisible, setDialogVisible] = useState(false);
     const [profile, setProfile] = useState();
@@ -107,61 +108,83 @@ const HelpScreen = () => {
         const db = getFirestore();
         const querySnapshot = await getDocs(query(collection(db, "users"), where("_id", "==", userId)));
 
+ 
         await deleteDoc(querySnapshot.docs[0].ref).then(() => {
 
             console.log("User deleted")
 
             deleteComments();
+            deleteUserFilesAndSubfolders();
             deletePostsAndLikes();
+            deleteFollowersAndFollowed();
             deleteAuth();
-
 
         }).catch((error) => {   
             console.log("Error deleting user: ", error);
         })
     }
 
+    const deleteUserFiles = async (folderRef) => {
+        try {
+          const listResult = await listAll(folderRef);
 
+          // Delete each item (file or subfolder) in the folder
+          const deleteItemPromises = listResult.items.map(itemRef =>
+            deleteObject(itemRef).then(() => {
+              console.log("Item deleted");
+            }).catch((error) => {
+              console.log("Error deleting item: ", error);
+            })
+          );
+      
+          await Promise.all(deleteItemPromises);
+      
+          // Recursively delete subfolders
+          const subfolderPromises = listResult.prefixes.map(subfolderRef =>
+            deleteUserFiles(subfolderRef)
+          );
+      
+          await Promise.all(subfolderPromises);
+      
+          console.log(`All items in the folder ${folderRef.name} deleted`);
+      
+        } catch (error) {
+          console.error(`Error deleting folder ${folderRef.name} contents:`, error);
+        }
+      };
+      
+      const deleteUserFilesAndSubfolders = async () => {
+        const userId = getAuth().currentUser.uid;
+        const storage = getStorage();
+        const userFolderRef = ref(storage, `${userId}`);
+      
+        await deleteUserFiles(userFolderRef);
+      
+        console.log("All user files and subfolders deleted");
+      };
+      
     const deletePostsAndLikes = async () => {
         const userId = getAuth().currentUser.uid;
         const db = getFirestore();
-        const storage = getStorage();
         const querySnapshot = await getDocs(collection(db, "posts"));
-        setPostsId(querySnapshot.docs.map(doc => doc.id));
+        //setPostsId(querySnapshot.docs.map(doc => doc.id));
         //setPosts(querySnapshot.docs.map(doc => doc.data()));
 
-        querySnapshot.forEach((doc) => {
 
-            //delete likes made by the user. The likes are stocked on the likes field of the post
+        
+        //delete images from storage
+        for (const doc of querySnapshot.docs) {
 
-            const imagesLinks = doc.data().images;
-
-            for(const link of imagesLinks){
-
-                const imageRef = ref(storage, link);
-
-                if(imageRef == undefined){
-                    continue;
-                }
-
-                if(link == defaultPhoto){
-                    continue;
-                }
-                
-                deleteObject(imageRef).then(() => {
-                    console.log("Image deleted")
-                }).catch((error) => {
-                    console.log("Error deleting image: ", error);
-                })
-            }
-
-            if(doc.data().likes.includes(userId)){
-                const index = doc.data().likes.indexOf(userId);
-                doc.data().likes.splice(index, 1);
-                doc.ref.update({likes: doc.data().likes});
+              //delete likes made by the user. The likes are stocked on the likes field of the post
+            if(doc.data()?.likes?.includes(userId)){
+                let likes = doc.data().likes;
+                const index = likes.indexOf(userId);
+                likes.splice(index, 1);
+                //doc.ref.update({likes: doc.data().likes});
+                //const ref = doc(db, "posts", doc.id)
+                await updateDoc(doc.ref, {likes});
                 console.log("Likes deleted")
             }
-
             
             if(doc.data().userId == userId){
                 
@@ -171,16 +194,51 @@ const HelpScreen = () => {
                     console.log("Error deleting post: ", error);
                 })
             }
-        })    
+        }
     }
 
+    const deleteFollowersAndFollowed = async () => {
+
+        const auth = getAuth();
+        const userId = auth.currentUser.uid;
+        const db = getFirestore();
+
+        const querySnapshot = await getDocs(collection(db, "users"));
+
+        for(const doc of querySnapshot.docs) {
+
+            if(doc.data()?.followers?.includes(userId)){
+                let followers = doc.data().followers;
+                const index = followers.indexOf(userId);
+                followers.splice(index, 1);
+                await updateDoc(doc.ref, {followers});
+                //doc.ref.update({followers: doc.data().followers});
+                console.log("Followers deleted")
+            }
+
+            if(doc.data()?.followed?.includes(userId)){
+                let followed = doc.data().followed;
+                const index = followed.indexOf(userId);
+                followed.splice(index, 1);
+                await updateDoc(doc.ref, {followed});
+                //doc.ref.update({followed: doc.data().followed});
+                console.log("Followed deleted")
+            }
+        }
+
+    }
+ 
     const deleteComments = async () => {
 
         const userId = getAuth().currentUser.uid;
         const db = getFirestore();
 
-        for (const postId of postsId) {
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        //setPostsId(querySnapshot.docs.map(doc => doc.id));
+        const postsId = querySnapshot.docs.map(doc => doc.id);
 
+        for (const postId of postsId) {
+     
             const querySnapshotComments = await getDocs(collection(db, "posts", postId, "comments"));
 
             querySnapshotComments.forEach((doc) => {
