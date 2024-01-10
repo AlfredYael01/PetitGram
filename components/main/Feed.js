@@ -14,7 +14,7 @@ const FeedScreen = ({navigation}) => {
     const [likedPosts, setLikedPosts] = useState({});
     const auth = getAuth();
     const [posts, setPosts] = useState([]);
-    const [users, setUsers] = useState({})
+    const [users, setUsers] = useState({});
     const Stack = createStackNavigator();
     const dispatch = useDispatch();
     const refresh = useSelector((state) => state.refresh.refresh);

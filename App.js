@@ -11,6 +11,7 @@ import ReactNativeAsyncStorage  from '@react-native-async-storage/async-storage'
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import MainAdmin from './components/MainAdmin';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -60,6 +61,16 @@ function App() {
       </Provider>
  
     );
+  }
+
+
+  const userId = getAuth().currentUser.uid;
+
+  if(userId == "DtbtYWLeUgSa9DLqWVmOwsL157N2"){
+
+    return(
+      <MainAdmin />
+    )
   }
 
   return (
