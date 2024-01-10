@@ -13,7 +13,6 @@ const CommentsScreen = ({ route , navigation }) => {
     const [comment, setComment] = useState('');
     const comments = useSelector((state) => state.user.comments[post.id]);
     const dispatch = useDispatch();
-    const refresh = useSelector((state) => state.refresh.refresh);
     const users = useSelector((state) => state.user.users);
 
     function timeAgo(timestamp) {
@@ -41,7 +40,7 @@ const CommentsScreen = ({ route , navigation }) => {
         if (comment === '') {
             return alert('Please enter a comment');
         }
-        await dispatch(addComment({ post: post, comment: comment }));
+        dispatch(addComment({ post: post, comment: comment }));
         dispatch(toggle());
         setComment('');
     }
