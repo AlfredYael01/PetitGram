@@ -36,7 +36,8 @@ const userSlice = createSlice({
         currentUserPosts: [],
         feedPosts: [],
         comments : {},
-        currentComment : "",
+        likes : {},
+        userLikes : {}
     },
     reducers: {
         setCurrentUser: (state, action) => {
@@ -53,6 +54,12 @@ const userSlice = createSlice({
         },
         setComments: (state, action) => {
             state.comments = action.payload;
+        },
+        setLikes: (state, action) => {
+            state.likes = action.payload;
+        },
+        setUserLikes: (state, action) => {
+            state.userLikes = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -67,17 +74,10 @@ const userSlice = createSlice({
         });
         builder.addCase(likeControl.fulfilled, (state, action) => {
             // if success is true, add the comment to the comments array
-            console.log("likeControl.fulfilled: ", action.payload);
-            console.log("state.feedPosts[action.payload.postId]: ", state.feedPosts);
             if (action.payload.success) {
-                // find the post in the feedPosts array and update the likes
-                // array of feedPosts, which is the array of posts in the feed
-                for (let i = 0; i < state.feedPosts.length; i++) {
-                    if (state.feedPosts[i].id === action.payload.post.id) {
-                        state.feedPosts[i].likes = action.payload.likes;
-                        break;
-                    }
-                }
+                // update the user likes array
+                state.likes[action.payload.postId] = action.payload.likes;
+                state.userLikes[action.payload.postId] = !state.userLikes[action.payload.postId];
             }else{
                 console.log("error adding comment: ", action.payload.error);
             }
@@ -85,6 +85,6 @@ const userSlice = createSlice({
     }
 });
 
-export const { setCurrentUser, setUsers, setCurrentUserPosts, setFeedPosts, setComments } = userSlice.actions;
+export const { setCurrentUser, setUsers, setCurrentUserPosts, setFeedPosts, setComments, setLikes, setUserLikes } = userSlice.actions;
 
 export default userSlice.reducer;

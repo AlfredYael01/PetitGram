@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Image,
   Dimensions,
-  ScrollView,
   TouchableOpacity,
 } from "react-native";
 import Swiper from "react-native-swiper";
@@ -17,10 +16,12 @@ import { AntDesign } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
 import { fetchCurrentUser } from "../helper/user";
-import { fetchFeedPosts, fetchComments, likeControl } from "../helper/posts";
+import { fetchFeedPosts, likeControl } from "../helper/posts";
+import { FlatList } from "react-native-gesture-handler";
 
 const FeedScreen = ({ navigation }) => {
-  const [likedPosts, setLikedPosts] = useState({});
+  const userLikes = useSelector((state) => state.user.userLikes);
+  const likes = useSelector((state) => state.user.likes);
   const Stack = createStackNavigator();
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.user.feedPosts);
@@ -32,8 +33,6 @@ const FeedScreen = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
   const [counter, setCounter] = useState(-2);
   const AnimatedIcon = Animated.createAnimatedComponent(AntDesign);
-  const scrollRef = useRef();
-  const [scrollPosition, setScrollPosition] = useState(0);
   useEffect(() => {
     if (liked == true) {
       Animated.spring(currentValue, {
@@ -53,28 +52,14 @@ const FeedScreen = ({ navigation }) => {
 
   const currentValue = new Animated.Value(1);
   const chargeData = async () => {
+    console.log("Charging data");
     dispatch(fetchCurrentUser());
     dispatch (fetchFeedPosts());
-    dispatch(fetchComments());
   };
 
   useEffect(() => {
-    // When the database changes, re-run chargeData
     chargeData();
   }, [user]);
-
-  useEffect(() => {
-    dispatch(fetchComments());
-    posts.forEach((post, index) => {
-      if (post?.likes && post.likes.includes(user._id)) {
-        const newLikedPosts = { ...likedPosts };
-        newLikedPosts[index] = true;
-        setLikedPosts(newLikedPosts);
-      }
-    });
-  }, [posts]);
-
-
 
   useEffect(() => {
     if (refresh) {
@@ -153,20 +138,20 @@ const FeedScreen = ({ navigation }) => {
         paginationStyle={styles.pagination}
       >
         {post.images.map((image) => (
-          <MemoizedImage key={image} image={image} index={index} />
+          <MemoizedImage key={image} image={image} index={index} postId={post.id} />
         ))}
       </Swiper>
     );
   }
 
-  const MemoizedImage = React.memo(({ image, index }) => {
+  const MemoizedImage = React.memo(({ image, index, postId }) => {
     return (
       <View style={styles.mainImage}>
         <ImageBackground
           source={{ uri: String(image), cache: "force-cache" }}
           style={styles.mainImage}
         >
-          {visible && index == counter && likedPosts[index] && (
+          {visible && index == counter && userLikes[postId] && (
             <AnimatedIcon
               name={"heart"}
               size={50}
@@ -187,18 +172,14 @@ const FeedScreen = ({ navigation }) => {
     return (
       <View style={styles.IconContainer}>
         <AntDesign
-          name={likedPosts[index] ? "heart" : "hearto"}
+          name={userLikes[post.id] ? "heart" : "hearto"}
           size={30}
           color={liked && index == counter ? "#fa635c" : "#bbbbbb"}
           onPress={() => {
-            const positionsBefore = scrollPosition;
             // Mise à jour de l'état liked du post spécifique
-            const newLikedPosts = { ...likedPosts };
-            newLikedPosts[index] = !likedPosts[index];
-            setLikedPosts(newLikedPosts);
             setLiked(!liked);
             // Reste de votre logique de like ici
-            if (!likedPosts[index]) {
+            if (!userLikes[post.id]) {
               setCounter(index);
               setVisible(true);
             }
@@ -207,8 +188,10 @@ const FeedScreen = ({ navigation }) => {
           useNativeDriver={true}
           style={{ marginLeft: 5 }}
         />
-        {/* icon for toggoling add comment for a post */}
+        {/* number of likes */}
+        <Text style={styles.likesCount}>{likes[post.id]?.length > 0 ? likes[post.id].length : " "}</Text>
 
+        {/* icon for toggoling add comment for a post */}
         <AntDesign
           name="message1"
           size={30}
@@ -267,35 +250,21 @@ const FeedScreen = ({ navigation }) => {
     );
   };
 
-  useEffect(() => {
-    if (scrollPosition > 0) {
-      scrollRef.current.scrollTo({ y: scrollPosition, animated: false });
-    }
-  }, [posts, visible]);
-
-    const handleScroll = (event) => {
-        setScrollPosition(
-            (event.nativeEvent.layoutMeasurement.height - 130) * counter
-          );
-    };
-
   const PostScreen = React.memo(({ navigation }) => {
     return (
-      <Animated.ScrollView
-        style={styles.container}
-        keyboardShouldPersistTaps="always"
-        ref={scrollRef}
-        onScroll={handleScroll}
-      >
-        {/* Header */}
+      <>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Feed</Text>
-          <Text style={styles.headerUser}>
-            {user ? user.pseudo : "Loading..."}
-          </Text>
-        </View>
-        {posts.map((post, index) => postView(post, navigation, index))}
-      </Animated.ScrollView>
+            <Text style={styles.headerTitle}>Feed</Text>
+            <Text style={styles.headerUser}>
+              {user ? user.pseudo : "Loading..."}
+            </Text>
+          </View>
+        <FlatList
+          data={posts}
+          renderItem={({ item, index }) => postView(item, navigation, index)}
+          keyExtractor={(item) => item._id}
+        />
+      </>
     );
   });
 
@@ -426,6 +395,12 @@ const styles = StyleSheet.create({
   touchable: {
     flexDirection: "row",
     alignItems: "center",
+  },
+
+  likesCount: {
+    marginLeft: 5,
+    marginRight: 4,
+    fontWeight: "bold",
   },
 });
 

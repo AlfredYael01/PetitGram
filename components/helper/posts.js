@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getFirestore, collection, query, where, getDocs, orderBy, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { store } from '../redux/store';
-import { setCurrentUserPosts , setFeedPosts, setComments} from '../redux/userSlice';
+import { setCurrentUserPosts , setFeedPosts, setComments, setLikes, setUserLikes} from '../redux/userSlice';
 import { getUserById } from './user';
 
 export function fetchUserPosts() {
@@ -48,30 +48,39 @@ export function fetchFeedPosts() {
             return;
         }
         const postsData = [];
+        const likesData = {};
+        const userLikesData = {};
         for (const doc of querySnapshot.docs) {
             const post = doc.data();
             if (post.userId !== userId) {
                 const id = doc.id;
                 const temp = { ...post, id: id };
-                if (post.userId !== userId) {
-                    // if the id is not already in the state
-                    if (
-                        !store
-                            .getState()
-                            .user.feedPosts[id]
-                    ) {
-                        if (!store.getState().user.currentUserPosts[id]) {
-                            dispatch(getUserById(post.userId));
-                        }
-                        // change temp.date to a serialized value
-                        temp.date = temp.date.toDate().toString();
-
-                        postsData.push(temp);
+                // if the id is not already in the state
+                if (
+                    !store
+                        .getState()
+                        .user.feedPosts[id]
+                ) {
+                    if (!store.getState().user.users[post.userId]) {
+                        dispatch(getUserById(post.userId));
                     }
+                    if (!store.getState().user.comments[id]) {
+                        dispatch(fetchCommentsForPost(id));
+                    }
+                    // change temp.date to a serialized value
+                    temp.date = temp.date.toDate().toString();
+                    postsData.push(temp);
+                    likesData[id] = temp.likes ? temp.likes : [];
+                    userLikesData[id] = temp.likes ? temp.likes.includes(store.getState().user.currentUser._id) : false;
+                    // remove likes from post
+                    delete temp.likes;
+
                 }
             }
         }
         dispatch(setFeedPosts(postsData));
+        dispatch(setLikes(likesData));
+        dispatch(setUserLikes(userLikesData));
     }
     );
 }
@@ -113,11 +122,11 @@ export const fetchCommentsForPost = (postId) => {
         // get comments form database
         const db = getFirestore();
         const commentsCollection = collection(db, "posts", postId, "comments");
-        const querySnapshotComments = getDocs(
+        const querySnapshotComments = await getDocs(
             query(commentsCollection, orderBy("date", "desc"))
         );
         const commentData = [];
-        if (!querySnapshotComments) {
+        if (!querySnapshotComments.docs || querySnapshotComments.docs.length === 0) {
             console.log("No comments");
             return;
         }
@@ -129,14 +138,14 @@ export const fetchCommentsForPost = (postId) => {
             commentData.push(temp);
             dispatch(getUserById(comment.userId));
         }
-        dispatch(setComments({...store.getState().user.comments, [postId]: commentData}));
+        dispatch(setComments({ ...store.getState().user.comments, [postId]: commentData }));
+        
     };
 };
 
 export const addComment = createAsyncThunk('user/addComment', async (commentData, { dispatch, getState }) => {
     const db = getFirestore();
     const { post, comment } = commentData;
-    console.log(" comenting on post: ", post , " with comment: ", comment);
     try {
         const commentsCollection = collection(db, 'posts', post.id, 'comments');
         const newCommentData = {
@@ -150,32 +159,28 @@ export const addComment = createAsyncThunk('user/addComment', async (commentData
         return { success: true, postId: post.id, comment: newCommentData };
     } catch (error) {
         // Handle errors or dispatch an error action if needed
-        console.log(error);
         return { success: false, error: error.message };
     }
 });
 
 export const likeControl = createAsyncThunk('user/likeControl', async (post) => { 
-    console.log("liking post: ", post.id);
     const db = getFirestore();
     const postRef = doc(db, "posts", post.id);
     // if user already liked then remove like
-    const newLikes = post.likes
-        ? post.likes.filter((like) => like !== store.getState().user.currentUser._id)
+    const newLikes = store.getState().user.likes[post.id]
+        ? store.getState().user.likes[post.id].filter((like) => like !== store.getState().user.currentUser._id)
         : [];
-    console.log("new likes: ", newLikes);
     try {
-        if (post.likes && post.likes.includes(store.getState().user.currentUser._id)) {
+        if (store.getState().user.likes[post.id] && store.getState().user.likes[post.id].includes(store.getState().user.currentUser._id)) {
             await updateDoc(postRef, { likes: newLikes });
-            return { success: true, post: post, likes: newLikes };
+            return { success: true, postId: post.id, likes: newLikes };
         } else {
             // else add like
             newLikes.push(store.getState().user.currentUser._id);
             await updateDoc(postRef, { likes: newLikes });
-            return { success: true, post: post, likes: newLikes };
+            return { success: true, postId: post.id, likes: newLikes };
         }     
     } catch (error) {
-        console.log(error);
         return { success: false, error: error.message };
     }
 });
