@@ -74,7 +74,7 @@ export default UserMod = ({ navigation }) => {
     });
 
     if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
+      setPhoto(result.uri);
     }
   };
 
@@ -155,7 +155,7 @@ export default UserMod = ({ navigation }) => {
               navigation.goBack();
           }
         }else{
-            setError("Error while uploading image try again");
+            setError("Are you sure who want to change your profile picture ? please confirm again");
             setSave(true);
         }
     }

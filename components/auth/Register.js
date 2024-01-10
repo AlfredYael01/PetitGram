@@ -144,9 +144,9 @@ export default Register = ({ navigation }) => {
           <View style={styles.form}>
             <View style={styles.imagePicker}>
               <Image source={{ uri: photo }} style={styles.image} />
-              <TouchableOpacity style={styles.imagePickerButton} onPress={imagePicker} testID="imagePickerButton">
+              {/*<TouchableOpacity style={styles.imagePickerButton} onPress={imagePicker} testID="imagePickerButton">
                 <Text style={styles.imagePickerButtonText}>Change Profile Picture</Text>
-              </TouchableOpacity>
+              </TouchableOpacity>*/}
             </View>
       
             <Text style={styles.sectionTitle}>Account Information</Text>
