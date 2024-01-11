@@ -1,18 +1,12 @@
 import React, { useEffect} from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import FeedPostItem from "./FeedPostItem"; 
-
 import { createStackNavigator } from "@react-navigation/stack";
 import CommentsScreen from "./Comments";
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
 import { fetchCurrentUser } from "../helper/user";
 import { fetchFeedPosts} from "../helper/posts";
-import { FlatList } from "react-native-gesture-handler";
 
 const FeedScreen = ({ navigation }) => {
   const Stack = createStackNavigator();
@@ -21,19 +15,17 @@ const FeedScreen = ({ navigation }) => {
   const refresh = useSelector((state) => state.refresh.refresh);
   const user = useSelector((state) => state.user.currentUser);
 
-  const chargeData = async () => {
-    console.log("Charging data");
+  useEffect(() => {
     dispatch(fetchCurrentUser());
-    dispatch (fetchFeedPosts());
-  };
+  }, []);
 
   useEffect(() => {
-    chargeData();
+    dispatch(fetchFeedPosts());
   }, [user]);
 
   useEffect(() => {
     if (refresh) {
-      chargeData();
+      dispatch(fetchFeedPosts());
       dispatch(toggle());
     }
   }, [refresh]);
@@ -62,8 +54,11 @@ const FeedScreen = ({ navigation }) => {
       initialRouteName="Feed"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="Feed" component={PostScreen} />
+      <Stack.Screen name="Feed" component={PostScreen} 
+      />
+      
       <Stack.Screen name="Comments" component={CommentsScreen} />
+
     </Stack.Navigator>
   );
 };

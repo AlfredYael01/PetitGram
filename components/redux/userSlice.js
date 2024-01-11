@@ -5,27 +5,7 @@ export const addComment = createAsyncThunk('user/addComment', async ({ post, com
 });
 
 export const likeControl = createAsyncThunk('user/likeControl', async (post) => { 
-    const db = getFirestore();
-    const postRef = doc(db, "posts", post.id);
-    // if user already liked then remove like
-    const newLikes = store.getState().user.feedPosts[post.id] 
-        ? store.getState().user.feedPosts[post.id].likes.filter((like) => like !== store.getState().user.currentUser._id)
-        : [];
-
-    try {
-        if (store.getState().user.feedPosts[post.id] && store.getState().user.feedPosts[post.id].likes.includes(store.getState().user.currentUser._id)) {
-            await updateDoc(postRef, { likes: newLikes });
-            return { success: true, post: post, likes: newLikes };
-        } else {
-            // else add like
-            newLikes.push(store.getState().user.currentUser._id);
-            await updateDoc(postRef, { likes: newLikes });
-            return { success: true, post: post, likes: newLikes };
-        }     
-    } catch (error) {
-        console.log(error);
-        return { success: false, error: error.message };
-    }
+    return { success: true, postId: post.id, likes: post.likes };
 });
 
 const userSlice = createSlice({

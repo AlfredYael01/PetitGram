@@ -100,7 +100,6 @@ export function fetchComments() {
                 );
                 const commentData = [];
                 if (!querySnapshotComments.docs || querySnapshotComments.docs.length === 0) {
-                    console.log("No comments");
                     continue;
                 }
                 for (const doc of querySnapshotComments.docs) {
