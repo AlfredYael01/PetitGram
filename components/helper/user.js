@@ -5,6 +5,8 @@ import {
   query,
   where,
   getDocs,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 import { store } from "../redux/store";
 import { setUsers, setCurrentUser } from "../redux/userSlice";
@@ -39,7 +41,9 @@ export const getUsers = () => {
     const q = query(usersCol, where("_id", "in", userIds));
     const userSnapshot = await getDocs(q);
     const usersTemp = userSnapshot.docs.reduce((acc, user) => {
-      acc[user.data()._id] = user.data();
+      const temp = user.data();
+      temp["id"] = user.id;
+      acc[user.data()._id] = temp;
       return acc;
     }, {});
     // update state with new users and old users
@@ -60,6 +64,7 @@ export const getUserById = (userId) => {
       query(userDoc, where("_id", "==", userId))
     );
     const user = userSnapshot.docs[0].data();
+    user["id"] = userSnapshot.docs[0].id;
     // update state with new user
     dispatch(setUsers({ ...state.user.users, [userId]: user }));
   };
@@ -83,6 +88,7 @@ export const fetchCurrentUser = () => {
       query(userDoc, where("_id", "==", auth.currentUser.uid))
     );
     const user = userSnapshot.docs[0].data();
+    user["id"] = userSnapshot.docs[0].id;
     // update state with new user
     dispatch(setCurrentUser(user));
   };
@@ -115,4 +121,37 @@ export const deleteUser = createAsyncThunk(
       return { success: false, error: error };
     }
   }
+);
+
+export const toggleFollowUser = createAsyncThunk( "user/followUser", async (followData) => {
+  const { userId } = followData;
+  const db = getFirestore();
+  const currentUser = store.getState().user.currentUser;
+  const user = store.getState().user.users[userId];
+  const profileRef = collection(db, "users");
+  const userRef = collection(db, "users");
+  const filteredFollowers = user.followers.filter(
+    (follower) => follower !== currentUser._id
+  );
+  const filteredFollowed = currentUser.followed.filter(
+    (followed) => followed !== user._id
+  );
+  try {
+    const userDoc = doc(profileRef, user.id);
+    const currentUserDoc = doc(userRef, currentUser.id);
+    if (filteredFollowers.length !== user.followers.length) {
+      // user is already followed, unfollow them
+      await updateDoc(userDoc, { followers: filteredFollowers });
+      await updateDoc(currentUserDoc, { followed: filteredFollowed });
+      return { success: true, userId: user._id, followed: false };
+    } else {
+      // user is not followed, follow them
+      await updateDoc(userDoc, { followers: [...user.followers, currentUser._id] });
+      await updateDoc(currentUserDoc, { followed: [...currentUser.followed, user._id] });
+      return { success: true, userId: user._id, followed: true };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 );

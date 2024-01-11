@@ -32,6 +32,12 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+export const toggleFollowUser = createAsyncThunk( "user/followUser", async (followData) => {
+  const { userId } = followData;
+  return { success: true, userId: userId, followed: true };
+}
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -126,6 +132,29 @@ const userSlice = createSlice({
         );
       } else {
         console.log("error deleting user: ", action.payload.error);
+      }
+    });
+    builder.addCase(toggleFollowUser.fulfilled, (state, action) => {
+      // if success is true, add the comment to the comments array
+      if (action.payload.success) {
+        // update the user likes array
+        if (action.payload.followed) {
+          state.users[action.payload.userId].followers.push(
+            state.currentUser._id
+          );
+          state.currentUser.followed.push(action.payload.userId);
+        } else {
+          state.users[action.payload.userId].followers = state.users[
+            action.payload.userId
+          ].followers.filter(
+            (follower) => follower !== state.currentUser._id
+          );
+          state.currentUser.followed = state.currentUser.followed.filter(
+            (followed) => followed !== action.payload.userId
+          );
+        }
+      } else {
+        console.log("error toggling follow: ", action.payload.error);
       }
     });
   },
