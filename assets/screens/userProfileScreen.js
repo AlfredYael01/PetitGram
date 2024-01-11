@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import UserMod from "../../components/auth/UserMod";
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../../components/redux/refreshSlice";
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 
 const data = [{key: "Sign out"}];
@@ -16,6 +17,7 @@ const data = [{key: "Sign out"}];
 const UserProfileScreen = ({navigation}) => {
     const dispatch = useDispatch();
     const refresh = useSelector((state) => state.refresh.refresh);
+    const currentUser = useSelector((state) => state.user.currentUser);
 
 //   const { showFlatList } = route.params; 
 
@@ -44,6 +46,10 @@ const UserProfileScreen = ({navigation}) => {
     const toggleFollowersList = () => {
       setShowFollowersList(!showFollowersList);
     };
+
+    useEffect(() => {
+      getUserInfo();
+    }, [currentUser]);
     
     const getUserInfo = async () => {
       const auth = getAuth();

@@ -11,7 +11,6 @@ import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   collection,
-  addDoc,
   getDocs,
   query,
   where,
@@ -27,6 +26,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
 import * as ImagePicker from "expo-image-picker";
+import { setCurrentUser } from "../redux/userSlice";
 
 export default UserMod = ({ navigation }) => {
   const auth = getAuth();
@@ -43,6 +43,7 @@ export default UserMod = ({ navigation }) => {
   const [description, setDescription] = useState();
   const [error, setError] = useState("");
   const [save, setSave] = useState(false);
+  const currentUser = useSelector((state) => state.user.currentUser);
 
   const getUserInfo = async () => {
     const auth = getAuth();
@@ -144,6 +145,7 @@ export default UserMod = ({ navigation }) => {
         dispatch(toggle());
       }
     });
+    dispatch(setCurrentUser({ ...currentUser, pseudo: pseudo, name: name, description: description, photo: photoUrl }));
   };
 
   useEffect(() => {

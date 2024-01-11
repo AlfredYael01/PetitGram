@@ -77,6 +77,9 @@ const userSlice = createSlice({
       // if success is true, add the comment to the comments array
       if (action.payload.success) {
         // the beginning of the array is the newest comment
+        if (!state.comments[action.payload.postId]) {
+          state.comments[action.payload.postId] = [];
+        }
         state.comments[action.payload.postId].unshift(action.payload.comment);
       } else {
         console.log("error adding comment: ", action.payload.error);
