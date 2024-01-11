@@ -3,8 +3,6 @@ import { getFirestore, collection, query, where, getDocs, doc, getDoc } from 'fi
 import { store } from '../redux/store';
 import { setUsers, setCurrentUser } from '../redux/userSlice';
 
-
-
 export const getUsers = () => {
     return async (dispatch) => {
         // remove userIds that are already in state
@@ -72,11 +70,9 @@ export const fetchCurrentUser = () => {
                 return;
             }
         }
-        console.log('getting current user' + auth.currentUser.uid);
         const userDoc = collection(db, 'users');
         const userSnapshot = await getDocs(query(userDoc, where('_id', '==', auth.currentUser.uid)));
         const user = userSnapshot.docs[0].data();
-        console.log("user: " + user.name);
         // update state with new user 
         dispatch(setCurrentUser(user));
     };
