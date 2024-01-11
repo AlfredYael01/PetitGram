@@ -31,7 +31,7 @@ export const likeControl = createAsyncThunk('user/likeControl', async (post) => 
 const userSlice = createSlice({
     name: 'user',
     initialState: {
-        currentUser: null,
+        currentUser: {_id: ""},
         users: {},
         currentUserPosts: [],
         feedPosts: [],
