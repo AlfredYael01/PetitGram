@@ -14,6 +14,7 @@ import Register from './components/auth/Register';
 import MainAdmin from './components/MainAdmin';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { MenuProvider } from 'react-native-popup-menu';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
@@ -84,7 +85,9 @@ export default () => {
       <View>
         <StatusBar barStyle={'light-content'}/>
       </View>
-      <App />
+      <MenuProvider>
+        <App />
+      </MenuProvider>
     </Provider>
   );
 }
