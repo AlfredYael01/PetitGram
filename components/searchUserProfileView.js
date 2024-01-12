@@ -45,8 +45,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         //backgroundColor: 'yellow',
-        borderWidth: 0.5,
-        borderColor: 'white',
+        borderWidth: 0.4,
+        borderColor: 'black',
         height: Dimensions.get('window').height * 0.1
     },
     

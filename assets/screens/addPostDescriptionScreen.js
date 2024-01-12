@@ -94,7 +94,7 @@ const AddPostDescriptionScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "white",
     alignItems: "center",
   },
 
@@ -102,24 +102,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderWidth: 0.5,
-    borderColor: "white",
+    borderColor: "black",
     borderRadius: 10,
     marginTop: Dimensions.get("window").height * 0.05,
   },
 
   touchableText: {
-    color: "white",
+    color: "black",
   },
 
   descriptionInput: {
     width: Dimensions.get("window").width * 0.9,
     //marginLeft: Dimensions.get('window').width * 0.08,
     marginTop: Dimensions.get("window").height * 0.08,
-    backgroundColor: "black",
+    backgroundColor: "white",
     borderRadius: 8,
-    borderColor: "white",
+    borderColor: "black",
     borderWidth: 0.5,
-    color: "white",
+    color: "black",
     textAlignVertical: "top",
     paddingTop: Dimensions.get("window").height * 0.008,
     paddingLeft: Dimensions.get("window").width * 0.02,

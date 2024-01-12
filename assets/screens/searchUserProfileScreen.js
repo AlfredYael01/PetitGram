@@ -110,7 +110,7 @@ const SearchUserProfileScreen = ({route, navigation}) => {
 
         <View style={styles.screenHeader}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Feather name='arrow-left' color={'white'} style={{marginLeft: 20}} size={30}/>
+                <Feather name='arrow-left' color={'black'} style={{marginLeft: 20}} size={30}/>
             </TouchableOpacity>
             <Text style={styles.pseudo}>{user.pseudo}</Text>
         </View>
@@ -125,25 +125,25 @@ const SearchUserProfileScreen = ({route, navigation}) => {
 
                 <View style={styles.upScreenContainerRight}>
                     <View style={styles.section1}>
-                        <Text style={{fontWeight: 'bold', color:'white'}}>{posts.length}</Text>
-                        <Text style={{color: 'white'}}>Publications</Text>
+                        <Text style={{fontWeight: 'bold', color:'black'}}>{posts.length}</Text>
+                        <Text style={{color: 'black'}}>Publications</Text>
                     </View>
 
                     <View style={styles.section2}>
-                        <Text style={{fontWeight: 'bold', color:'white'}}>{nbFollowers}</Text>
-                        <Text style={{color: 'white'}}>Followers</Text>
+                        <Text style={{fontWeight: 'bold', color:'black'}}>{nbFollowers}</Text>
+                        <Text style={{color: 'black'}}>Followers</Text>
                     </View>
 
                     <View style={styles.section3}>
-                        <Text style={{fontWeight: 'bold', color:'white'}}>{nbFollowed}</Text>
-                        <Text style={{color: 'white'}}>Followed</Text>
+                        <Text style={{fontWeight: 'bold', color:'black'}}>{nbFollowed}</Text>
+                        <Text style={{color: 'black'}}>Followed</Text>
                     </View>
                 </View>
             </View>
 
 
             <View style={styles.upScreenContainerBottom}>
-                <Text style={{color: 'white', marginLeft: Dimensions.get('window').width * 0.05}}>{user.description}</Text>
+                <Text style={{color: 'black', marginLeft: Dimensions.get('window').width * 0.05}}>{user.description}</Text>
             </View>
          
         </View>
@@ -201,13 +201,13 @@ const SearchUserProfileScreen = ({route, navigation}) => {
                 }
 
             }}>
-                    <Text style={{color: 'white'}}>{buttonFollow}</Text>
+                    <Text style={{color: 'black'}}>{buttonFollow}</Text>
             </TouchableOpacity>
         </View>
 
         <View style={styles.bottomScreenContainer}>
             <FlatList
-                    style={{backgroundColor: 'black'}}
+                    style={{backgroundColor: 'white'}}
                     numColumns={3}
                     data={posts}
                     renderItem={({ item }) => <ImageComponent post={item} navigation={navigation} profile={user}/>}
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     
     container: {
         flex: 1,
-        backgroundColor: 'black'
+        backgroundColor: 'white'
     },
 
     screenHeader: {
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     },
 
     pseudo: {
-        color: 'white',
+        color: 'black',
         fontWeight: 'bold',
         fontSize: 20,
         marginLeft: Dimensions.get('window').width * 0.05,
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     },
 
     name: {
-        color: 'white',
+        color: 'black',
         fontWeight: 'bold',
         marginTop: Dimensions.get('window').height * 0.01
     },
@@ -322,8 +322,8 @@ const styles = StyleSheet.create({
 
     followButton: {
 
-        borderColor:'gray', 
-        backgroundColor: 'black', 
+        borderColor:'black',
+        backgroundColor: 'white',
         borderWidth:0.5, 
         borderRadius : 5, 
         height : 25, 
