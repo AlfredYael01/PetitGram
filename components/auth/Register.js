@@ -134,6 +134,8 @@ export default Register = ({ navigation }) => {
           name : name,
           photo: photo,
           email: email,
+          followers: [],
+          followed: [],
           description : description,
         });
         console.log("Document written with ID: ", docRef.id);
