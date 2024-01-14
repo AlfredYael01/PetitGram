@@ -29,7 +29,7 @@ export const getUsers = () => {
     });
 
     // update state with new users and old users
-    dispatch(setUsers({ ...state.user.users,  ...usersTemp }));
+    dispatch(setUsers({ ...store.getState().user.users, ...usersTemp }));
   };
 };
 
@@ -48,7 +48,7 @@ export const getUserById = (userId) => {
     const user = userSnapshot.docs[0].data();
     user["id"] = userSnapshot.docs[0].id;
     // update state with new user
-    dispatch(setUsers({ ...state.user.users, [user.id]: user }));
+    dispatch(setUsers({ ...store.getState().user.users, [userId]: user }));
   };
 };
 
