@@ -4,45 +4,15 @@
   import { createStackNavigator } from '@react-navigation/stack';
   import ViewPost from "../assets/screens/ViewPost";
   import { NavigationContainer } from '@react-navigation/native';
-  //import Feather from 'react-native-vector-icons/Feather';
-  //import {View, TouchableOpacity, FlatList} from "react-native";
-  import { useState, useEffect } from 'react';
-  import { getAuth } from 'firebase/auth';
-  import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestore';
   import SearchUserProfileScreen from "../assets/screens/searchUserProfileScreen"
   import UserMod from "./auth/UserMod";
-  //import UserProfileHeader from './userProfileHeader';
-  //import ProfileDrawer from './profileDrawer';
+  import { useSelector } from 'react-redux';
 
 
   const Stack = createStackNavigator();
 
   const ProfileStack = () => {
-
-    const [userProfilePseudo, setUserProfilePseudo] = useState('');
-    //const [showFlatList, setShowFlatList] = useState(false);
-
-    const getUserInfo = async () => {
-        const auth = getAuth();
-        const userId = auth.currentUser.uid;
-        const db = getFirestore();
-        const querySnapshot = await getDocs(collection(db, "users"));
-        //console.log("QuerySnapshot: ",querySnapshot);
-
-        querySnapshot.forEach((doc) => {
-          //console.log("Data j'arrive pas ! ", doc.data());
-          if(doc.data()._id === userId) {
-        
-            setUserProfilePseudo(doc.data().pseudo);        
-          }
-        })
-      }
-
-      useEffect(() => {
-        getUserInfo();
-      
-      }, []);
-
+    const userProfilePseudo = useSelector( ((state) => state.user.currentUser?.pseudo) ? ((state) => state.user.currentUser.pseudo) : "User Profile" )
         return(
 
       <NavigationContainer independent={true}>

@@ -19,18 +19,12 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggle } from "../../components/redux/refreshSlice";
 import { fetchCurrentUser } from "../../components/helper/user";
-
-const data = [{ key: "Sign out" }];
 
 const UserProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const refresh = useSelector((state) => state.refresh.refresh);
   const currentUser = useSelector((state) => state.user.currentUser);
 
-  const auth = getAuth();
-  const userId = auth.currentUser.uid;
   const postsArray = [
     { id: 1, images: [require("./GenerationImage/whiteBackground.jpg")] },
     { id: 2, images: [require("./GenerationImage/whiteBackground.jpg")] },
@@ -43,38 +37,7 @@ const UserProfileScreen = ({ navigation }) => {
     { id: 9, images: [require("./GenerationImage/whiteBackground.jpg")] },
     { id: 10, images: [require("./GenerationImage/whiteBackground.jpg")] },
   ];
-  const [profile, setProfile] = useState({});
   const [posts, setPosts] = useState(postsArray);
-  const [showFollowersList, setShowFollowersList] = useState(false);
-
-  const toggleFollowersList = () => {
-    setShowFollowersList(!showFollowersList);
-  };
-
-  useEffect(() => {
-    getUserInfo();
-  }, [currentUser]);
-
-  const getUserInfo = async () => {
-    const auth = getAuth();
-    const userId = auth.currentUser.uid;
-    const db = getFirestore();
-    const querySnapshot = await getDocs(collection(db, "users"));
-    //console.log("QuerySnapshot: ",querySnapshot);
-
-    querySnapshot.forEach((doc) => {
-      //console.log("Data: ", doc.data());
-      if (doc.data()._id === userId) {
-        setProfile(doc.data());
-      }
-    });
-  };
-  useEffect(() => {
-    if (refresh) {
-      getUserInfo();
-      dispatch(toggle());
-    }
-  }, [refresh]);
 
   const getPosts = async () => {
     const auth = getAuth();
@@ -94,23 +57,18 @@ const UserProfileScreen = ({ navigation }) => {
   // call getPosts when the component mounts
   useEffect(() => {
     dispatch(fetchCurrentUser());
-    getUserInfo();
     const db = getFirestore();
     const query = collection(db, "posts");
     const unsubscribe = onSnapshot(query, (querySnapshot) => {
       // When the database changes, re-run getPosts
       getPosts();
     });
-
     // Cleanup the listener when the component unmounts
     return () => {
       unsubscribe();
     };
   }, []);
 
-  const renderFlatList = () => (
-    <FlatList data={data} renderItem={({ item }) => <Text>{item}</Text>} />
-  );
 
   const handleEditProfilePress = () => {
     navigation.navigate("UserMod");
@@ -126,10 +84,10 @@ const UserProfileScreen = ({ navigation }) => {
         <View style={styles.upScreenTop}>
           <View style={styles.upScreenTopLeft}>
             <Image
-              source={{ uri: String(profile.photo) }}
+              source={{ uri: String(currentUser.photo) }}
               style={styles.image}
             ></Image>
-            <Text style={styles.name}>{profile.name}</Text>
+            <Text style={styles.name}>{currentUser.name}</Text>
           </View>
 
           <View style={styles.upScreenTopRight}>
@@ -151,7 +109,7 @@ const UserProfileScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate("FollowersListScreen")}
               >
                 <Text style={styles.numberSection}>
-                  {profile?.followers?.length ? profile.followers.length : 0}
+                  {currentUser?.followers?.length ? currentUser.followers.length : 0}
                 </Text>
                 <Text style={styles.textSection}>Followers</Text>
               </TouchableOpacity>
@@ -169,7 +127,7 @@ const UserProfileScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate("FollowingsListScreen")}
               >
                 <Text style={styles.numberSection}>
-                  {profile?.followed?.length ? profile.followed.length : 0}
+                  {currentUser?.followed?.length ? currentUser.followed.length : 0}
                 </Text>
                 <Text style={styles.textSection}>Followed</Text>
               </TouchableOpacity>
@@ -179,7 +137,7 @@ const UserProfileScreen = ({ navigation }) => {
 
         {/* -----Up middle----- */}
         <View style={styles.upScreenMiddle}>
-          <Text style={styles.description}>{profile.description}</Text>
+          <Text style={styles.description}>{currentUser.description}</Text>
         </View>
 
         {/* -----Up bottom ----- */}
@@ -210,7 +168,7 @@ const UserProfileScreen = ({ navigation }) => {
             <ImageComponent
               post={item}
               navigation={navigation}
-              profile={profile}
+              profile={currentUser}
             />
           )}
         />
