@@ -8,6 +8,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { store } from "../redux/store";
 import { setUsers, setCurrentUser } from "../redux/userSlice";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -137,3 +138,67 @@ export const toggleFollowUser = createAsyncThunk( "user/followUser", async (foll
   }
 }
 );
+
+export const updateUser = createAsyncThunk(
+  "user/updateUser",
+  async (userData) => {
+    const { pseudo, name, description } = userData;
+    const db = getFirestore();
+    const currentUser = store.getState().user.currentUser;
+    const userRef = collection(db, "users");
+    const userQuery = query(userRef, where("_id", "==", currentUser._id));
+    const querySnapshot = await getDocs(userQuery);
+    querySnapshot.forEach(async (doc) => {
+      const docRef = doc.ref;
+      await updateDoc(docRef, {
+        pseudo: pseudo,
+        name: name,
+        description: description
+      });
+      console.log("User updated");
+    });
+    return { success: true, pseudo: pseudo, name: name, description: description };
+  }
+);
+
+export const uploadProfilePicture = createAsyncThunk(
+  "user/uploadProfilePicture",
+  async ( photoData ) => {
+    try {
+      const { userId, photo } = photoData;
+      const storage = getStorage();
+      const imageFileName = "Profile/" + userId + ".jpg";
+      const storageRef = ref(storage, imageFileName);
+      // if photo exists delete it
+      const currentUser = store.getState().user.currentUser;
+      const defaultPhoto =
+    "https://firebasestorage.googleapis.com/v0/b/petitgram-b48fd.appspot.com/o/Profile%2FuserImage.png?alt=media&token=29660ffe-caba-4fe6-b028-09af3f446b74&_gl=1*i459ow*_ga*NDMzMjcyMjA3LjE2OTU4ODMxMjk.*_ga_CW55HF8NVT*MTY5OTM0NzExOC4xOS4xLjE2OTkzNDcxNzIuNi4wLjA";
+      if (currentUser?.photo !== defaultPhoto){
+        const imageToDelete = ref(storage, currentUser.photo);
+        await deleteObject(imageToDelete);
+      }
+      const blob = await fetch(photo).then((r) => r.blob());
+      const snapshot = await uploadBytes(storageRef, blob);
+      console.log("Uploaded a blob or file!" + snapshot);
+      const url = await getDownloadURL(storageRef);
+      // update the user photo in the database
+      const db = getFirestore();
+      const userRef = collection(db, "users");
+      const userQuery = query(userRef, where("_id", "==", userId));
+      const querySnapshot = await getDocs(userQuery);
+      querySnapshot.forEach(async (doc) => {
+        const docRef = doc.ref;
+        await updateDoc(docRef, {
+          photo: url
+        });
+        console.log("User updated");
+      });
+      return { success: true, photo: url };
+    }
+    catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  }
+);
+
