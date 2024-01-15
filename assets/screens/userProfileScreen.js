@@ -184,20 +184,25 @@ const UserProfileScreen = ({ navigation }) => {
 
         {/* -----Up bottom ----- */}
         <View style={styles.upscreenBottom}>
-          <TouchableOpacity
-            style={{
-              borderColor: "black",
-              borderWidth: 0.5,
-              borderRadius: 5,
-              height: 25,
-              width: 125,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onPress={handleEditProfilePress}
-          >
-            <Text>Edit profile</Text>
-          </TouchableOpacity>
+          <View style={styles.upscreenBottom}>
+            <TouchableOpacity
+              onPress={handleEditProfilePress}
+            >
+              <Text>Edit profile</Text>
+            </TouchableOpacity>
+            {/* button for Petit Gram Chat bot */}
+            <TouchableOpacity
+              style={{
+                marginTop: Dimensions.get("window").height * 0.03,
+                borderRadius: 5,
+                height: 25,
+                width: 125,
+              }}
+              onPress={() => navigation.navigate("ChatBot")}
+            >
+              <Text>Chat with PetitGram</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
       {/*-----Down screen-----*/}

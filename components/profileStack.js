@@ -11,6 +11,7 @@
   import { getFirestore, collection, getDocs, onSnapshot } from 'firebase/firestore';
   import SearchUserProfileScreen from "../assets/screens/searchUserProfileScreen"
   import UserMod from "./auth/UserMod";
+  import ChatBot from '../assets/screens/ChatBot';
   //import UserProfileHeader from './userProfileHeader';
   //import ProfileDrawer from './profileDrawer';
 
@@ -62,7 +63,8 @@
             }}></Stack.Screen>
             <Stack.Screen name="SearchUserProfileScreen" component={SearchUserProfileScreen} options={{headerShown:false   }}/>
             <Stack.Screen name="ViewPost" component={ViewPost} options={{ headerTitle: 'Publications'}}/>
-            <Stack.Screen name={"UserMod"} component={UserMod} options={{headerTitle: 'Modification des informations personels'}}></Stack.Screen>
+            <Stack.Screen name={"UserMod"} component={UserMod} options={{headerTitle: 'Modification des informations personels'}}/>
+            <Stack.Screen name={"ChatBot"} component={ChatBot} options={{headerTitle: 'ChatBot'}}/>
       </Stack.Navigator>
       </NavigationContainer>
 
