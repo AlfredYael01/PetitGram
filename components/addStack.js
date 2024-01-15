@@ -9,10 +9,14 @@ const AddStack = () => {
 
     return(
 
-        <Stack.Navigator>
-            <Stack.Screen name='AddScreen' component={AddScreen}/>
-            <Stack.Screen name='AddCameraScreen' component={AddCamera}/>
-            <Stack.Screen name='AddPostDescriptionScreen' component={AddPostDescriptionScreen}/>
+        <Stack.Navigator initialRouteName='Add Post'>
+            <Stack.Screen name='Add Post' component={AddScreen}
+            options={{
+                headerShown: false
+            }}/>
+            <Stack.Screen name='Camera' component={AddCamera}/>
+            <Stack.Screen name='Add Description' component={AddPostDescriptionScreen}/>
+
         </Stack.Navigator>
     )
 
