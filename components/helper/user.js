@@ -14,40 +14,22 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const getUsers = () => {
   return async (dispatch) => {
-    // remove userIds that are already in state
-    const state = store.getState();
-    // get all userIds from posts and comments states
-    const userIds = Object.keys(state.posts.posts).map((postId) => {
-      return state.posts.posts[postId].userId;
-    });
-    Object.keys(state.posts.comments).forEach((postId) => {
-      Object.keys(state.posts.comments[postId]).forEach((commentId) => {
-        userIds.push(state.posts.comments[postId][commentId].userId);
-      });
-    });
-    // remove duplicates
-    const userIdsToFetch = [...new Set(userIds)];
-    // remove userIds that are already in state
-    userIdsToFetch.forEach((userId) => {
-      if (state.user.users[userId]) {
-        userIdsToFetch.splice(userIdsToFetch.indexOf(userId), 1);
-      }
-    });
-    if (userIdsToFetch.length === 0) {
-      return;
-    }
     const db = getFirestore();
-    const usersCol = collection(db, "users");
-    const q = query(usersCol, where("_id", "in", userIds));
-    const userSnapshot = await getDocs(q);
-    const usersTemp = userSnapshot.docs.reduce((acc, user) => {
-      const temp = user.data();
-      temp["id"] = user.id;
-      acc[user.data()._id] = temp;
-      return acc;
-    }, {});
+    const auth = getAuth();
+    const userId = auth.currentUser.uid;
+    const userDoc = collection(db, "users");
+    const userSnapshot = await getDocs(
+      query(userDoc, where("_id", "!=", userId))
+    );
+    const usersTemp = {};
+    userSnapshot.forEach((doc) => {
+      const user = doc.data();
+      user["id"] = doc.id;
+      usersTemp[user.id] = user;
+    });
+
     // update state with new users and old users
-    dispatch(setUsers({ ...state.user.users, ...usersTemp }));
+    dispatch(setUsers({ ...store.getState().user.users, ...usersTemp }));
   };
 };
 
@@ -66,7 +48,7 @@ export const getUserById = (userId) => {
     const user = userSnapshot.docs[0].data();
     user["id"] = userSnapshot.docs[0].id;
     // update state with new user
-    dispatch(setUsers({ ...state.user.users, [userId]: user }));
+    dispatch(setUsers({ ...store.getState().user.users, [userId]: user }));
   };
 };
 

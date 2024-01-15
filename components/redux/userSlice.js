@@ -43,7 +43,7 @@ const userSlice = createSlice({
   initialState: {
     currentUser: null,
     users: {},
-    currentUserPosts: [],
+    userPosts: [],
     feedPosts: [],
     comments: {},
     likes: {},
@@ -56,8 +56,8 @@ const userSlice = createSlice({
     setUsers: (state, action) => {
       state.users = action.payload;
     },
-    setCurrentUserPosts: (state, action) => {
-      state.currentUserPosts = action.payload;
+    setUserPosts: (state, action) => {
+      state.userPosts = action.payload;
     },
     setFeedPosts: (state, action) => {
       state.feedPosts = action.payload;
@@ -130,7 +130,7 @@ const userSlice = createSlice({
         state.feedPosts = state.feedPosts.filter(
           (post) => post.userId !== action.payload.userId
         );
-        state.currentUserPosts = state.currentUserPosts.filter(
+        state.userPosts = state.userPosts.filter(
           (post) => post.userId !== action.payload.userId
         );
       } else {
@@ -166,7 +166,7 @@ const userSlice = createSlice({
 export const {
   setCurrentUser,
   setUsers,
-  setCurrentUserPosts,
+  setUserPosts,
   setFeedPosts,
   setComments,
   setLikes,

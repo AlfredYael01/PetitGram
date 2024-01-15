@@ -89,7 +89,7 @@ const SearchScreen = ({navigation}) => {
           setText(inputText);
           searchUser(inputText);
         }} />
-        <Icon.Search color={'white'} width={20} height={20} style={{ position: 'absolute', left: 80 }} />
+        <Icon.Search color={'black'} width={20} height={20} style={{ position: 'absolute', left: 90, top : 29 }} />
       </View>
 
       <View style={styles.profilesViewContainer}>
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: 'black'
+    backgroundColor: 'white'
   },
 
   searchContainer: {
@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
   searchInput: {
     width: 250,
     height: 32,
-    backgroundColor: 'black',
-    color: 'white',
+    backgroundColor: 'white',
+    color: 'black',
     borderRadius: 5,
     textAlign: 'center',
     borderWidth: 0.5,
