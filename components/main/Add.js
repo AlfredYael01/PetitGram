@@ -17,6 +17,7 @@ export default function AddScreen( {navigation} ) {
 
     function toggleCameraType() {
         setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
+        navigation.navigate("AddCameraScreen")
     }
 
     const pickImage = async () => {

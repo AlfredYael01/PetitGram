@@ -11,8 +11,10 @@ import ReactNativeAsyncStorage  from '@react-native-async-storage/async-storage'
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import MainAdmin from './components/MainAdmin';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { MenuProvider } from 'react-native-popup-menu';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
@@ -62,6 +64,16 @@ function App() {
     );
   }
 
+
+  const userId = getAuth().currentUser.uid;
+
+  if(userId == "DtbtYWLeUgSa9DLqWVmOwsL157N2"){
+
+    return(
+      <MainAdmin />
+    )
+  }
+
   return (
     <MainScreen />
   );
@@ -73,7 +85,9 @@ export default () => {
       <View>
         <StatusBar barStyle={'light-content'}/>
       </View>
-      <App />
+      <MenuProvider>
+        <App />
+      </MenuProvider>
     </Provider>
   );
 }
