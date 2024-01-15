@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, TextInput, Text, StyleSheet, Dimensions } from "react-native";
+import { View, TextInput, Text, StyleSheet, Dimensions, Image, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import Swiper from "react-native-swiper";
 
 const AddPostDescriptionScreen = ({ route, navigation }) => {
   const [selectedImages, setSelectedImages] = useState(
@@ -14,6 +15,7 @@ const AddPostDescriptionScreen = ({ route, navigation }) => {
 
   const handlePost = async () => {
     // Disable the touchable opacity button
+    if (postButtonDisabled) return;
     setPostButtonDisabled(true);
 
     // Define post info
@@ -58,71 +60,111 @@ const AddPostDescriptionScreen = ({ route, navigation }) => {
 
     // Clear selected images
     setSelectedImages([]);
-
-    // Enable the touchable opacity button
-    setPostButtonDisabled(false);
+    // Go back to the add post screen
+    navigation.navigate("Add Post");
 
     // navigate to the profile screen
     navigation.navigate("Profile");
+
+    // Enable the touchable opacity button
+    setPostButtonDisabled(false);
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        multiline
-        value={description}
-        onChangeText={(text) => setDescription(text)}
-        style={styles.descriptionInput}
-        numberOfLines={5}
-        placeholder="Add description"
-        placeholderTextColor={"gray"}
-      />
-      <TouchableOpacity
-        style={styles.validateTouchable}
-        onPress={() => {
-          handlePost();
-          setDescription("");
-        }}
-        disabled={postButtonDisabled}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.touchableText}>Validate</Text>
-      </TouchableOpacity>
-    </View>
+        <View style={styles.swiperContainer}>
+          <Swiper
+            style={styles.imageSlider}
+            loop={false}
+          >
+            {selectedImages.map((image) => (
+              <Image key={image} source={{ uri: image }} style={styles.image} />
+            ))}
+          </Swiper>
+        </View>
+        <TextInput
+          multiline
+          value={description}
+          onChangeText={(text) => setDescription(text)}
+          style={styles.descriptionInput}
+          numberOfLines={5}
+          placeholder="Add description"
+          placeholderTextColor="#888"
+        />
+        <TouchableOpacity
+          style={styles.postButton}
+          onPress={() => {
+            handlePost();
+            setDescription("");
+          }}
+          disabled={postButtonDisabled}
+        >
+          <Text style={styles.postButtonText}>Post</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#F8F8F8",
+  },
+
+  postButton: {
+    backgroundColor: "#3498db",
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginVertical: 16,
+    marginHorizontal: 16,
     alignItems: "center",
   },
 
-  validateTouchable: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderWidth: 0.5,
-    borderColor: "black",
-    borderRadius: 10,
-    marginTop: Dimensions.get("window").height * 0.05,
-  },
-
-  touchableText: {
-    color: "black",
+  postButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 
   descriptionInput: {
     width: Dimensions.get("window").width * 0.9,
-    //marginLeft: Dimensions.get('window').width * 0.08,
-    marginTop: Dimensions.get("window").height * 0.08,
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    borderColor: "black",
-    borderWidth: 0.5,
-    color: "black",
+    borderColor: "#BDC3C7",
+    borderWidth: 1,
+    color: "#333",
     textAlignVertical: "top",
-    paddingTop: Dimensions.get("window").height * 0.008,
     paddingLeft: Dimensions.get("window").width * 0.02,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    lineHeight: 20,
+    alignSelf: "center", // Center the input in its container
+  },
+
+  imageSlider: {
+    height: Dimensions.get("window").height * 0.5,
+    marginBottom: Dimensions.get("window").height * 0.02,
+  },
+
+  image: {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height * 0.5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  swiperContainer: {
+    height: Dimensions.get("window").height * 0.5,
+    marginBottom: Dimensions.get("window").height * 0.02,
   },
 });
 
