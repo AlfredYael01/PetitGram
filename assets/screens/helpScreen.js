@@ -94,6 +94,7 @@ const HelpScreen = () => {
             .then((userCredential) => {
             // User re-authenticated
             const user = userCredential.user;
+            console.log("User:", user)
 
                 deleteUser(user).then(() => {
                     console.log("User deleted")
