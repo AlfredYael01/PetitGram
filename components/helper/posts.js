@@ -195,6 +195,21 @@ export const addComment = createAsyncThunk(
   }
 );
 
+export const updateComment = createAsyncThunk(
+  "user/updateComment",
+  async (commentData) => {
+    const { post, comment } = commentData;
+    const db = getFirestore();
+    const commentRef = doc(db, "posts", post.id, "comments", comment.id);
+    try {
+      await updateDoc(commentRef, { comment: comment.comment });
+      return { success: true, postId: post.id, comment: comment };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+);
+
 export const likeControl = createAsyncThunk(
   "user/likeControl",
   async (post) => {

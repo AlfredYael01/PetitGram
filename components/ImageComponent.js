@@ -8,7 +8,7 @@ const ImageCompenent = ({ post, navigation, profile }) => {
     }
     return (
 
-        <TouchableOpacity onPress={() => navigation.navigate('ViewPost', { post : post, profile : profile })}>
+        <TouchableOpacity onPress={() => navigation.navigate('ViewPost', { post : post, profile : profile, navigation: navigation })}>
             <Image
                 source={{uri: String(post.images[0])}}
                 style={{

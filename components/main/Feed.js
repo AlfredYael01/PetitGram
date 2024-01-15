@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
 import { fetchCurrentUser } from "../helper/user";
 import { fetchFeedPosts} from "../helper/posts";
+import EditComment from "../../assets/screens/EditComment";
 
 const FeedScreen = ({ navigation }) => {
   const Stack = createStackNavigator();
@@ -75,6 +76,7 @@ const FeedScreen = ({ navigation }) => {
       />
       
       <Stack.Screen name="Comments" component={CommentsScreen} />
+      <Stack.Screen name="EditComment" component={EditComment} />
 
     </Stack.Navigator>
   );

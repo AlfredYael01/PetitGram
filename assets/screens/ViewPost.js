@@ -7,9 +7,18 @@ import { likeControl } from '../../components/helper/posts';
 import { AntDesign } from '@expo/vector-icons';
 import { addComment } from '../../components/helper/posts';
 import { toggle } from '../../components/redux/refreshSlice';
+import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import * as Icon from 'react-native-feather';
+import {
+    Menu,
+    MenuOptions,
+    MenuOption,
+    MenuTrigger,
+  } from 'react-native-popup-menu';
+import { Alert } from "react-native";
+import { deletePost } from '../../components/helper/posts';
 
-const ViewPost = ({ route }) => {
+const ViewPost = ({ route, navigation }) => {
     const { post, profile } = route.params;
     const dispatch = useDispatch();
     const comments = useSelector((state) => state.user.comments[post.id]);
@@ -17,6 +26,8 @@ const ViewPost = ({ route }) => {
     const userLikes = useSelector((state) => state.user.userLikes[post.id]);
     const [comment, setComment] = useState('');
     const users = useSelector((state) => state.user.users);
+    const userPost = useSelector((state) => state.user.userPosts[post.id]);
+    const [disableButton, setDisableButton] = useState(false);
 
     const screenWidth = Dimensions.get('window').width;
     const screenHeight = Dimensions.get('window').height;
@@ -62,6 +73,9 @@ const ViewPost = ({ route }) => {
     }
 
     function handleComment() {
+
+        setDisableButton(true);
+
         if (comment === '') {
             return alert('Please enter a comment');
         }
@@ -107,6 +121,52 @@ const ViewPost = ({ route }) => {
         )
     }
 
+
+    function handlePostMenu(post) {
+        // generate a menu for a post
+        return (
+          <Menu>
+            <MenuTrigger>
+                <SimpleLineIcons name="options-vertical" size={25} color={"black"} />
+            </MenuTrigger>
+            <MenuOptions>
+              <MenuOption onSelect={() => handleDeletePost()} text="Delete Post" />
+              <MenuOption
+                onSelect={() => console.log("Edit post pressed!")}
+                text="Edit post"
+              />
+            </MenuOptions>
+          </Menu>
+        );
+      }
+
+      const handleDeletePost = () => {
+        Alert.alert(
+          "Delete Post",
+          "Are you sure you want to delete this post?",
+          [
+            {
+              text: "No",
+              style: "cancel",
+            },
+            {
+              text: "Yes",
+              style: "destructive",
+              onPress: () => {
+                dispatch(deletePost({ post: post }));
+                navigation.goBack();
+            
+                },
+            },
+          ]
+        );
+      };
+
+    useEffect(() => {
+        setDisableButton(false);
+    }, [comments])
+    
+
     return (
         <View style={styles.container}>
             <View style={styles.imageContainer} key={post._id}>
@@ -117,6 +177,9 @@ const ViewPost = ({ route }) => {
                             <Text style={styles.dateText}>
                                 {timeAgo(post.date)}
                             </Text>
+                        </View>
+                        <View>
+                            {handlePostMenu(post)}
                         </View>
                     </View>
             </View>
@@ -134,7 +197,7 @@ const ViewPost = ({ route }) => {
                 </Swiper>
                 {likeSection()}
                 <View style={styles.bottomScreen}>
-                    <Text style={styles.description}>{post.description}</Text>
+                    <Text style={styles.description}>{userPost?.description}</Text>
                     {commentSection()}
                 </View>
         </View>
@@ -168,11 +231,14 @@ const styles = StyleSheet.create({
         flex: 0.15,
         borderTopWidth: 0.5,
         borderTopColor: "black",
+
     },
     profileContainer: {
         flexDirection: "row",
         alignItems: "center",
         padding: 10,
+        justifyContent: "center",
+
     },
     profileImage: {
         width: 40,
@@ -183,11 +249,12 @@ const styles = StyleSheet.create({
     profileInfo: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "start",
         flex: 1,
     },
     name: {
         fontWeight: "bold",
+        marginRight: Dimensions.get('window').width * 0.025,
     },
     imageSlider: {
         height: Dimensions.get('window').height * 0.55,
@@ -257,6 +324,14 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         backgroundColor: "#318bfb",
     },
+
+    iconMenu:{
+        height: Dimensions.get('window').height * 0.05,
+        width:  Dimensions.get('window').width * 0.1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'green'
+    }
 
 
 });
