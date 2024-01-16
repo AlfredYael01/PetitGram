@@ -3,7 +3,7 @@ import {
   getFirestore,
   collection,
   query,
-  where,
+  getDoc,
   getDocs,
   orderBy,
   addDoc,
@@ -14,7 +14,7 @@ import {
 import { getStorage, ref, deleteObject, listAll } from "firebase/storage";
 import { store } from "../redux/store";
 import {
-  setCurrentUserPosts,
+  setUserPosts,
   setFeedPosts,
   setComments,
   setLikes,
@@ -22,30 +22,33 @@ import {
 } from "../redux/userSlice";
 import { getUserById } from "./user";
 
-export function fetchUserPosts() {
+export function fetchUserPosts( idPost ) {
   return async (dispatch) => {
-    if (!store.getState().user.currentUser) {
+    if (store.getState().user.userPosts[idPost]) {
       return;
     }
-    const userId = store.getState().user.currentUser._id;
     const db = getFirestore();
-    const postsCollection = collection(db, "posts");
-    const querySnapshot = await getDocs(
-      query(postsCollection, where("userId", "==", userId))
-    );
-    const postsData = [];
-    if (!querySnapshot) {
-      console.log("No posts");
-      return;
-    }
-    querySnapshot.forEach((doc) => {
-      const post = doc.data();
-      const id = doc.id;
-      const temp = { ...post, id: id };
-      postsData.push(temp);
-    });
+    const postDoc = doc(db, "posts", idPost);
+    const querySnapshot = await getDoc(postDoc);
 
-    dispatch(setCurrentUserPosts(postsData));
+    const postsData = [];
+    const likesData = {};
+    const userLikesData = {};
+    const post = querySnapshot.data();
+    const id = querySnapshot.id;
+    const temp = { ...post, id: id };
+    temp.date = temp.date.toDate().toString();
+    postsData.push(temp);
+    dispatch(fetchCommentsForPost(id));
+    likesData[id] = temp.likes ? temp.likes : [];
+    userLikesData[id] = temp.likes
+      ? temp.likes.includes(store.getState().user.currentUser._id)
+      : false;
+    // remove likes from post
+    delete temp.likes;
+    dispatch( setUserPosts({ ...store.getState().user.userPosts, [idPost]: postsData }) );
+    dispatch(setLikes(likesData));
+    dispatch(setUserLikes(userLikesData));
   };
 }
 
@@ -74,9 +77,9 @@ export function fetchFeedPosts() {
         const temp = { ...post, id: id };
         // if the id is not already in the state
         if (!store.getState().user.feedPosts[id]) {
-          if (!store.getState().user.users[post.userId]) {
-            dispatch(getUserById(post.userId));
-          }
+if (!store.getState().user.users[post.userId]) {
+          dispatch(getUserById(post.userId));
+}
           if (!store.getState().user.comments[id]) {
             dispatch(fetchCommentsForPost(id));
           }
@@ -102,7 +105,7 @@ export function fetchComments() {
   return async (dispatch) => {
     const allPosts = {
       ...store.getState().user.feedPosts,
-      ...store.getState().user.currentUserPosts,
+      ...store.getState().user.userPosts,
     };
     // get comments form database
     const db = getFirestore();

@@ -32,12 +32,40 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+export const toggleFollowUser = createAsyncThunk( "user/followUser", async (followData) => {
+  const { userId } = followData;
+  return { success: true, userId: userId, followed: true };
+}
+);
+
+export const updateUser = createAsyncThunk(
+  "user/updateUser",
+  async (userData) => {
+    const { pseudo, name, description } = userData;
+    return { success: true, pseudo: pseudo, name: name, description: description };
+  }
+);
+
+export const uploadProfilePicture = createAsyncThunk(
+  "user/uploadProfilePicture",
+  async ( photoData ) => {
+    try {
+      const url = "https://picsum.photos/200";
+      return { success: true, photo: url };
+    }
+    catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
     currentUser: null,
     users: {},
-    currentUserPosts: [],
+    userPosts: [],
     feedPosts: [],
     comments: {},
     likes: {},
@@ -50,8 +78,8 @@ const userSlice = createSlice({
     setUsers: (state, action) => {
       state.users = action.payload;
     },
-    setCurrentUserPosts: (state, action) => {
-      state.currentUserPosts = action.payload;
+    setUserPosts: (state, action) => {
+      state.userPosts = action.payload;
     },
     setFeedPosts: (state, action) => {
       state.feedPosts = action.payload;
@@ -71,6 +99,9 @@ const userSlice = createSlice({
       // if success is true, add the comment to the comments array
       if (action.payload.success) {
         // the beginning of the array is the newest comment
+        if (!state.comments[action.payload.postId]) {
+          state.comments[action.payload.postId] = [];
+        }
         state.comments[action.payload.postId].unshift(action.payload.comment);
       } else {
         console.log("error adding comment: ", action.payload.error);
@@ -121,11 +152,54 @@ const userSlice = createSlice({
         state.feedPosts = state.feedPosts.filter(
           (post) => post.userId !== action.payload.userId
         );
-        state.currentUserPosts = state.currentUserPosts.filter(
+        state.userPosts = state.userPosts.filter(
           (post) => post.userId !== action.payload.userId
         );
       } else {
         console.log("error deleting user: ", action.payload.error);
+      }
+    });
+    builder.addCase(toggleFollowUser.fulfilled, (state, action) => {
+      // if success is true, add the comment to the comments array
+      if (action.payload.success) {
+        // update the user likes array
+        if (action.payload.followed) {
+          state.users[action.payload.userId].followers.push(
+            state.currentUser._id
+          );
+          state.currentUser.followed.push(action.payload.userId);
+        } else {
+          state.users[action.payload.userId].followers = state.users[
+            action.payload.userId
+          ].followers.filter(
+            (follower) => follower !== state.currentUser._id
+          );
+          state.currentUser.followed = state.currentUser.followed.filter(
+            (followed) => followed !== action.payload.userId
+          );
+        }
+      } else {
+        console.log("error toggling follow: ", action.payload.error);
+      }
+    });
+    builder.addCase(updateUser.fulfilled, (state, action) => {
+      // if success is true, add the comment to the comments array
+      if (action.payload.success) {
+        // update the user likes array
+        state.currentUser.pseudo = action.payload.pseudo;
+        state.currentUser.name = action.payload.name;
+        state.currentUser.description = action.payload.description;
+      } else {
+        console.log("error updating user: ", action.payload.error);
+      }
+    });
+    builder.addCase(uploadProfilePicture.fulfilled, (state, action) => {
+      // if success is true, add the comment to the comments array
+      if (action.payload.success) {
+        // update the user likes array
+        state.currentUser.photo = action.payload.photo;
+      } else {
+        console.log("error uploading profile picture: ", action.payload.error);
       }
     });
   },
@@ -134,7 +208,7 @@ const userSlice = createSlice({
 export const {
   setCurrentUser,
   setUsers,
-  setCurrentUserPosts,
+  setUserPosts,
   setFeedPosts,
   setComments,
   setLikes,

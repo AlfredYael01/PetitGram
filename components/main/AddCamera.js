@@ -38,7 +38,7 @@ export default function App( {navigation} ) {
     console.log('Next button pressed. URIs:', uriArray);
   
     // Utiliser la navigation pour passer à l'écran suivant et transmettre les images capturées
-    navigation.navigate("AddPostDescriptionScreen", { selectedImages: uriArray });
+    navigation.navigate("Add Description", { selectedImages: uriArray });
   };
   
 

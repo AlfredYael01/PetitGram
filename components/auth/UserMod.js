@@ -11,55 +11,35 @@ import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   collection,
-  addDoc,
   getDocs,
   query,
-  where,
-  updateDoc,
+  where
 } from "firebase/firestore";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject,
-} from "firebase/storage";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["is deprecated"]);
 import { useDispatch, useSelector } from "react-redux";
-import { toggle } from "../redux/refreshSlice";
 import * as ImagePicker from "expo-image-picker";
+import { updateUser, uploadProfilePicture } from "../helper/user";
 
 export default UserMod = ({ navigation }) => {
   const auth = getAuth();
   const dispatch = useDispatch();
-  const refresh = useSelector((state) => state.refresh.refresh);
-  const defaultPhoto =
-    "https://firebasestorage.googleapis.com/v0/b/petitgram-b48fd.appspot.com/o/Profile%2FuserImage.png?alt=media&token=29660ffe-caba-4fe6-b028-09af3f446b74&_gl=1*i459ow*_ga*NDMzMjcyMjA3LjE2OTU4ODMxMjk.*_ga_CW55HF8NVT*MTY5OTM0NzExOC4xOS4xLjE2OTkzNDcxNzIuNi4wLjA";
   const userId = auth.currentUser.uid;
   const [profile, setProfile] = useState("");
   const [photo, setPhoto] = useState();
-  const [photoUrl, setPhotoUrl] = useState();
   const [pseudo, setPseudo] = useState();
   const [name, setName] = useState();
   const [description, setDescription] = useState();
   const [error, setError] = useState("");
-  const [save, setSave] = useState(false);
+  const currentUser = useSelector((state) => state.user.currentUser);
+
 
   const getUserInfo = async () => {
-    const auth = getAuth();
-    const userId = auth.currentUser.uid;
-    const db = getFirestore();
-    const querySnapshot = await getDocs(collection(db, "users"));
-    //console.log("QuerySnapshot: ",querySnapshot);
-    querySnapshot.forEach((doc) => {
-      const docData = doc.data();
-      if (docData._id === userId) {
-        setProfile(docData);
-        setPhoto(docData.photo);
-        setPseudo(docData.pseudo);
-        setName(docData.name);
-        setDescription(docData.description);
-      }
-    });
+    setProfile(currentUser)
+    setPhoto(currentUser.photo);
+    setPseudo(currentUser.pseudo);
+    setName(currentUser.name);
+    setDescription(currentUser.description);
   };
   useEffect(() => {
     getUserInfo();
@@ -74,29 +54,16 @@ export default UserMod = ({ navigation }) => {
     });
 
     if (!result.canceled) {
-      setPhoto(result.uri);
+      try {
+        setPhoto(result.uri);
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 
-  const uploadProfilePicture = async (userId) => {
-    try {
-      const storage = getStorage();
-      const imageFileName = "Profile/" + userId + ".jpg";
-      const storageRef = ref(storage, imageFileName);
-      // if photo exists delete it
-      if (profile.photo !== defaultPhoto) {
-        const imageToDelete = ref(storage, profile.photo);
-        await deleteObject(imageToDelete);
-      }
-      const blob = await fetch(photo).then((r) => r.blob());
-      const snapshot = await uploadBytes(storageRef, blob);
-      console.log("Uploaded a blob or file!" + snapshot);
-      const url = await getDownloadURL(storageRef);
-      console.log("url: ", url);
-      setPhotoUrl(url);
-    } catch (error) {
-      setError(error);
-    }
+  const uploadPhoto = async (userId) => {
+    dispatch(uploadProfilePicture({ photo: photo, userId: userId }));
   };
 
   const checkForPseudoUniqueness = async () => {
@@ -117,49 +84,18 @@ export default UserMod = ({ navigation }) => {
     return false;
   };
 
-  const updateUser = async () => {
+  const updateUserInfo = async () => {
     if (await checkForPseudoUniqueness()) {
       return;
     }
-    console.log("updateUser");
-    console.log("photoUrl: ", photoUrl);
-    console.log("photo: ", photo);
-    console.log("pseudo: ", pseudo);
-    console.log("name: ", name);
-    //update user in firestore
-    const db = getFirestore();
-    const userRef = collection(db, "users");
-    const userQuery = query(userRef, where("_id", "==", userId));
-    const querySnapshot = await getDocs(userQuery);
-    querySnapshot.forEach(async (doc) => {
-      const docRef = doc.ref;
-      updateDoc(docRef, {
+    dispatch(
+      updateUser({
         pseudo: pseudo,
         name: name,
         description: description,
-        photo: photoUrl,
-      });
-      console.log("User updated");
-      if (refresh == false) {
-        dispatch(toggle());
-      }
-    });
+      })
+    );
   };
-
-  useEffect(() => {
-    if (save == true) {
-        setSave(false);
-        if (photoUrl){
-            updateUser();
-            if (error === "") {
-              navigation.goBack();
-          }
-        }else{
-            setError("Are you sure who want to change your profile picture ? please confirm again");
-            setSave(true);
-        }
-    }
-  }, [photoUrl, save]);
 
   return (
     <View style={stylesLog.container}>
@@ -216,12 +152,11 @@ export default UserMod = ({ navigation }) => {
           onPress={async () => {
             // if photo did not change set photoUrl to photo else wait for photoUrl to be set
             setError("");
-            if (photo !== profile.photo) {
-              uploadProfilePicture(userId);
-            } else {
-              setPhotoUrl(photo);
+            if (photo !== currentUser.photo) {
+              uploadPhoto(userId);
             }
-            setSave(true);
+            await updateUserInfo();
+            navigation.navigate("UserProfileScreen");
           }}
           testID="ModUser"
         >

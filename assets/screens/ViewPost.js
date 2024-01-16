@@ -1,12 +1,29 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Image, Dimensions, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import Swiper from 'react-native-swiper';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserPosts } from '../../components/helper/posts';
+import { likeControl } from '../../components/helper/posts';
+import { AntDesign } from '@expo/vector-icons';
+import { addComment } from '../../components/helper/posts';
+import { toggle } from '../../components/redux/refreshSlice';
+import * as Icon from 'react-native-feather';
 
 const ViewPost = ({ route }) => {
     const { post, profile } = route.params;
+    const dispatch = useDispatch();
+    const comments = useSelector((state) => state.user.comments[post.id]);
+    const likes = useSelector((state) => state.user.likes[post.id]);
+    const userLikes = useSelector((state) => state.user.userLikes[post.id]);
+    const [comment, setComment] = useState('');
+    const users = useSelector((state) => state.user.users);
 
     const screenWidth = Dimensions.get('window').width;
     const screenHeight = Dimensions.get('window').height;
+
+    useEffect(() => {
+        dispatch(fetchUserPosts( post.id ));
+    }, []);
 
     function timeAgo(timestamp) {
         const now = new Date();
@@ -27,6 +44,67 @@ const ViewPost = ({ route }) => {
         } else {
             return seconds + ' second' + (seconds === 1 ? '' : 's') + ' ago';
         }
+    }
+
+    function likeSection() {
+        return (
+            <View style={styles.IconContainer}>
+            <AntDesign
+            name={userLikes ? "heart" : "hearto"}
+            size={30}
+            color={userLikes ? "#fa635c" : "#bbbbbb"}
+            onPress={() => dispatch(likeControl(post))}
+            />
+            <Text style={styles.IconText}>{likes ? likes.length : 0}</Text>
+            </View>
+        );
+
+    }
+
+    function handleComment() {
+        if (comment === '') {
+            return alert('Please enter a comment');
+        }
+        dispatch(addComment({ post: post, comment: comment }));
+        dispatch(toggle());
+        setComment('');
+    }
+
+    function commentSection() {
+        // a list of comments and a text input to add a comment
+        return (
+            <View style={{ flex: 1 }}>
+                <View style={styles.commentInputContainer}>
+                    <TextInput
+                        style={styles.commentInput}
+                        placeholder="Add a comment..."
+                        value={comment}
+                        onChangeText={(text) => setComment(text)}
+                        onSubmitEditing={handleComment}
+                    />
+                    <TouchableOpacity onPress={handleComment}>
+                        <Icon.Send size={30} color="black" />
+                    </TouchableOpacity>
+                </View>
+                <FlatList
+                    data={comments}
+                    style={{ height: screenHeight * 0.1 }}
+                    renderItem={({ item }) => (
+                        <View style={styles.commentContainer}>
+                            <Image
+                                source={{ uri: String( users[item.userId]?.photo ) }}
+                                style={styles.profileImage}
+                            />
+                            <View style={styles.comment}>
+                                <Text style={styles.commentName}>{users[item.userId]?.name}</Text>
+                                <Text>{item.comment}</Text>
+                            </View>
+                        </View>
+                    )}
+                    keyExtractor={(item) => item.id}
+                />
+            </View>
+        )
     }
 
     return (
@@ -54,10 +132,10 @@ const ViewPost = ({ route }) => {
                     ))
                     }
                 </Swiper>
-
+                {likeSection()}
                 <View style={styles.bottomScreen}>
                     <Text style={styles.description}>{post.description}</Text>
-                    <Text style={styles.comment}>Commentaire de la post</Text>
+                    {commentSection()}
                 </View>
         </View>
     );
@@ -135,5 +213,50 @@ const styles = StyleSheet.create({
 
     description: {
         marginLeft: Dimensions.get('window').width * 0.05,        
-    }
+    },
+
+    IconContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        padding: 10,
+    },
+    IconText: {
+        marginLeft: 5,
+    },
+    commentContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 10,
+    },
+    comment: {
+        marginLeft: 10,
+        flex: 1,
+    },
+    commentName: {
+        fontWeight: "bold",
+    },
+    commentInputContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 10,
+    },
+    commentInput: {
+        flex: 1,
+        height: 40,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        borderRadius: 5,
+        paddingHorizontal: 10,
+    },
+    commentPost: {
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 20,
+        marginLeft: 10,
+        borderRadius: 5,
+        backgroundColor: "#318bfb",
+    },
+
+
 });

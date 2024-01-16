@@ -14,6 +14,7 @@ const FeedScreen = ({ navigation }) => {
   const posts = useSelector((state) => state.user.feedPosts);
   const refresh = useSelector((state) => state.refresh.refresh);
   const user = useSelector((state) => state.user.currentUser);
+  const [filterType, setFilterType] = React.useState("all");
 
   useEffect(() => {
     dispatch(fetchCurrentUser());
@@ -30,18 +31,34 @@ const FeedScreen = ({ navigation }) => {
     }
   }, [refresh]);
 
+  const toggleFilter = () => {
+    // all or following
+    setFilterType(  filterType === "all" ? "following" : "all" );
+  };
+
+  const filterPosts = () => {
+    if (filterType === "all") {
+      return posts;
+    } else {
+      return posts.filter((post) => user?.followed?.includes(post.userId));
+    }
+  }
+
 
   const PostScreen = React.memo(({ navigation }) => {
     return (
       <>
         <View style={styles.header}>
             <Text style={styles.headerTitle}>Feed</Text>
+            <Text style={styles.headerFilter} onPress={toggleFilter}>
+              {filterType}
+            </Text>
             <Text style={styles.headerUser}>
               {user ? user.pseudo : "Loading..."}
             </Text>
           </View>
         <FlatList
-          data={posts}
+          data={filterPosts()}
           renderItem={({ item, index }) =>  ( <FeedPostItem post={item} index={index} navigation={navigation} />)}
           keyExtractor={(item) => item._id}
         />
@@ -79,6 +96,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontWeight: "bold",
     fontSize: 20,
+    marginRight: 10,
+    
+  },
+  headerFilter: {
+    color: "blue",
+    marginRight: 10,
     flex: 1,
   },
   headerUser: {
