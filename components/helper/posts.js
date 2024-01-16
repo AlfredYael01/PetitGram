@@ -178,6 +178,10 @@ export const addComment = createAsyncThunk(
     const db = getFirestore();
     const { post, comment } = commentData;
     try {
+
+      if(!store.getState().user.users[store.getState().user.currentUser._id]) {
+        dispatch(getUserById(store.getState().user.currentUser._id));
+      }
       const commentsCollection = collection(db, "posts", post.id, "comments");
       const newCommentData = {
         comment: comment,

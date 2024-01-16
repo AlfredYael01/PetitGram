@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@expo/webpack-config": "^19.0.0",
+    "@firebase/firestore": "^4.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-native-fontawesome": "^0.3.0",

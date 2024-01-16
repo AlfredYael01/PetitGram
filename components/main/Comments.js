@@ -124,6 +124,7 @@ const CommentsScreen = ({ route , navigation }) => {
 
             dispatch(updateComment({ post: post, comment: newComment }));
             dispatch(toggle());
+            setIndexEdit()
     
         }
 
