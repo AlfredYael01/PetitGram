@@ -24,7 +24,8 @@ import { fetchCurrentUser } from "../../components/helper/user";
 const UserProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
-
+  const theme = useSelector((state) => state.theme.currentTheme);
+  const styles = Styles(theme);
   const postsArray = [
     { id: 1, images: [require("./GenerationImage/whiteBackground.jpg")] },
     { id: 2, images: [require("./GenerationImage/whiteBackground.jpg")] },
@@ -73,7 +74,6 @@ const UserProfileScreen = ({ navigation }) => {
   const handleEditProfilePress = () => {
     navigation.navigate("UserMod");
   };
-
   return (
     <View style={styles.container}>
       {/* --------- Up screen-------------- */}
@@ -87,14 +87,14 @@ const UserProfileScreen = ({ navigation }) => {
               source={{ uri: String(currentUser.photo) }}
               style={styles.image}
             ></Image>
-            <Text style={styles.name}>{currentUser.name}</Text>
+            <Text style={[styles.name, { color: theme === "light" ? "black" : "white" }]}>{currentUser.name}</Text>
           </View>
 
           <View style={styles.upScreenTopRight}>
             {/*      <View>{showFlatList && renderFlatList()}</View> */}
             <View style={styles.section1}>
-              <Text style={styles.numberSection}>{posts.length}</Text>
-              <Text style={styles.textSection}>Publications</Text>
+              <Text style={[styles.numberSection, { color: theme === "light" ? "black" : "white" }]}>{posts.length}</Text>
+              <Text style={[styles.textSection, { color: theme === "light" ? "black" : "white" }]}>Publications</Text>
             </View>
 
             <View style={styles.section2}>
@@ -108,10 +108,10 @@ const UserProfileScreen = ({ navigation }) => {
                 }}
                 onPress={() => navigation.navigate("FollowersListScreen")}
               >
-                <Text style={styles.numberSection}>
+                <Text style={[styles.numberSection, { color: theme === "light" ? "black" : "white" }]}>
                   {currentUser?.followers?.length ? currentUser.followers.length : 0}
                 </Text>
-                <Text style={styles.textSection}>Followers</Text>
+                <Text style={[styles.textSection, { color: theme === "light" ? "black" : "white" }]}>Followers</Text>
               </TouchableOpacity>
             </View>
 
@@ -126,10 +126,10 @@ const UserProfileScreen = ({ navigation }) => {
                 }}
                 onPress={() => navigation.navigate("FollowingsListScreen")}
               >
-                <Text style={styles.numberSection}>
+                <Text style={[styles.numberSection, { color: theme === "light" ? "black" : "white" }]}>
                   {currentUser?.followed?.length ? currentUser.followed.length : 0}
                 </Text>
-                <Text style={styles.textSection}>Followed</Text>
+                <Text style={[styles.textSection, { color: theme === "light" ? "black" : "white" }]}>Followed</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -137,14 +137,14 @@ const UserProfileScreen = ({ navigation }) => {
 
         {/* -----Up middle----- */}
         <View style={styles.upScreenMiddle}>
-          <Text style={styles.description}>{currentUser.description}</Text>
+          <Text style={[styles.description, { color: theme === "light" ? "black" : "white" }]}>{currentUser.description}</Text>
         </View>
 
         {/* -----Up bottom ----- */}
         <View style={styles.upscreenBottom}>
           <TouchableOpacity
             style={{
-              borderColor: "black",
+              borderColor: theme === "light" ? "black" : "white",
               borderWidth: 0.5,
               borderRadius: 5,
               height: 25,
@@ -154,14 +154,14 @@ const UserProfileScreen = ({ navigation }) => {
             }}
             onPress={handleEditProfilePress}
           >
-            <Text>Edit profile</Text>
+            <Text style={[styles.editProfileText, { color: theme === "light" ? "black" : "white" }]}>Edit profile</Text>
           </TouchableOpacity>
         </View>
       </View>
       {/*-----Down screen-----*/}
       <View style={styles.downScreen}>
         <FlatList
-          style={{ backgroundColor: "white" }}
+          style={{ backgroundColor: theme === "light" ? "white" : "black" }}
           numColumns={3}
           data={posts}
           renderItem={({ item }) => (
@@ -177,25 +177,22 @@ const UserProfileScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const Styles = theme => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: theme === "light" ? "white" : "black",
   },
 
   upScreen: {
     flex: 0.4,
-    //backgroundColor: 'green',
   },
 
   upScreenTop: {
     flexDirection: "row",
-    //backgroundColor: 'black',
     flex: 0.5,
   },
 
   upScreenTopLeft: {
-    //backgroundColor: 'purple',
     flex: 0.35,
     flexDirection: "column",
     alignItems: "center",
@@ -204,7 +201,6 @@ const styles = StyleSheet.create({
 
   upScreenTopRight: {
     flex: 0.65,
-    //backgroundColor: 'yellow',
     flexDirection: "row",
   },
 
@@ -221,20 +217,17 @@ const styles = StyleSheet.create({
 
   section1: {
     flex: 1 / 3,
-    //backgroundColor: '#effabe',
     alignItems: "center",
     justifyContent: "center",
   },
 
   section2: {
     flex: 1 / 3,
-    //backgroundColor: '#e6fa8c',
     alignItems: "center",
     justifyContent: "center",
   },
   section3: {
     flex: 1 / 3,
-    //backgroundColor: '#d7f745',
     alignItems: "center",
     justifyContent: "center",
   },
@@ -243,21 +236,16 @@ const styles = StyleSheet.create({
 
   upScreenMiddle: {
     flex: 0.2,
-    //backgroundColor: 'gray'
   },
 
   name: {
     marginTop: Dimensions.get("window").height * 0.01,
-    //color: 'white',
-    color: "black",
     fontWeight: "bold",
   },
 
   description: {
     marginTop: Dimensions.get("window").height * 0.015,
     marginLeft: Dimensions.get("window").height * 0.025,
-    //color: 'white',
-    color: "black",
   },
 
   image: {
@@ -268,7 +256,6 @@ const styles = StyleSheet.create({
   },
 
   accountName: {
-    color: "white",
     fontWeight: "bold",
     marginTop: Dimensions.get("window").height * 0.035,
   },
@@ -277,22 +264,23 @@ const styles = StyleSheet.create({
 
   upscreenBottom: {
     flex: 0.3,
-    //backgroundColor :'pink',
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  editProfileText: {
+    fontWeight: "bold",
   },
 
   /********************  down Midle     ******************************/
 
   touchableMenu: {
     padding: 10,
-    //backgroundColor: 'orange',
     marginLeft: Dimensions.get("window").width * 0.6,
     marginTop: Dimensions.get("window").height * 0.035,
   },
   downScreen: {
     flex: 0.6,
-    //backgroundColor: 'red'
   },
 });
 

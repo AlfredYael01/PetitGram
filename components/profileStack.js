@@ -12,17 +12,18 @@
   const Stack = createStackNavigator();
 
   const ProfileStack = () => {
+    const theme = useSelector((state) => state.theme.currentTheme);
     const userProfilePseudo = useSelector( ((state) => state.user.currentUser?.pseudo) ? ((state) => state.user.currentUser.pseudo) : "User Profile" )
         return(
 
       <NavigationContainer independent={true}>
         <Stack.Navigator>
-            <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ /* headerRight: () => (
-
-                    <TouchableOpacity >
-                        <Feather name='menu' color="black" size={25}/>
-                    </TouchableOpacity > 
-                ) */ headerTitle: userProfilePseudo}}>
+            <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ 
+              headerStyle: {
+                backgroundColor: theme === 'light' ? '#fff' : '#000', // Set Header color
+              },
+              headerTitleStyle: { color: theme === 'light' ? '#000' : '#fff' }, // Set Header text color
+               headerTitle: userProfilePseudo}}>
             </Stack.Screen>
             <Stack.Screen name="FollowersListScreen" component={FollowersListScreen} options={{
               headerTitle:'List of Followers'
