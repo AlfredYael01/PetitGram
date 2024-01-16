@@ -163,9 +163,11 @@ const CommentsScreen = ({ route , navigation }) => {
                                     textAlignVertical="top"
                                     onSubmitEditing={() => handleUpdateComment(item)}
                                     multiline
+                                    autoFocus
+                                    cursorColor={'black'}
                                 />
-                                <TouchableOpacity style={styles.postButton} onPress={ async () => handleUpdateComment(item)} disabled={buttonDisabled}>
-                                    <Icon.Send style={styles.postText} width={24} height={24} color={'#fff'}/>
+                                <TouchableOpacity style={styles.editButton} onPress={ async () => handleUpdateComment(item)} disabled={buttonDisabled}>
+                                    <Text style={styles.editText}>Save</Text>
                                 </TouchableOpacity>
                             </View>
                         ) : (  <View style={styles.commentContent}>
@@ -239,10 +241,9 @@ const styles = StyleSheet.create({
         
         flexDirection: 'row',
         height: Dimensions.get('window').height * 0.05,
-        width: Dimensions.get('window').width * 0.5,
-        borderWidth: 1,
-        borderColor: 'black',
-        borderRadius: 10
+        width: Dimensions.get('window').width * 0.52,
+        fontSize: 16,
+
     
     },
     input: {
@@ -274,4 +275,20 @@ const styles = StyleSheet.create({
     backButton: {
         marginRight: 10,
     },
+
+    editButton: {
+        
+        height: Dimensions.get('window').height * 0.04,
+        width: Dimensions.get('window').width * 0.15,
+        marginLeft: Dimensions.get('window').width * 0.02,
+        marginRight: Dimensions.get('window').width * 0.046,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 10
+    },
+
+    editText: {
+        color: '#318bfb',
+        fontSize: 14,
+    }
 });
