@@ -83,7 +83,7 @@ export default function App( {navigation} ) {
               style={styles.deleteButton}
               onPress={() => deletePicture(index)}
             >
-              <Text style={styles.text}>Delete</Text>
+              <Text style={styles.text}>X</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -92,7 +92,7 @@ export default function App( {navigation} ) {
       />
       {showNextButton && (
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.text}>Next</Text>
+          <Text style={styles.text}>Add Description</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   camera: {
-    flex: 14,
+    flex: 2,
   },
   buttonContainer: {
     flex: 1,
@@ -145,10 +145,10 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    bottom: 5,
+    right: 17,
     backgroundColor: 'green',
-    padding: 15,
+    padding: 6,
     borderRadius: 5,
   },
   text: {
