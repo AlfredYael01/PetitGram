@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, FlatList, Button, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { View, Image, FlatList,  StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const { width } = Dimensions.get('window');
 
 export default function AddScreen( {navigation} ) {
-    const [type, setType] = useState(CameraType.back);
     const [galleryImages, setGalleryImages] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
     const [lastSelectedImage, setLastSelectedImage] = useState(null);
 
     function toggleCameraType() {
-        setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
-        navigation.navigate("AddCameraScreen")
+        navigation.navigate("Camera")
     }
 
     const pickImage = async () => {
@@ -82,7 +76,7 @@ export default function AddScreen( {navigation} ) {
                         return;
                     }
 
-                    navigation.navigate('AddPostDescriptionScreen', {selectedImages: selectedImages})
+                    navigation.navigate('Add Description', {selectedImages: selectedImages})
                     setSelectedImages([]);
                     setLastSelectedImage(null);
                 }} 
@@ -171,7 +165,7 @@ const styles = StyleSheet.create({
     },
     selectedImagesContainer: {
         flexDirection: 'row',
-        padding: 10,
+        padding: 4,
         justifyContent: 'center',
         backgroundColor: '#444', // A darker background for the selected images container
     },
@@ -206,7 +200,7 @@ const styles = StyleSheet.create({
         maxHeight: '90%',
     },
     imagePreview: {
-        flex: 5,
+        flex: 7,
         alignItems: 'center',
         justifyContent: 'center',
     },

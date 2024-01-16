@@ -43,6 +43,28 @@ export const updateComment = createAsyncThunk("user/updateComment", async (comme
   return { success: true, postId: post.id, comment: comment };
 });
 
+export const updateUser = createAsyncThunk(
+  "user/updateUser",
+  async (userData) => {
+    const { pseudo, name, description } = userData;
+    return { success: true, pseudo: pseudo, name: name, description: description };
+  }
+);
+
+export const uploadProfilePicture = createAsyncThunk(
+  "user/uploadProfilePicture",
+  async ( photoData ) => {
+    try {
+      const url = "https://picsum.photos/200";
+      return { success: true, photo: url };
+    }
+    catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -184,6 +206,26 @@ const userSlice = createSlice({
       }
     });
 
+    builder.addCase(updateUser.fulfilled, (state, action) => {
+      // if success is true, add the comment to the comments array
+      if (action.payload.success) {
+        // update the user likes array
+        state.currentUser.pseudo = action.payload.pseudo;
+        state.currentUser.name = action.payload.name;
+        state.currentUser.description = action.payload.description;
+      } else {
+        console.log("error updating user: ", action.payload.error);
+      }
+    });
+    builder.addCase(uploadProfilePicture.fulfilled, (state, action) => {
+      // if success is true, add the comment to the comments array
+      if (action.payload.success) {
+        // update the user likes array
+        state.currentUser.photo = action.payload.photo;
+      } else {
+        console.log("error uploading profile picture: ", action.payload.error);
+      }
+    });
   },
 });
 
