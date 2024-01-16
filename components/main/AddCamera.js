@@ -129,6 +129,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     marginRight: 10,
+    height: 0,
   },
   previewImage: {
     width: 100,
