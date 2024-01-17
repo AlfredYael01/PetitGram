@@ -15,6 +15,7 @@ import MainAdmin from './components/MainAdmin';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MenuProvider } from 'react-native-popup-menu';
+import { LogBox } from 'react-native';
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4IOL2vqYSiGP4l8Icg_uCAmNo4mq4qU0",
@@ -39,6 +40,7 @@ function App() {
   
   const [loggedIn, setLoggedIn] = useState(false)
   useEffect(() => {
+    LogBox.ignoreLogs(['Non-serializable']);
     const auth = getAuth();
     onAuthStateChanged(auth, user => {
       if (!user) {

@@ -1,5 +1,5 @@
 import React, { useEffect} from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import FeedPostItem from "./FeedPostItem"; 
 import { createStackNavigator } from "@react-navigation/stack";
 import CommentsScreen from "./Comments";
@@ -50,7 +50,9 @@ const FeedScreen = ({ navigation }) => {
     return (
       <>
         <View style={styles.header}>
-            <Text style={styles.headerTitle}>Feed</Text>
+            <TouchableOpacity onPress={() => dispatch(fetchFeedPosts())} >
+              <Text style={styles.headerTitle}>Feed</Text>
+            </TouchableOpacity>
             <Text style={styles.headerFilter} onPress={toggleFilter}>
               {filterType}
             </Text>

@@ -197,7 +197,7 @@ const ViewPost = ({ route, navigation }) => {
                 </Swiper>
                 {likeSection()}
                 <View style={styles.bottomScreen}>
-                    <Text style={styles.description}>{userPost?.description}</Text>
+                    <Text style={styles.description}>{post?.description}</Text>
                     {commentSection()}
                 </View>
         </View>
