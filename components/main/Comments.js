@@ -1,19 +1,30 @@
 // page to display comments using the props post passed from the parent component
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
-import { useState } from 'react';
+import { View, Text, FlatList, StyleSheet, TextInput, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { useState, useEffect } from 'react';
 import * as Icon from 'react-native-feather';
 import { useDispatch, useSelector } from "react-redux";
 import { toggle } from "../redux/refreshSlice";
 import { addComment } from "../helper/posts";
-
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
+import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
+import { Alert } from "react-native";
+import { deleteComment } from "../helper/posts";
+import DialogButton from 'react-native-dialog/lib/Button';
+import { updateComment } from '../helper/posts';
 
 const CommentsScreen = ({ route , navigation }) => {
     const { post } = route.params;
     const [comment, setComment] = useState('');
+    const [commentEdit, setCommentEdit] = useState('');
     const comments = useSelector((state) => state.user.comments[post.id]);
     const dispatch = useDispatch();
     const users = useSelector((state) => state.user.users);
+    const [buttonDisabled, setButtonDisabled] = useState(false);
+    const currentUser = useSelector((state) => state.user.currentUser);
+    const [indexEdit, setIndexEdit] = useState();
+
+
 
     function timeAgo(timestamp) {
         const now = new Date();
@@ -37,13 +48,91 @@ const CommentsScreen = ({ route , navigation }) => {
     }
 
     const handleComment = async () => {
+
+        if(buttonDisabled) return;
+
+        setButtonDisabled(true);
+
         if (comment === '') {
             return alert('Please enter a comment');
         }
         dispatch(addComment({ post: post, comment: comment }));
         dispatch(toggle());
         setComment('');
+
     }
+
+
+    const toggleOptions = (comment, index) => {
+
+        if(currentUser._id === comment.userId) {
+            return(
+            <Menu>
+                <MenuTrigger>
+                    <SimpleLineIcons name="options-vertical" size={15} color={"black"} />
+                </MenuTrigger>
+
+                <MenuOptions>
+                <MenuOption onSelect={() => handleDeleteComment(comment)} text="Delete comment" />
+                <MenuOption
+                    onSelect={() => {
+
+                        setIndexEdit(index);
+                        setCommentEdit(comment.comment);
+                    
+                    }}
+                    text="Edit comment"
+                />
+                </MenuOptions>
+          </Menu>
+            )
+        }
+    }
+
+    const handleDeleteComment = (comment) => {
+        Alert.alert(
+          "Delete Comment",
+          "Are you sure you want to delete this comment '" + comment.comment + "'?",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Delete",
+              style: "destructive",
+              onPress: () =>
+                dispatch(deleteComment({ post: post, comment: comment })),
+            },
+          ]
+        );
+      };
+
+
+    const handleUpdateComment = async (comment) => {
+
+            
+            if(buttonDisabled) return;
+    
+            setButtonDisabled(true);
+    
+            if (comment === '') {
+                return alert('Please enter a comment');
+            }
+
+            const newComment = {...comment, comment: commentEdit}
+
+            dispatch(updateComment({ post: post, comment: newComment }));
+            dispatch(toggle());
+            setIndexEdit()
+    
+        }
+
+
+    useEffect(() => {
+        setButtonDisabled(false);
+        setIndexEdit();
+    }, [comments]);
 
 
 
@@ -58,7 +147,7 @@ const CommentsScreen = ({ route , navigation }) => {
             </View>
             <FlatList
                 data={comments}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                     <View style={styles.commentContainer}>
                         <Image
                             style={styles.profileImage}
@@ -66,10 +155,29 @@ const CommentsScreen = ({ route , navigation }) => {
                                 uri: users[item.userId]?.photo
                             }}
                         />
-                        <View style={styles.commentContent}>
+                        {indexEdit == index ? (
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.editContainer}
+                                    value={commentEdit}
+                                    onChangeText={(text) => setCommentEdit(text)}
+                                    textAlignVertical="top"
+                                    onSubmitEditing={() => handleUpdateComment(item)}
+                                    multiline
+                                    autoFocus
+                                    cursorColor={'black'}
+                                />
+                                <TouchableOpacity style={styles.editButton} onPress={ async () => handleUpdateComment(item)} disabled={buttonDisabled}>
+                                    <Text style={styles.editText}>Save</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ) : (  <View style={styles.commentContent}>
                             <Text style={styles.commentText}>{item.comment}</Text>
                             <Text style={styles.commentUsername}>{users[item.userId]?.name} <Text style={styles.commentTime}>{timeAgo(item.date)}</Text></Text>
-                            
+                        </View>)}
+                      
+                        <View>
+                            {toggleOptions(item, index)}
                         </View>
                     </View>
                 )}
@@ -83,13 +191,15 @@ const CommentsScreen = ({ route , navigation }) => {
                     onChangeText={(text) => setComment(text)}
                     onSubmitEditing={() => handleComment()}
                 />
-                <TouchableOpacity style={styles.postButton} onPress={ async () => handleComment()}>
+                <TouchableOpacity style={styles.postButton} onPress={ async () => handleComment()} disabled={buttonDisabled}>
                     <Icon.Send style={styles.postText} width={24} height={24} color={'#fff'} />
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
+
+
 
 export default CommentsScreen;
 
@@ -127,6 +237,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 10,
     },
+
+    editContainer: {
+        
+        flexDirection: 'row',
+        height: Dimensions.get('window').height * 0.05,
+        width: Dimensions.get('window').width * 0.52,
+        fontSize: 16,
+
+    
+    },
     input: {
         flex: 1,
         height: 40,
@@ -156,4 +276,20 @@ const styles = StyleSheet.create({
     backButton: {
         marginRight: 10,
     },
+
+    editButton: {
+        
+        height: Dimensions.get('window').height * 0.04,
+        width: Dimensions.get('window').width * 0.15,
+        marginLeft: Dimensions.get('window').width * 0.02,
+        marginRight: Dimensions.get('window').width * 0.046,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 10
+    },
+
+    editText: {
+        color: '#318bfb',
+        fontSize: 14,
+    }
 });

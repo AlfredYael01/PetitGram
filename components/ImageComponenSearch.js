@@ -1,14 +1,14 @@
 import React from 'react';
 import {View, Dimensions, Image, TouchableOpacity } from 'react-native';
 
-const ImageCompenent = ({ post, navigation, profile }) => {
+const ImageComponentSearch = ({ post, navigation, profile }) => {
 
     if (!post) {
         return null;
     }
     return (
 
-        <TouchableOpacity onPress={() => navigation.navigate('ViewPost', { post : post, profile : profile, navigation: navigation })}>
+        <TouchableOpacity onPress={() => navigation.navigate('ViewPostSearch', { post : post, profile : profile })}>
             <Image
                 source={{uri: String(post.images[0])}}
                 style={{
@@ -20,6 +20,6 @@ const ImageCompenent = ({ post, navigation, profile }) => {
             />
         </TouchableOpacity>
     );
-};
+}
 
-export default ImageCompenent;
+export default ImageComponentSearch;

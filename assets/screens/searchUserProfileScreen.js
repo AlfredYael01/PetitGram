@@ -1,6 +1,6 @@
 import { FlatList, Dimensions, StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import ImageComponent from "../../components/ImageComponent";
+import ImageComponentSearch from '../../components/ImageComponenSearch';
 import { getFirestore, collection, getDocs, onSnapshot, query as queryFirestore, where, orderBy, doc, updateDoc, setDoc} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { toggleFollowUser } from '../../components/helper/user';
@@ -127,7 +127,7 @@ const SearchUserProfileScreen = ({route, navigation}) => {
                     style={{backgroundColor: 'white'}}
                     numColumns={3}
                     data={posts}
-                    renderItem={({ item }) => <ImageComponent post={item} navigation={navigation} profile={user}/>}
+                    renderItem={({ item }) => <ImageComponentSearch post={item} navigation={navigation} profile={user}/>}
                     />
         </View>
                 

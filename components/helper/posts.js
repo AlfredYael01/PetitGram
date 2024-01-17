@@ -178,6 +178,10 @@ export const addComment = createAsyncThunk(
     const db = getFirestore();
     const { post, comment } = commentData;
     try {
+
+      if(!store.getState().user.users[store.getState().user.currentUser._id]) {
+        dispatch(getUserById(store.getState().user.currentUser._id));
+      }
       const commentsCollection = collection(db, "posts", post.id, "comments");
       const newCommentData = {
         comment: comment,
@@ -190,6 +194,21 @@ export const addComment = createAsyncThunk(
       return { success: true, postId: post.id, comment: newCommentData };
     } catch (error) {
       // Handle errors or dispatch an error action if needed
+      return { success: false, error: error.message };
+    }
+  }
+);
+
+export const updateComment = createAsyncThunk(
+  "user/updateComment",
+  async (commentData) => {
+    const { post, comment } = commentData;
+    const db = getFirestore();
+    const commentRef = doc(db, "posts", post.id, "comments", comment.id);
+    try {
+      await updateDoc(commentRef, { comment: comment.comment });
+      return { success: true, postId: post.id, comment: comment };
+    } catch (error) {
       return { success: false, error: error.message };
     }
   }

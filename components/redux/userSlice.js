@@ -38,6 +38,11 @@ export const toggleFollowUser = createAsyncThunk( "user/followUser", async (foll
 }
 );
 
+export const updateComment = createAsyncThunk("user/updateComment", async (commentData) => {
+  const { post, comment } = commentData;
+  return { success: true, postId: post.id, comment: comment };
+});
+
 export const updateUser = createAsyncThunk(
   "user/updateUser",
   async (userData) => {
@@ -182,6 +187,25 @@ const userSlice = createSlice({
         console.log("error toggling follow: ", action.payload.error);
       }
     });
+
+    builder.addCase(updateComment.fulfilled, (state, action) => {
+      // if success is true, add the comment to the comments array
+      if (action.payload.success) {
+        // update the user likes array
+        state.comments[action.payload.postId] = state.comments[
+          action.payload.postId
+        ].map((comment) => {
+          if (comment.id === action.payload.comment.id) {
+            return action.payload.comment;
+          } else {
+            return comment;
+          }
+        });
+      } else {
+        console.log("error updating comment: ", action.payload.error);
+      }
+    });
+
     builder.addCase(updateUser.fulfilled, (state, action) => {
       // if success is true, add the comment to the comments array
       if (action.payload.success) {

@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   elementPseudo: {
     fontSize: 15,
     fontWeight: "bold",
-    color: "white",
+    color: "black",
   },
 
   elementName: {
