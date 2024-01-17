@@ -265,7 +265,7 @@ const FeedPostItem = ({ post, index, navigation }) => {
               <Text style={styles.dateText}>{timeAgo(comment.date)}</Text>
             </View>
             {/* touchable for a menu to delete a comment */}
-            {handleCommentMenu(post, comment)}
+            {handleCommentMenu(comment)}
           </View>
         ))}
       </View>
