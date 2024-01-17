@@ -82,7 +82,7 @@ export default function AddScreen( {navigation} ) {
                 }} 
                            
                     testID ="nextButton">
-                    <Text style={styles.nextButtonText}>Next</Text>
+                    <Text style={styles.nextButtonText}>Add Description</Text>
                 </TouchableOpacity>
             </View>
 
