@@ -26,7 +26,7 @@ Exprimez votre amour pour les photos de vos amis avec des likes et des commentai
 
 ## Comment Commencer
 
-1. Téléchargez l'application PetitGram depuis notre répertoire GitHub : https://github.com/AlfredYael01/PetitGram.
+1. Téléchargez l'APK de l'application PetitGram depuis notre répertoire
 2. Créez un compte en utilisant votre adresse e-mail.
 3. Commencez à suivre vos amis et partagez vos moments préférés.
 
@@ -36,7 +36,7 @@ Nous sommes toujours ouverts aux commentaires de nos utilisateurs. Si vous avez 
 
 ## Contribuer
 
-PetitGram est un projet en constante évolution, et nous accueillons toute contribution de la part de la communauté. Si vous êtes intéressé par le développement, les améliorations de fonctionnalités ou si vous avez des idées créatives, consultez notre [page GitHub]https://github.com/AlfredYael01/PetitGram pour plus d'informations.
+PetitGram est un projet en constante évolution, et nous accueillons toute contribution de la part de la communauté. Si vous êtes intéressé par le développement, les améliorations de fonctionnalités ou si vous avez des idées créatives, consultez notre répertoire GitHub.
 
 ## Remerciements
 
