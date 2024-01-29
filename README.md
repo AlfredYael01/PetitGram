@@ -40,4 +40,4 @@ PetitGram est un projet en constante évolution, et nous accueillons toute contr
 
 ## Remerciements
 
-Un grand merci à tous nos utilisateurs qui font de PetitGram une communauté spéciale, mais aussi aux développeurs Anis, Ismail, Luis et moi-même pour la création de cette application. Nous sommes ravis de partager ce voyage avec vous! Profitez de l'expérience rétro de PetitGram et revenons ensemble à l'époque où partager des photos était simple, authentique et amusant.
+Un grand merci à tous nos utilisateurs qui font de PetitGram une communauté spéciale, mais aussi aux développeurs Anis, Ismail, Luis et Yael pour la création de cette application. Nous sommes ravis de partager ce voyage avec vous! Profitez de l'expérience rétro de PetitGram et revenons ensemble à l'époque où partager des photos était simple, authentique et amusant.
